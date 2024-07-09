@@ -145,7 +145,7 @@ export default function AddBaoGia(props: Props) {
                       </td>
                     </tr>
                     {parentItem.accessories.map((item, childIndex) => (
-                      <tr>
+                      <tr key={childIndex}>
                         <td className='text-center'>{index + 1},{childIndex + 1}</td>
                         <td><textarea
                           value={item.name}
