@@ -79,6 +79,7 @@ export default function AddBaoGia(props: Props) {
   return (
     <div className='px-32 py-5'>
       <div className='bg-white p-10 shadow-2xl rounded-lg'>
+      <div>oke</div>
         <form action="">
           <table className='w-full table-auto text-sm'>
             <thead className='bg-green-300 border-b-2 border-black'>
