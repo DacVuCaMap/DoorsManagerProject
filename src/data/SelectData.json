@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "name": "Cửa thép chống cháy",
+    "number": [
+      "1 cánh",
+      "2 cánh"
+    ],
+    "type": [
+      "Khóa tay gạt",
+      "Thoát hiểm Panic",
+      "Bản lề sàn"
+    ],
+    "code": [
+      "EI15",
+      "EI30",
+      "EI45",
+      "EI60",
+      "EI90"
+    ],
+    "material": "MgO"
+  },
+  {
+    "id": 2,
+    "name": "Cửa thép chống cháy",
+    "number": [
+      "1 cánh",
+      "2 cánh"
+    ],
+    "type": [
+      "Khóa tay gạt",
+      "Thoát hiểm Panic",
+      "Bản lề sàn"
+    ],
+    "code": [
+      "EI15",
+      "EI30",
+      "EI45",
+      "EI60",
+      "EI90"
+    ],
+    "material": "Tổ ong"
+  }
+]
