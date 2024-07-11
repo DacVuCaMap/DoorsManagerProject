@@ -1,3 +1,4 @@
+import Accessories from "@/Model/Accessories";
 import DoorNameSelect from "@/Model/DoorNameSelect";
 
 export const dataSelect : DoorNameSelect[] = [
@@ -36,7 +37,21 @@ export const dataSelect : DoorNameSelect[] = [
         "EI15",
         "EI30",
       ],
-      material: "Tổ ong"
+      material: "giấy tổ ong"
     }
   ];
+export const dataAcs : any[] = [
+  {
+    id:"BL01",
+    code:"BL01",
+    name:"Bản lề lá âm dương Inox 304",
+    supplier:"Novodoor",
+  },
+  {
+    id:"BL02",
+    code:"BL02",
+    name:"Bản lề lá âm dương Inox 201",
+    supplier:"Novodoor2",
+  }
+]
   

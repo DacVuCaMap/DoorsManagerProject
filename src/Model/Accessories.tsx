@@ -10,7 +10,8 @@ class Accessories {
     orgPrice:number;
     lowestPricePercent:number;
     price:number;
-
+    unit:string;
+    status:boolean;
     constructor(
         id: any,
         code: string,
@@ -22,7 +23,9 @@ class Accessories {
         height: number,
         orgPrice: number,
         lowestPricePercent: number,
-        price: number
+        price: number,
+        unit: string,
+        status:boolean
     ) {
         this.id = id;
         this.code = code;
@@ -35,6 +38,8 @@ class Accessories {
         this.orgPrice = orgPrice;
         this.lowestPricePercent = lowestPricePercent;
         this.price = price;
+        this.unit = unit;
+        this.status = status;
     }
 }
 export default Accessories;
