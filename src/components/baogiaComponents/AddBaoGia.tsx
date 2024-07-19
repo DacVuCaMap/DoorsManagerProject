@@ -1,11 +1,12 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import "./AddBaoGia.css";
 import Product from '@/Model/Product';
 import DoorNameSelect from '@/Model/DoorNameSelect';
 import { genNumberByTime } from '@/data/FunctionAll';
 import Accessories from '@/Model/Accessories';
-import { dataAcs } from '@/data/AddData';
+import { dataAcs, info1Select, info2Select } from '@/data/AddData';
+import GetPattern from '@/ApiPattern/GetPattern';
 
 type Props = {
   dataName: DoorNameSelect[]
@@ -16,6 +17,8 @@ export default function AddBaoGia(props: Props) {
   // end nhap
   const [products, setProducts] = useState<Product[]>([]);
   const dataSelect: DoorNameSelect[] = props.dataName;
+  const if1Select: number[] = info1Select;
+  const if2Select: string[] = info2Select;
   const handleAddDoor = () => {
     let description = `- Vật liêu chính: Thép mạ kẽm khung chế tạo 56x112 mm
 + Chiều dày cánh 50 mm
@@ -35,12 +38,19 @@ export default function AddBaoGia(props: Props) {
       width: 0,
       height: 0,
       accessories: [accessory],
-      selectId: null
+      selectId: null,
+      info1: 0.8,
+      info2: "Sơn tĩnh điện 1 màu",
+      name1: '',
+      name2: '',
+      name3: '',
+      name4: ''
     }
     setProducts([...products, newItem]);
   }
   const handleSelectName = (e: React.ChangeEvent<HTMLSelectElement>, id: any) => {
     let val: any = e.target.value;
+    console.log(val)
     let door: Product | undefined = products.find(item => item.id === id);
     if (door) {
       let description = `- Vật liêu chính: Thép mạ kẽm khung chế tạo 56x112 mm
@@ -55,13 +65,15 @@ export default function AddBaoGia(props: Props) {
       const updatedProducts = products.map((item) => {
         if (item.id === id) {
           let updatedAccessories = [newAccessory, ...item.accessories.slice(1)];
-          return { ...item, selectId: val, accessories: updatedAccessories };
+          return { ...item, selectId: val, accessories: updatedAccessories, name1: dataSelect[val].name };
         }
         return item;
       });
       setProducts(updatedProducts);
+      console.log(dataSelect[val].name)
     }
   }
+
   const handleChangeDesName = (e: React.ChangeEvent<HTMLTextAreaElement>, productId: any) => {
 
   }
@@ -85,6 +97,18 @@ export default function AddBaoGia(props: Props) {
       setProducts(updatedProduct);
     }
   }
+  const handleChangeProductNameInfo = async (e: any, id: any, key: any) => {
+    let product = products.find(item => item.id === id)
+    let value = e.target.value;
+    if (product?.name2 && product?.name3) {
+      // get default command
+      let url = process.env.NEXT_PUBLIC_API_URL + "/api/product-command/get-command?command=" + product.name3 + product.name1;
+      const response = await GetPattern(url, {});
+      console.log(response);
+    }
+    const updatedProduct = products.map((item: Product) => item.id === id ? { ...item, [key]: value } : item);
+    setProducts(updatedProduct);
+  }
   const handleAddAccessory = (id: any) => {
     let newAcs = new Accessories(genNumberByTime(), "", "", "", 0, 0, 0, 0, 0, 0, 0, "Bộ", false);
     setProducts((preProducts: Product[]) => {
@@ -97,15 +121,15 @@ export default function AddBaoGia(props: Props) {
       })
     })
   }
-  const selectAcsName = (e:React.ChangeEvent<HTMLSelectElement>,id:any,parentId:any) => {
+  const selectAcsName = (e: React.ChangeEvent<HTMLSelectElement>, id: any, parentId: any) => {
     let valueAcs = e.target.value;
-    let acsChange = acsSelect.find(item => item.id===valueAcs);
+    let acsChange = acsSelect.find(item => item.id === valueAcs);
     setProducts((preProducts: Product[]) => {
       return preProducts.map((product: Product) => {
         if (product.id === parentId) {
-          const updateAccessories = product.accessories.map((accessory : Accessories)=>{
+          const updateAccessories = product.accessories.map((accessory: Accessories) => {
             if (accessory.id === id) {
-              return {...accessory,name:acsChange.name,code:acsChange.code,supplier:acsChange.supplier}
+              return { ...accessory, name: acsChange.name, code: acsChange.code, supplier: acsChange.supplier }
             }
             return accessory;
           })
@@ -114,6 +138,40 @@ export default function AddBaoGia(props: Props) {
         return product;
       })
     })
+
+  }
+  const handleDelAcs = (productId: any, acsId: any) => {
+    setProducts((preProducts: Product[]) => {
+      return preProducts.map((product: Product) => {
+        if (product.id === productId) {
+          const updateAccessories = product.accessories.filter(acs => acs.id != acsId);
+          return { ...product, accessories: updateAccessories }
+        }
+        return product;
+      })
+    })
+  }
+  const handleDelProduct = (productId: any) => {
+    let updatedProducts = products.filter(item => item.id != productId);
+    setProducts(updatedProducts);
+  }
+  const calQuantityProduct = (parent: Product) => {
+    let total = ((parent.width / 1000) * (parent.height / 1000)) * parent.totalQuantity;
+    // setProducts((preProducts: Product[]) => {
+    //   return preProducts.map((product: Product) => {
+    //     if (product.id === parent.id) {
+    //       const updateAccessories = product.accessories.map((accessory: Accessories) => {
+    //         if (accessory.id === 0) {
+    //           return { ...accessory, totalQuantity: total }
+    //         }
+    //         return accessory;
+    //       })
+    //       return { ...product, accessories: updateAccessories };
+    //     }
+    //     return product;
+    //   })
+    // })
+    return total;
   }
   return (
     <div className='px-32 py-5'>
@@ -128,7 +186,7 @@ export default function AddBaoGia(props: Props) {
                 <th className='' rowSpan={2}>Mã</th>
                 <th rowSpan={2}>Tổng KL</th>
                 <th rowSpan={2}>Đơn giá</th>
-                <th rowSpan={2}>T.tác</th>
+                <th rowSpan={2}></th>
               </tr>
               <tr>
                 <th>Rộng</th>
@@ -151,17 +209,17 @@ export default function AddBaoGia(props: Props) {
                         </select>
                         {parentItem.selectId &&
                           <>
-                            <select>
+                            <select defaultValue="" onChange={(e) => handleChangeProductNameInfo(e, parentItem.id, "name2")}>
                               {dataSelect[parentItem.selectId].numberDoor.map((item, selectIndex) => (
                                 <option value={selectIndex} key={selectIndex}>{item}</option>
                               ))}
                             </select>
-                            <select>
+                            <select defaultValue="" onChange={(e) => handleChangeProductNameInfo(e, parentItem.id, "name3")}>
                               {dataSelect[parentItem.selectId].type.map((item, selectIndex) => (
                                 <option value={selectIndex} key={selectIndex}>{item}</option>
                               ))}
                             </select>
-                            <select>
+                            <select defaultValue="" onChange={(e) => handleChangeProductNameInfo(e, parentItem.id, "name4")}>
                               {dataSelect[parentItem.selectId].code.map((item, selectIndex) => (
                                 <option value={selectIndex} key={selectIndex}>{item}</option>
                               ))}
@@ -179,24 +237,47 @@ export default function AddBaoGia(props: Props) {
                         <input onChange={(e) => handleChangeProduct(e, parentItem.id, "doorCode")} type="text" className='w-20 text-center h-8' />
                       </td>
                       <td>
-                        <input onChange={(e) => handleChangeProduct(e, parentItem.id, "total")} type="text" className='w-20 text-center h-8' />
+                        <input onChange={(e) => handleChangeProduct(e, parentItem.id, "total")} type="text" className='w-full text-center h-8' />
                       </td>
                       <td>
-                        <input onChange={(e) => handleChangeProduct(e, parentItem.id, "totalQuantity")} type="text" className='h-8 pl-2' />
+                        <input onChange={(e) => handleChangeProduct(e, parentItem.id, "totalQuantity")} type="text" className='h-8 w-40' />
+                      </td>
+                      <td>
+                        <button type='button' onClick={(e) => handleDelProduct(parentItem.id)}>Xóa</button>
+
                       </td>
                     </tr>
                     {parentItem.accessories[0] && (
                       <tr>
                         <td className='text-center'>{index + 1},1</td>
-                        <td><textarea
+                        {/* <td><textarea
                           value={parentItem.accessories[0].name}
                           style={{ width: '100%', minHeight: '170px', resize: 'none' }}
                           onChange={(e) => handleChangeDesName(e, parentItem.id)}
-                        /></td>
+                        /></td> */}
+                        <td>
+                          <label htmlFor="">...</label>
+                          <br />
+                          <label htmlFor="">+ Thép mạ kẽm làm cánh dày</label>
+                          <select name="" id="" defaultValue={parentItem.info1}>
+                            {info1Select.map((info: number) => (
+                              <option key={info} value={info}>{info}</option>
+                            ))}
+                          </select> mm
+                          <br />
+                          <label htmlFor="">...</label>
+                          <br />
+                          +
+                          <select name="" id="" defaultValue={parentItem.info1}>
+                            {info2Select.map((info: string) => (
+                              <option key={info} value={info}>{info}</option>
+                            ))}
+                          </select>
+                        </td>
                         <td className='text-center'>{parentItem.accessories[0].width}</td>
                         <td className='text-center'>{parentItem.accessories[0].height}</td>
                         <td className='text-center'>{parentItem.accessories[0].code}</td>
-                        <td className='text-center'>{parentItem.accessories[0].quantity}</td>
+                        <td className='text-center'>{calQuantityProduct(parentItem)}</td>
                         <td>{parentItem.accessories[0].price}</td>
                       </tr>
                     )
@@ -213,10 +294,10 @@ export default function AddBaoGia(props: Props) {
                     {parentItem.accessories.map((item, childIndex) => {
                       if (childIndex > 0) {
                         return (
-                          <tr key={childIndex}>
+                          <tr key={childIndex} className='border-b-2 border-gray-400'>
                             <td className='text-center'>{index + 1},{childIndex + 2}</td>
                             <td>
-                              <select name="" id="" defaultValue={""} onChange={(e)=>selectAcsName(e,item.id,parentItem.id)}>
+                              <select name="" id="" defaultValue={""} onChange={(e) => selectAcsName(e, item.id, parentItem.id)}>
                                 <option value="" disabled hidden>--Chọn một tùy chọn--</option>
                                 {acsSelect.map((acsItem, acsIndex) => (
                                   <option value={acsItem.id} key={acsIndex}>{acsItem.name}</option>
@@ -228,6 +309,7 @@ export default function AddBaoGia(props: Props) {
                             <td className='text-center'>{item.code}</td>
                             <td className='text-center'><input type="number" value={item.quantity} /></td>
                             <td>{item.price}</td>
+                            <td><button type='button' onClick={(e) => handleDelAcs(parentItem.id, item.id)}>Xóa</button></td>
                           </tr>
                         );
                       }

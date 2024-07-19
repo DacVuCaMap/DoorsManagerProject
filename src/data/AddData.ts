@@ -54,4 +54,7 @@ export const dataAcs : any[] = [
     supplier:"Novodoor2",
   }
 ]
+
+export const info1Select : number[] = [0.8,1.4];
+export const info2Select : string[] = ["Sơn tĩnh điện 1 màu ","Sơn .... 2 màu"];
   
