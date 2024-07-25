@@ -7,6 +7,10 @@ import { genNumberByTime } from '@/data/FunctionAll';
 import Accessories from '@/Model/Accessories';
 import { dataAcs, info1Select, info2Select } from '@/data/AddData';
 import GetPattern from '@/ApiPattern/GetPattern';
+import HeaderComponent from '../HeaderComponent';
+import { DoorClosed, DoorOpen, MoveRight, Plus } from 'lucide-react';
+import { ScaleLoader } from 'react-spinners';
+import BaoGiaSearchPhuKien from './BaoGiaSearchPhuKien';
 
 type Props = {
   dataName: DoorNameSelect[]
@@ -14,8 +18,52 @@ type Props = {
 export default function AddBaoGia(props: Props) {
   // nhap
   const acsSelect: any[] = dataAcs;
+  //loading data accessories
+  const [acsData, setAcsData] = useState<Accessories[]>([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        let url = process.env.NEXT_PUBLIC_API_URL + "/api/accessories/list?page=0&size=100&search";
+        const response = await GetPattern(url, {});
+        if (response.content && Array.isArray(response.content)) {
+          const list: any[] = response.content;
+          let newAcs: Accessories[] = list.map((item: any, index: number) => {
+            return new Accessories(
+              genNumberByTime() + "" + index,
+              item.code,
+              item.name,
+              item.supplier,
+              0,
+              0,
+              0,
+              0,
+              item.orgPrice,
+              item.lowestPricePercent,
+              0,
+              item.unit,
+              false
+            );
+          });
+          // Kiểm tra kết quả
+          setAcsData(newAcs);
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    fetchData();
+    // Thiết lập interval
+    const intervalId = setInterval(fetchData, 100 * 1000);
+
+    // Trả về hàm clean up
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [])
   // end nhap
   const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [locationLoading, setLocationLoading] = useState<any>();
   const dataSelect: DoorNameSelect[] = props.dataName;
   const if1Select: number[] = info1Select;
   const if2Select: string[] = info2Select;
@@ -70,7 +118,6 @@ export default function AddBaoGia(props: Props) {
         return item;
       });
       setProducts(updatedProducts);
-      console.log(dataSelect[val].name)
     }
   }
 
@@ -98,16 +145,58 @@ export default function AddBaoGia(props: Props) {
     }
   }
   const handleChangeProductNameInfo = async (e: any, id: any, key: any) => {
-    let product = products.find(item => item.id === id)
+
     let value = e.target.value;
-    if (product?.name2 && product?.name3) {
+    let updatedProduct = products.map((item: Product) => item.id === id ? { ...item, [key]: value } : item);
+    let product = updatedProduct.find(item => item.id === id);
+    let flag = key === "name2" || key === "name3";
+    if (product?.name2 && product?.name3 && flag) {
+      setLocationLoading(id);
+      setLoading(true);
+
+
       // get default command
-      let url = process.env.NEXT_PUBLIC_API_URL + "/api/product-command/get-command?command=" + product.name3 + product.name1;
+      console.log("loading");
+      let url = process.env.NEXT_PUBLIC_API_URL + `/api/product-command/get-command?command=${product.name3} ${product.name2}`;
       const response = await GetPattern(url, {});
-      console.log(response);
+      setLoading(false);
+      if (response) {
+        //delete before add command  
+        const list: any[] = response.value;
+        let newAcs: Accessories[] = list.map((item: any, index) => {
+          const acs = item.accessories
+          return new Accessories(
+            genNumberByTime() + "" + index, acs.code, acs.name, acs.supplier,
+            0,
+            item.quantity,
+            0,
+            0,
+            acs.orgPrice,
+            acs.lowestPricePercent,
+            0,
+            acs.unit,
+            true,
+            true
+          )
+        });
+        if (newAcs.length > 0) {
+          updatedProduct = updatedProduct.map((item: Product) => {
+            if (item.id === id) {
+              let filterAcs: Accessories[] = item.accessories.filter(item => !item.isCommand);
+              let updatedAcs: Accessories[] = [...filterAcs, ...newAcs];
+              return { ...item, accessories: updatedAcs };
+            }
+            return item;
+          });
+        }
+      }
+
+      // console.log(response);
+      // console.log(url)
     }
-    const updatedProduct = products.map((item: Product) => item.id === id ? { ...item, [key]: value } : item);
-    setProducts(updatedProduct);
+    console.log(updatedProduct)
+    setProducts(updatedProduct)
+
   }
   const handleAddAccessory = (id: any) => {
     let newAcs = new Accessories(genNumberByTime(), "", "", "", 0, 0, 0, 0, 0, 0, 0, "Bộ", false);
@@ -120,25 +209,6 @@ export default function AddBaoGia(props: Props) {
         return product;
       })
     })
-  }
-  const selectAcsName = (e: React.ChangeEvent<HTMLSelectElement>, id: any, parentId: any) => {
-    let valueAcs = e.target.value;
-    let acsChange = acsSelect.find(item => item.id === valueAcs);
-    setProducts((preProducts: Product[]) => {
-      return preProducts.map((product: Product) => {
-        if (product.id === parentId) {
-          const updateAccessories = product.accessories.map((accessory: Accessories) => {
-            if (accessory.id === id) {
-              return { ...accessory, name: acsChange.name, code: acsChange.code, supplier: acsChange.supplier }
-            }
-            return accessory;
-          })
-          return { ...product, accessories: updateAccessories };
-        }
-        return product;
-      })
-    })
-
   }
   const handleDelAcs = (productId: any, acsId: any) => {
     setProducts((preProducts: Product[]) => {
@@ -173,35 +243,60 @@ export default function AddBaoGia(props: Props) {
     // })
     return total;
   }
+  const selectAccessories = (acsId: any, newAcs: Accessories, productId: any) => {
+    console.log(acsId, newAcs, productId);
+    console.log(products);
+    setProducts((preProducts: Product[]) => {
+      return preProducts.map((product: Product) => {
+        if (product.id === productId) {
+          const updatedAccessories = product.accessories.map((accessories: Accessories) => {
+            if (accessories.id === acsId) {
+              return {
+                ...accessories, code: newAcs.code, name: newAcs.name, supplier: newAcs.supplier
+                , width: newAcs.width, height: newAcs.height, unit: newAcs.unit, status: true
+              }
+            }
+
+            return accessories;
+          })
+          return { ...product, accessories: updatedAccessories };
+        }
+        return product;
+      })
+    })
+  }
+
   return (
-    <div className='px-32 py-5'>
-      <div className='bg-white p-10 shadow-2xl rounded-lg'>
+    <div className='px-20 pb-10'>
+
+      <div className='bg-white shadow-2xl rounded-lg mb-4 pb-4'>
         <form action="">
-          <table className='w-full table-auto text-sm'>
-            <thead className='bg-green-300 border-b-2 border-black'>
+          <table className='add-tbl w-full table-auto text-sm'>
+            <thead className='bg-blue-700 border-b-2 text-white border-black'>
               <tr>
                 <th rowSpan={2}>STT</th>
                 <th rowSpan={2} className='min-w-[400px]'>Quy cách nhà cung cấp đề xuất</th>
                 <th className='' colSpan={2}>Kích thước</th>
                 <th className='' rowSpan={2}>Mã</th>
-                <th rowSpan={2}>Tổng KL</th>
+                <th colSpan={2}>Khối lượng</th>
                 <th rowSpan={2}>Đơn giá</th>
                 <th rowSpan={2}></th>
               </tr>
               <tr>
                 <th>Rộng</th>
                 <th>Dài</th>
+                <th className='max-w-20'>SL/1 cấu kiện</th>
+                <th>Tổng KL</th>
               </tr>
-
             </thead>
             <tbody>
               {
                 products.map((parentItem, index) => (
                   <React.Fragment key={index}>
-                    <tr key={index} className='h-10 bg-gray-200'>
+                    <tr key={index} className='bg-gray-300 font-bold rounded-2xl'>
                       <td className='text-center'>{index + 1}</td>
-                      <td>
-                        <select defaultValue="" onChange={e => handleSelectName(e, parentItem.id)}>
+                      <td className='py-2 flex flex-row space-x-4 px-2'>
+                        <select className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5  ' defaultValue="" onChange={e => handleSelectName(e, parentItem.id)}>
                           <option value="" disabled hidden>--Chọn một tùy chọn--</option>
                           {dataSelect.map((sel, selectIndex) => (
                             <option key={selectIndex} value={sel.id}>{sel.name}</option>
@@ -209,19 +304,22 @@ export default function AddBaoGia(props: Props) {
                         </select>
                         {parentItem.selectId &&
                           <>
-                            <select defaultValue="" onChange={(e) => handleChangeProductNameInfo(e, parentItem.id, "name2")}>
+                            <select className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5  ' defaultValue="" onChange={(e) => handleChangeProductNameInfo(e, parentItem.id, "name2")}>
+                              <option value="" disabled hidden>--cánh--</option>
                               {dataSelect[parentItem.selectId].numberDoor.map((item, selectIndex) => (
-                                <option value={selectIndex} key={selectIndex}>{item}</option>
+                                <option value={item} key={selectIndex}>{item}</option>
                               ))}
                             </select>
-                            <select defaultValue="" onChange={(e) => handleChangeProductNameInfo(e, parentItem.id, "name3")}>
+                            <select className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5  ' defaultValue="" onChange={(e) => handleChangeProductNameInfo(e, parentItem.id, "name3")}>
+                              <option value="" disabled hidden>--loại--</option>
                               {dataSelect[parentItem.selectId].type.map((item, selectIndex) => (
-                                <option value={selectIndex} key={selectIndex}>{item}</option>
+                                <option value={item} key={selectIndex}>{item}</option>
                               ))}
                             </select>
-                            <select defaultValue="" onChange={(e) => handleChangeProductNameInfo(e, parentItem.id, "name4")}>
+                            <select className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5  ' defaultValue="" onChange={(e) => handleChangeProductNameInfo(e, parentItem.id, "name4")}>
+                              <option value="" disabled hidden>--chỉ số--</option>
                               {dataSelect[parentItem.selectId].code.map((item, selectIndex) => (
-                                <option value={selectIndex} key={selectIndex}>{item}</option>
+                                <option value={item} key={selectIndex}>{item}</option>
                               ))}
                             </select>
                           </>
@@ -237,10 +335,14 @@ export default function AddBaoGia(props: Props) {
                         <input onChange={(e) => handleChangeProduct(e, parentItem.id, "doorCode")} type="text" className='w-20 text-center h-8' />
                       </td>
                       <td>
-                        <input onChange={(e) => handleChangeProduct(e, parentItem.id, "total")} type="text" className='w-full text-center h-8' />
+                        <input onChange={(e) => handleChangeProduct(e, parentItem.id, "totalQuantity")} type="text" className='w-full text-center h-8' />
+                      </td>
+                      <td className='max-w-20'>
+
                       </td>
                       <td>
-                        <input onChange={(e) => handleChangeProduct(e, parentItem.id, "totalQuantity")} type="text" className='h-8 w-40' />
+                        {/* <input onChange={(e) => handleChangeProduct(e, parentItem.id, "price")} type="text" className='h-8 w-40' />
+                         */}
                       </td>
                       <td>
                         <button type='button' onClick={(e) => handleDelProduct(parentItem.id)}>Xóa</button>
@@ -248,97 +350,149 @@ export default function AddBaoGia(props: Props) {
                       </td>
                     </tr>
                     {parentItem.accessories[0] && (
-                      <tr>
+                      <tr className='border-b border-gray-400'>
                         <td className='text-center'>{index + 1},1</td>
                         {/* <td><textarea
                           value={parentItem.accessories[0].name}
                           style={{ width: '100%', minHeight: '170px', resize: 'none' }}
                           onChange={(e) => handleChangeDesName(e, parentItem.id)}
                         /></td> */}
-                        <td>
-                          <label htmlFor="">...</label>
-                          <br />
-                          <label htmlFor="">+ Thép mạ kẽm làm cánh dày</label>
-                          <select name="" id="" defaultValue={parentItem.info1}>
-                            {info1Select.map((info: number) => (
-                              <option key={info} value={info}>{info}</option>
-                            ))}
-                          </select> mm
-                          <br />
-                          <label htmlFor="">...</label>
-                          <br />
-                          +
-                          <select name="" id="" defaultValue={parentItem.info1}>
-                            {info2Select.map((info: string) => (
-                              <option key={info} value={info}>{info}</option>
-                            ))}
-                          </select>
+                        <td className='py-4 px-2 lg:min-w-[500px]'>
+                          <div className='flex flex-row space-x-2'>
+                            <div className='pr-2 border-r border-black'>
+                              <label htmlFor="">Thép mạ kẽm làm cánh dày</label>
+                              <select className='font-bold' name="" id="" defaultValue={parentItem.info1}>
+                                {info1Select.map((info: number) => (
+                                  <option key={info} value={info}>{info}</option>
+                                ))}
+                              </select> mm
+                            </div>
+                            <div className='pl-2'>
+                              <select className='font-bold' name="" id="" defaultValue={parentItem.info1}>
+                                {info2Select.map((info: string) => (
+                                  <option key={info} value={info}>{info}</option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
                         </td>
                         <td className='text-center'>{parentItem.accessories[0].width}</td>
                         <td className='text-center'>{parentItem.accessories[0].height}</td>
                         <td className='text-center'>{parentItem.accessories[0].code}</td>
+                        <td className='max-w-20'></td>
                         <td className='text-center'>{calQuantityProduct(parentItem)}</td>
                         <td>{parentItem.accessories[0].price}</td>
                       </tr>
                     )
                     }
-                    <tr>
-                      <td className='text-center'>{index + 1},2</td>
-                      <td>Phụ kiện & chi phí đi kèm theo</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
+                    <tr className='border-b border-gray-400 font-bold'>
+                      <td className='text-center border-none'>{index + 1},2</td>
+                      <td colSpan={8} className='py-2'>Phụ kiện & chi phí đi kèm theo</td>
                     </tr>
                     {parentItem.accessories.map((item, childIndex) => {
                       if (childIndex > 0) {
                         return (
                           <tr key={childIndex} className='border-b-2 border-gray-400'>
                             <td className='text-center'>{index + 1},{childIndex + 2}</td>
-                            <td>
-                              <select name="" id="" defaultValue={""} onChange={(e) => selectAcsName(e, item.id, parentItem.id)}>
-                                <option value="" disabled hidden>--Chọn một tùy chọn--</option>
-                                {acsSelect.map((acsItem, acsIndex) => (
-                                  <option value={acsItem.id} key={acsIndex}>{acsItem.name}</option>
-                                ))}
-                              </select>
+                            <td className='px-2 py-2'>
+
+                              <BaoGiaSearchPhuKien acs={item} productId={parentItem.id} selectAccessories={selectAccessories} acsData={acsData} />
+
                             </td>
                             <td className='text-center'>{item.width === 0 ? "" : item.width}</td>
                             <td className='text-center'>{item.height === 0 ? "" : item.height}</td>
                             <td className='text-center'>{item.code}</td>
-                            <td className='text-center'><input type="number" value={item.quantity} /></td>
-                            <td>{item.price}</td>
+                            <td ><input type="number" className='text-center' defaultValue={item.quantity} /></td>
+                            <td><input type="number" /></td>
+                            <td></td>
                             <td><button type='button' onClick={(e) => handleDelAcs(parentItem.id, item.id)}>Xóa</button></td>
                           </tr>
                         );
                       }
                       return null;
                     })}
-                    <tr>
+                    {loading && locationLoading === parentItem.id ? <tr className='border-b broder-gray-400'>
+                      <td colSpan={8} className='text-center py-2'>
+                        <div>
+                          <ScaleLoader color='gray' />
+                        </div>
+                      </td>
+                    </tr> : ""}
+                    <tr className='border-b border-gray-400'>
                       <td></td>
-                      <td className='px-2 py-2 border-none'>
-                        <button type='button' className="inline-block w-full border-dashed border-2 border-black hover:bg-gray-300  font-bold py-1 px-2 rounded"
+                      <td className='px-2 py-2'>
+                        <button type='button' className="inline-block w-full border-dashed border-2 border-gray-700 hover:bg-gray-300 text-gray-700 font-bold py-1 px-2 rounded"
                           onClick={(e) => handleAddAccessory(parentItem.id)}>+ Thêm phụ kiện</button>
                       </td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
+                      <td colSpan={7}></td>
                     </tr>
                   </React.Fragment>
                 ))
               }
+
+              {products.length == 0 && <tr>
+                <td colSpan={9} className='font-bold text-gray-300 py-10'>
+                  <div className="flex flex-col items-center justify-center">
+                    <DoorOpen size={150} className='' />
+                    <span>Trống chưa thêm dữ liệu</span>
+                  </div>
+                </td>
+              </tr>}
               <tr>
-                <td colSpan={7} className='px-2 py-2 border-none'>
-                  <button type='button' className="inline-block w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                    onClick={handleAddDoor}>+ Thêm cửa mới</button>
+                <td colSpan={9} className='px-2 py-2 border-none'>
+                  {products.length > 0 ? <button type='button' className="bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded-l w-full"
+                    onClick={handleAddDoor}>+ Click để thêm cửa mới</button>
+                    :
+                    <button type='button' className="text-gray-700 border-dashed border-gray-700 border-2 flex items-center justify-center hover:bg-gray-200 font-bold py-2 px-4 rounded-l w-full" onClick={handleAddDoor}>
+                      <span className="mr-2">+ Click để thêm cửa mới</span>
+                      <Plus />
+                    </button>
+                  }
+
+
                 </td>
               </tr>
             </tbody>
+            {products.length > 0 &&
+              <tfoot>
+                <tr className='font-bold'>
+                  <td className='text-center'>{products.length+2}</td>
+                  <td className='px-2'>Chi phí chèn vữa</td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                </tr>
+                <tr className='font-bold'>
+                  <td className='text-center'>{products.length+3}</td>
+                  <td className='px-2'>Chi phí vận chuyển đến Ngô Quyền - Hải Phòng</td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                </tr>
+                <tr className='font-bold'>
+                  <td className='text-center'>{products.length+4}</td>
+                  <td className='px-2'>'Chi phí lắp đặt, vận chuyển hoàn thiện vật tư phụ cửa chống cháy</td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            }
           </table>
         </form>
+      </div>
+      <div className='flex space-x-4'>
+        <button className='inline-block w-64 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'> Xem chi tiết</button>
+        <button className='flex flex-row space-x-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded'><span>Xuất bảng file Excel</span> <MoveRight /></button>
       </div>
     </div>
   )

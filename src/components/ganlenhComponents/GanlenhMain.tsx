@@ -5,9 +5,7 @@ import GanlenhList from './GanlenhList'
 
 export default function GanlenhMain() {
   return (
-    <div className='h-full w-full p-10 flex lg:flex-row flex-col justify-center'>
-
-
+    <div className='w-full flex lg:flex-row flex-col justify-center'>
         {/* left */}
       <div className='w-[500px] p-4 flex flex-col space-y-4 mt-6'>
         <div className='w-full bg-white rounded-lg p-4 shadow-md hover:shadow-2xl transition duration-150 ease-out'>

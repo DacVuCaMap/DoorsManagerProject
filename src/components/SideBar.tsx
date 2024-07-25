@@ -1,18 +1,47 @@
 "use client"
 import { AlignJustify, X } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import SideMenu from './SideMenu'
 
 export default function SideBar() {
-  const [openMenu,setOpenMenu] = useState(false);
+  const [openMenu, setOpenMenu] = useState(false);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (openMenu &&
+          sidebarRef.current &&
+          !sidebarRef.current.contains(event.target as Node) &&
+          buttonRef.current &&
+          !buttonRef.current.contains(event.target as Node)) {
+        setOpenMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [openMenu]);
+
   return (
     <div>
-      <button typeof='button' className='h-14 w-14 rounded fixed top-4 left-4 bg-gray-800 hover:bg-gray-900 shadow-lg flex 
-        items-center justify-center text-center hover:cursor-pointer' onClick={e=>setOpenMenu(!openMenu)}>
-        {!openMenu ? <AlignJustify className='text-white' size={40} /> : <X className='text-white' size={40}/>}
-        
+      <button 
+        ref={buttonRef}
+        type="button" 
+        className='h-14 w-14 rounded fixed z-50 top-12 left-4 bg-gray-800 hover:bg-gray-900 shadow-lg flex 
+          items-center justify-center text-center hover:cursor-pointer' 
+        onClick={() => setOpenMenu(!openMenu)}
+      >
+        {!openMenu ? <AlignJustify className='text-white' size={40} /> : <X className='text-white' size={40} />}
       </button>
-      {openMenu && <SideMenu/>}
+      {openMenu && (
+        <div ref={sidebarRef}>
+          <SideMenu />
+        </div>
+      )}
     </div>
   )
 }

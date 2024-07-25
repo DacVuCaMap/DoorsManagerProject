@@ -12,6 +12,7 @@ class Accessories {
     price:number;
     unit:string;
     status:boolean;
+    isCommand?: boolean;
     constructor(
         id: any,
         code: string,
@@ -25,7 +26,8 @@ class Accessories {
         lowestPricePercent: number,
         price: number,
         unit: string,
-        status:boolean
+        status:boolean,
+        isCommand?: boolean
     ) {
         this.id = id;
         this.code = code;
@@ -40,6 +42,7 @@ class Accessories {
         this.price = price;
         this.unit = unit;
         this.status = status;
+        this.isCommand = isCommand ?? false
     }
 }
 export default Accessories;

@@ -6,13 +6,13 @@ export const dataSelect : DoorNameSelect[] = [
       id: 0,
       name: "Cửa thép chống cháy",
       numberDoor: [
-        "1 cánh",
-        "2 cánh"
+        "1 cánh",
+        "2 cánh"
       ],
       type: [
-        "Khóa tay gạt",
-        "Thoát hiểm Panic",
-        "Bản lề sàn"
+        "khóa tay gạt",
+        "thoát hiểm panic",
+        "bản lề sàn"
       ],
       code: [
         "EI15",
@@ -28,10 +28,10 @@ export const dataSelect : DoorNameSelect[] = [
       name: "Cửa thép an toàn",
       numberDoor: [
         "1 cánh",
-        "2 cánh"
+        "2 cánh"
       ],
       type: [
-        "Bản lề sàn"
+        "bản lề sàn"
       ],
       code: [
         "EI15",
@@ -55,6 +55,6 @@ export const dataAcs : any[] = [
   }
 ]
 
-export const info1Select : number[] = [0.8,1.4];
-export const info2Select : string[] = ["Sơn tĩnh điện 1 màu ","Sơn .... 2 màu"];
+export const info1Select : number[] = [0.8,1.0];
+export const info2Select : string[] = ["Sơn tĩnh điện 1 màu ","Sơn vân gỗ"];
   

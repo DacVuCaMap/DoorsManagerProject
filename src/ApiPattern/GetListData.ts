@@ -12,5 +12,6 @@ export default async function GetListData(key: string, page: any, size: any, sea
     }
     let arrData: any[] = [];
     arrData =data.content;
-    return arrData;
+    let maxPage = data.totalPages;
+    return {list: arrData,maxPage:maxPage};
 }
