@@ -477,7 +477,7 @@ export default function AddBaoGia(props: Props) {
                 </tr>
                 <tr className='font-bold'>
                   <td className='text-center'>{products.length+4}</td>
-                  <td className='px-2'>'Chi phí lắp đặt, vận chuyển hoàn thiện vật tư phụ cửa chống cháy</td>
+                  <td className='px-2'>Chi phí lắp đặt, vận chuyển hoàn thiện vật tư phụ cửa chống cháy</td>
                   <td></td>
                   <td></td>
                   <td></td>
