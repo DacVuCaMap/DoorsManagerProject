@@ -55,6 +55,8 @@ export const dataAcs : any[] = [
   }
 ]
 
+
+
 export const info1Select : number[] = [0.8,1.0];
 export const info2Select : string[] = ["Sơn tĩnh điện 1 màu ","Sơn vân gỗ"];
   

@@ -53,7 +53,7 @@ export default function AddBaoGia(props: Props) {
     }
     fetchData();
     // Thiết lập interval
-    const intervalId = setInterval(fetchData, 100 * 1000);
+    const intervalId = setInterval(fetchData,5 * 60 * 1000);
 
     // Trả về hàm clean up
     return () => {
@@ -121,9 +121,6 @@ export default function AddBaoGia(props: Props) {
     }
   }
 
-  const handleChangeDesName = (e: React.ChangeEvent<HTMLTextAreaElement>, productId: any) => {
-
-  }
   const handleChangeProduct = (e: any, id: any, key: any) => {
     let value = e.target.value;
     if (key === "height" || key === "width") {
@@ -157,7 +154,7 @@ export default function AddBaoGia(props: Props) {
 
       // get default command
       console.log("loading");
-      let url = process.env.NEXT_PUBLIC_API_URL + `/api/product-command/get-command?command=${product.name3} ${product.name2}`;
+      let url = process.env.NEXT_PUBLIC_API_URL + `/api/product-command/get-command?command=${product.name3}-${product.name2}`;
       const response = await GetPattern(url, {});
       setLoading(false);
       if (response) {

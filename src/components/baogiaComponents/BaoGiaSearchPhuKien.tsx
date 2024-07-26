@@ -19,7 +19,7 @@ export default function BaoGiaSearchPhuKien(props: Props) {
     },[props.acs])
     const containerRef = useRef<HTMLDivElement>(null);
     const handleChange = async (e: any) => {
-        console.log("set false")
+        // console.log("set false")
         setStatus(false);
         setOpen(true);
         const val = e.target.value;
@@ -47,7 +47,7 @@ export default function BaoGiaSearchPhuKien(props: Props) {
     return (
         <div ref={containerRef}>
             {!status && <span className='text-red-500 text-xs'>Chưa chọn phụ kiện</span>}
-            <input onChange={e => handleChange(e)} type="text" placeholder='Nhập phụ kiện ...' value={inpVal} className={`h-10 px-2 outline-none z-10 rounded border ${!status ? 'border-red-500' : ''}`} />
+            <input onChange={e => handleChange(e)} type="text" placeholder='Nhập phụ kiện ...' value={inpVal} className={`h-10 px-2 outline-none w-full z-10 rounded border ${!status ? 'border-red-500' : ''}`} />
             <div className='w-full bg-white relative z-10' >
                 {open &&
                     <div className='absolute top-0 bg-white shadow-2xl border border-gray-700 w-full z-20'>
