@@ -8,9 +8,10 @@ import Accessories from '@/Model/Accessories';
 import { dataAcs, info1Select, info2Select } from '@/data/AddData';
 import GetPattern from '@/ApiPattern/GetPattern';
 import HeaderComponent from '../HeaderComponent';
-import { DoorClosed, DoorOpen, MoveRight, Plus } from 'lucide-react';
+import { DoorClosed, DoorOpen, MoveRight, Plus, Trash2 } from 'lucide-react';
 import { ScaleLoader } from 'react-spinners';
 import BaoGiaSearchPhuKien from './BaoGiaSearchPhuKien';
+import { parse } from 'path';
 
 type Props = {
   dataName: DoorNameSelect[]
@@ -20,6 +21,26 @@ export default function AddBaoGia(props: Props) {
   const acsSelect: any[] = dataAcs;
   //loading data accessories
   const [acsData, setAcsData] = useState<Accessories[]>([]);
+  //check form lưu chưa
+  const [isFormDirty, setFormDirty] = useState(false);
+
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (isFormDirty) {
+        // Cảnh báo người dùng khi có thay đổi chưa được lưu
+        event.preventDefault();
+        event.returnValue = ''; // Phải có thuộc tính này để hiển thị cảnh báo trên một số trình duyệt
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    // Cleanup event listener
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isFormDirty]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -53,7 +74,7 @@ export default function AddBaoGia(props: Props) {
     }
     fetchData();
     // Thiết lập interval
-    const intervalId = setInterval(fetchData,5 * 60 * 1000);
+    const intervalId = setInterval(fetchData, 5 * 60 * 1000);
 
     // Trả về hàm clean up
     return () => {
@@ -68,6 +89,7 @@ export default function AddBaoGia(props: Props) {
   const if1Select: number[] = info1Select;
   const if2Select: string[] = info2Select;
   const handleAddDoor = () => {
+    setFormDirty(true);
     let description = `- Vật liêu chính: Thép mạ kẽm khung chế tạo 56x112 mm
 + Chiều dày cánh 50 mm
 + Thép mạ kẽm làm cánh dày 0.8 mm
@@ -128,7 +150,11 @@ export default function AddBaoGia(props: Props) {
       if (accessoriesProduct) {
         let updateAccessories = accessoriesProduct.map((item: Accessories, index) => {
           if (index === 0) {
-            return { ...item, [key]: value }
+            let num1 = value;
+            let num2 = key === "height" ? item.width : item.height;
+            let quan: number = (item.width > 0 && item.height > 0) ? (num1 / 1000) * (num2 / 1000) : 0;
+            quan = parseFloat(quan.toFixed(4))
+            return { ...item, [key]: value, quantity: quan }
           }
           return item;
         })
@@ -223,22 +249,8 @@ export default function AddBaoGia(props: Props) {
     setProducts(updatedProducts);
   }
   const calQuantityProduct = (parent: Product) => {
-    let total = ((parent.width / 1000) * (parent.height / 1000)) * parent.totalQuantity;
-    // setProducts((preProducts: Product[]) => {
-    //   return preProducts.map((product: Product) => {
-    //     if (product.id === parent.id) {
-    //       const updateAccessories = product.accessories.map((accessory: Accessories) => {
-    //         if (accessory.id === 0) {
-    //           return { ...accessory, totalQuantity: total }
-    //         }
-    //         return accessory;
-    //       })
-    //       return { ...product, accessories: updateAccessories };
-    //     }
-    //     return product;
-    //   })
-    // })
-    return total;
+    let total = parent.accessories[0].quantity * parent.totalQuantity;
+    return parseFloat(total.toFixed(4));
   }
   const selectAccessories = (acsId: any, newAcs: Accessories, productId: any) => {
     console.log(acsId, newAcs, productId);
@@ -262,7 +274,40 @@ export default function AddBaoGia(props: Props) {
       })
     })
   }
-
+  const handleChangeInfo = (e: any, parentItem: Product, key: string) => {
+    const value = e.target.value;
+    setProducts((preProduct: Product[]) => {
+      return preProduct.map((product: Product, index) => {
+        if (product.id === parentItem.id) {
+          let tmp = product;
+          tmp = { ...tmp, [key]: value };
+          tmp.accessories[0].code = key === "info1" ? "CC" + value + "/1.4" : tmp.accessories[0].code;
+          return tmp;
+        }
+        return product;
+      })
+    })
+  }
+  const handleChangeAccessories = (e: any, parentItem: Product, item: Accessories, key: string) => {
+    const value = e.target.value;
+    setProducts((preProducts: Product[]) => {
+      return preProducts.map((product: Product, index) => {
+        if (product.id === parentItem.id) {
+          return {
+            ...product,accessories:product.accessories.map((acs: Accessories, ind) => {
+              if (item.id === acs.id) {
+                let temp = acs;
+                temp = { ...temp, [key]: value };
+                return temp;
+              }
+              return acs;
+            })
+          }
+        }
+        return product;
+      })
+    })
+  }
   return (
     <div className='px-20 pb-10'>
 
@@ -331,18 +376,18 @@ export default function AddBaoGia(props: Props) {
                       <td>
                         <input onChange={(e) => handleChangeProduct(e, parentItem.id, "doorCode")} type="text" className='w-20 text-center h-8' />
                       </td>
-                      <td>
-                        <input onChange={(e) => handleChangeProduct(e, parentItem.id, "totalQuantity")} type="text" className='w-full text-center h-8' />
+                      <td className='text-center'>
+                        1
                       </td>
                       <td className='max-w-20'>
-
+                        <input onChange={(e) => handleChangeProduct(e, parentItem.id, "totalQuantity")} type="number" className='w-full text-center h-8' />
                       </td>
                       <td>
                         {/* <input onChange={(e) => handleChangeProduct(e, parentItem.id, "price")} type="text" className='h-8 w-40' />
                          */}
                       </td>
                       <td>
-                        <button type='button' onClick={(e) => handleDelProduct(parentItem.id)}>Xóa</button>
+                        <button type='button' className='bg-red-500 p-2 rounded text-white' onClick={(e) => handleDelProduct(parentItem.id)}><Trash2 /></button>
 
                       </td>
                     </tr>
@@ -358,14 +403,14 @@ export default function AddBaoGia(props: Props) {
                           <div className='flex flex-row space-x-2'>
                             <div className='pr-2 border-r border-black'>
                               <label htmlFor="">Thép mạ kẽm làm cánh dày</label>
-                              <select className='font-bold' name="" id="" defaultValue={parentItem.info1}>
+                              <select className='font-bold' name="" id="" defaultValue={parentItem.info1} onChange={e => handleChangeInfo(e, parentItem, "info1")}>
                                 {info1Select.map((info: number) => (
                                   <option key={info} value={info}>{info}</option>
                                 ))}
                               </select> mm
                             </div>
                             <div className='pl-2'>
-                              <select className='font-bold' name="" id="" defaultValue={parentItem.info1}>
+                              <select className='font-bold' name="" id="" defaultValue={parentItem.info2} onChange={e => handleChangeInfo(e, parentItem, "info2")}>
                                 {info2Select.map((info: string) => (
                                   <option key={info} value={info}>{info}</option>
                                 ))}
@@ -376,7 +421,7 @@ export default function AddBaoGia(props: Props) {
                         <td className='text-center'>{parentItem.accessories[0].width}</td>
                         <td className='text-center'>{parentItem.accessories[0].height}</td>
                         <td className='text-center'>{parentItem.accessories[0].code}</td>
-                        <td className='max-w-20'></td>
+                        <td className='max-w-20 text-center'>{parentItem.accessories[0].quantity}</td>
                         <td className='text-center'>{calQuantityProduct(parentItem)}</td>
                         <td>{parentItem.accessories[0].price}</td>
                       </tr>
@@ -399,10 +444,10 @@ export default function AddBaoGia(props: Props) {
                             <td className='text-center'>{item.width === 0 ? "" : item.width}</td>
                             <td className='text-center'>{item.height === 0 ? "" : item.height}</td>
                             <td className='text-center'>{item.code}</td>
-                            <td ><input type="number" className='text-center' defaultValue={item.quantity} /></td>
-                            <td><input type="number" /></td>
-                            <td></td>
-                            <td><button type='button' onClick={(e) => handleDelAcs(parentItem.id, item.id)}>Xóa</button></td>
+                            <td ><input type="number" className='text-center' value={item.quantity} onChange={e => handleChangeAccessories(e, parentItem, item, "quantity")} /></td>
+                            <td>{parseFloat((item.quantity*parentItem.totalQuantity).toFixed(4))}</td>
+                            <td><input type="number" className='text-center' value={item.price} onChange={e => handleChangeAccessories(e, parentItem, item, "price")} /></td>
+                            <td><button type='button' className='bg-red-500 p-2 rounded text-white' onClick={(e) => handleDelAcs(parentItem.id, item.id)}><Trash2 /></button></td>
                           </tr>
                         );
                       }
@@ -453,7 +498,7 @@ export default function AddBaoGia(props: Props) {
             {products.length > 0 &&
               <tfoot>
                 <tr className='font-bold'>
-                  <td className='text-center'>{products.length+2}</td>
+                  <td className='text-center'>{products.length + 2}</td>
                   <td className='px-2'>Chi phí chèn vữa</td>
                   <td></td>
                   <td></td>
@@ -463,7 +508,7 @@ export default function AddBaoGia(props: Props) {
                   <td></td>
                 </tr>
                 <tr className='font-bold'>
-                  <td className='text-center'>{products.length+3}</td>
+                  <td className='text-center'>{products.length + 3}</td>
                   <td className='px-2'>Chi phí vận chuyển đến Ngô Quyền - Hải Phòng</td>
                   <td></td>
                   <td></td>
@@ -473,7 +518,7 @@ export default function AddBaoGia(props: Props) {
                   <td></td>
                 </tr>
                 <tr className='font-bold'>
-                  <td className='text-center'>{products.length+4}</td>
+                  <td className='text-center'>{products.length + 4}</td>
                   <td className='px-2'>Chi phí lắp đặt, vận chuyển hoàn thiện vật tư phụ cửa chống cháy</td>
                   <td></td>
                   <td></td>

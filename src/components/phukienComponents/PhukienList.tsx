@@ -7,7 +7,6 @@ import { ScaleLoader } from 'react-spinners';
 
 export default function PhukienList() {
     const pathName = usePathname();
-    console.log(pathName);
     const searchParam = useSearchParams();
     const [data, setData] = useState<any[]>([]);
     const [maxPage, setMaxPage] = useState(0);
