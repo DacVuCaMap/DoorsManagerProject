@@ -19,7 +19,7 @@ export default function SideMenu() {
                             {list.map((item: any, index) => (
                                 <li key={index}>
                                     <Link target='_top' href={item.href}
-                                        className={`flex items-center p-2 text-base font-normal rounded-lg text-white  ${item.select===keyword ? "bg-white text-gray-800" : " hover:bg-gray-700"}`}>
+                                        className={`flex items-center p-2 text-base font-normal rounded-lg ${item.select===keyword ? "bg-white text-gray-800" : " hover:bg-gray-700 text-white "}`}>
                                         {item.icon && <item.icon className='font-bold text-gray-400' />}
                                         <span className="ml-3">{item.name}</span>
                                     </Link>

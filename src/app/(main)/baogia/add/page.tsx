@@ -6,6 +6,7 @@ import React from 'react'
 
 export default function page() {
     const data : DoorNameSelect[] = dataSelect;
+
   return (
     <div className='min-h-screen  w-full'>
         <AddBaoGia dataName={data}/>
