@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import FormNhomPhuKien from './FormNhomPhuKien'
 import ListNhomPhuKien from './ListNhomPhuKien';
 
-export default function groupPhukienComponent() {
+export default function GroupPhukienComponent() {
     const [cmd, setCmd] = useState("");
     const selectCommand = (command: string) => {
         setCmd(command);
