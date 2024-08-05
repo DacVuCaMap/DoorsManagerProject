@@ -1,4 +1,4 @@
-import { NotepadText, PackagePlus, SquareTerminal, TrendingUp, User } from "lucide-react";
+import { Boxes, NotepadText, PackagePlus, SquareTerminal, TrendingUp, User } from "lucide-react";
 
 export const listMenu = [
     {
@@ -18,6 +18,12 @@ export const listMenu = [
         name:"Gán Lệnh",
         icon:SquareTerminal 
         ,select:"ganlenh"
+    },
+    {
+        href:"/gannhomphukien",
+        name:"Nhóm phụ kiện",
+        icon:Boxes
+        ,select:"gannhomphukien"
     },
     {
         href:"#",

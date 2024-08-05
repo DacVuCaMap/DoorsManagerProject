@@ -13,6 +13,7 @@ import { ScaleLoader } from 'react-spinners';
 import BaoGiaSearchPhuKien from './BaoGiaSearchPhuKien';
 import { parse } from 'path';
 import { CalTotalInforProduct, CalTotalMoreInforProduct, ConstructorAcs } from '@/data/AddBaoGiaFunction';
+import AddBaoGiaTool from './AddBaoGiaTool';
 
 type Props = {
   dataName: DoorNameSelect[]
@@ -89,7 +90,7 @@ export default function AddBaoGia(props: Props) {
               const indexB = listLastCodeItem.indexOf(b.code);
               return indexA - indexB;
             });
-          newLastAcs.push(ConstructorAcs(genNumberByTime() + "" + newLastAcs.length,"","Chi phí vận chuyển đến Ngô Quyền - Hải Phòng"))
+          newLastAcs.push(ConstructorAcs(genNumberByTime() + "" + newLastAcs.length, "", "Chi phí vận chuyển đến Ngô Quyền - Hải Phòng"))
           setLastItem(newLastAcs);
           // Kiểm tra kết quả
           setAcsData(newAcs);
@@ -161,7 +162,7 @@ export default function AddBaoGia(props: Props) {
       const updatedProducts = products.map((item) => {
         if (item.id === id) {
           // let updatedAccessories = [newAccessory, ...item.accessories.slice(1)];
-          return { ...item, selectId: val,name1: dataSelect[val].name };
+          return { ...item, selectId: val, name1: dataSelect[val].name };
         }
         return item;
       });
@@ -313,11 +314,11 @@ export default function AddBaoGia(props: Props) {
         if (product.id === parentItem.id) {
           let tmp = product;
           tmp = { ...tmp, [key]: value };
-          let tmpInfo2 = tmp.info2==="Sơn vân gỗ" ? "VG" : "";
+          let tmpInfo2 = tmp.info2 === "Sơn vân gỗ" ? "VG" : "";
           tmp.accessories[0].code = "CC" + tmp.info1 + "/1.4" + tmpInfo2;
           let tmpAcs: Accessories | undefined = acsData.find((acs: Accessories) => acs.code === tmp.accessories[0].code);
           if (tmpAcs) {
-            tmp.accessories[0].orgPrice=tmpAcs.orgPrice;
+            tmp.accessories[0].orgPrice = tmpAcs.orgPrice;
           }
           return tmp;
         }
@@ -367,8 +368,8 @@ export default function AddBaoGia(props: Props) {
     })
   }
   return (
-    <div className='px-20 pb-10'>
-
+    <div className='px-20 pb-10 relative'>
+      <AddBaoGiaTool/>
       <div className='bg-white shadow-2xl rounded-lg mb-4 pb-4'>
         <form action="">
           <table className='add-tbl w-full table-auto text-sm'>
@@ -569,8 +570,9 @@ export default function AddBaoGia(props: Props) {
             </tbody>
             {products.length > 0 &&
               <tfoot>
-                {
-                  lastItem.map((item: Accessories, index) => (
+                {(() => {
+                  const totalInfo = CalTotalInforProduct(products);
+                  return lastItem.map((item: Accessories, index) => (
                     <tr key={index} className='font-bold'>
                       <td className='text-center'>{products.length + index + 1}</td>
                       <td className='px-2'>{item.name}</td>
@@ -579,15 +581,19 @@ export default function AddBaoGia(props: Props) {
                       <td><p className='text-center'>{item.code}</p></td>
                       <td></td>
                       <td>
-                        {(item.code === "CPV" || item.code === "CPLD") && <h2 className='text-center'>{CalTotalInforProduct(products)}</h2>}
-                        {(item.code === "CPLDPN" || item.code === "CPLDBLS") && <h2 className='text-center'>{CalTotalMoreInforProduct(products,item.code)}</h2>}
+                        {(item.code === "CPV" || item.code === "CPLD") && totalInfo !== 0 && (
+                          <h2 className='text-center'>{CalTotalInforProduct(products)}</h2>
+                        )}
+                        {(item.code === "CPLDPN" || item.code === "CPLDBLS") && (
+                          <h2 className='text-center'>{CalTotalMoreInforProduct(products, item.code)}</h2>
+                        )}
                       </td>
                       <td>
                         <input type="number" className='text-center' value={item.price} onChange={e => handleChangeLastItem(e, item, "price")} />
                       </td>
                     </tr>
-                  ))
-                }
+                  ));
+                })()}
               </tfoot>
             }
           </table>

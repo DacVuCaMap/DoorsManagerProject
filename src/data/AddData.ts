@@ -7,7 +7,8 @@ export const dataSelect : DoorNameSelect[] = [
       name: "Cửa thép chống cháy",
       numberDoor: [
         "1 cánh",
-        "2 cánh"
+        "2 cánh",
+        "2 cánh lệch"
       ],
       type: [
         "khóa tay gạt",
@@ -28,7 +29,8 @@ export const dataSelect : DoorNameSelect[] = [
       name: "Cửa thép an toàn",
       numberDoor: [
         "1 cánh",
-        "2 cánh"
+        "2 cánh",
+        "2 cánh lệch"
       ],
       type: [
         "bản lề sàn"
