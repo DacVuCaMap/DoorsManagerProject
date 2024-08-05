@@ -9,7 +9,7 @@ type Props = {
   setRefreshTrigger: (trigger: number) => void;
 }
 export default function ListNhomPhuKien(props:Props) {
-  const [list, setList] = useState<string[]>();
+  const [list, setList] = useState<any[]>();
   const [loading,setLoading] = useState(false);
   useEffect(() => {
     const fetchData = async () => {
@@ -28,10 +28,12 @@ export default function ListNhomPhuKien(props:Props) {
     }
     fetchData();
   },[props.refreshTrigger])
-  const handleDelete = async(command : string) =>{
-    // let url = process.env.NEXT_PUBLIC_API_URL + "/api/product-command/delByCommand?command="+command;
-    // const response = await GetPattern(url,{});
-    // props.setRefreshTrigger(props.refreshTrigger + 1 );
+  const handleDelete = async(id : any) =>{
+    let url = process.env.NEXT_PUBLIC_API_URL + "/api/accessories/deleteGroup?id="+id;
+    const response = await GetPattern(url,{});
+    setList([]);
+    props.setRefreshTrigger(props.refreshTrigger + 1 );
+
   }
   const handleClickItem = (item:any) =>{
     props.selectCommand(item.name);
@@ -55,7 +57,7 @@ export default function ListNhomPhuKien(props:Props) {
                   {item.name}
                 </div>
               </td>
-              <td className='text-center text-red-600'><button ><Trash2 /></button></td>
+              <td className='text-center text-red-600'><button onClick={e=>handleDelete(item.id)}><Trash2 /></button></td>
             </tr>
           ))}
           {loading && <tr>

@@ -41,6 +41,8 @@ export default function GanlenhFormAdd(props: Props) {
         console.log(props.cmdMain)
         if (props.cmdMain!="" && props.cmdMain.length>0) {
             const fetchData = async () =>{
+                setCurGroup({...curGroup,accessoriesAndType:[]})
+                setLoading(true);
                 let url = process.env.NEXT_PUBLIC_API_URL + "/api/accessories/get-list-group?name="+props.cmdMain;
                 const response = await GetPattern(url,{});
                 if (response && response.value ) {
@@ -49,12 +51,13 @@ export default function GanlenhFormAdd(props: Props) {
                     })
                     let newItem = new GroupAccessory(response.value.id,response.value.name,arr)
                     console.log(newItem);
+                    setLoading(false);
                     setCurGroup(newItem);
                 }
             }
-            setLoading(true);
+            
             fetchData();
-            setLoading(false);
+           
         }
 
     },[props.cmdMain])
@@ -124,6 +127,21 @@ export default function GanlenhFormAdd(props: Props) {
             }
         })
     }
+    const handleChangeInputName = async(e:any)=>{
+        const value = e.target.value;
+        setCurGroup({...curGroup,name:value});
+        setLoading(true)
+        let url = process.env.NEXT_PUBLIC_API_URL+"/api/accessories/get-list-group?name="+value;
+        const response = await GetPattern(url,{});
+        setLoading(false)
+        console.log(response)
+        if (response && response.value && response.value.relations) {
+            const arr : AcsAndType[] = response.value.relations.map((item:any,index:number)=>{
+                return {type:item.type,accessories:acsData.find(acs=>acs.id===item.accessoriesId)}
+            })
+            setCurGroup({name:value,id:response.value.id,accessoriesAndType:arr})
+        }
+    }
     return (
         <div className='w-full h-full ganlenh relative'>
             <div className='flex flex-row space-x-2 text-gray-600'>
@@ -132,7 +150,7 @@ export default function GanlenhFormAdd(props: Props) {
             </div>
             <form action="" onSubmit={handleSubmit}>
                 <label htmlFor="" className='text-sm text-gray-400'>Tên nhóm cửa</label>
-                <input value={curGroup.name} onChange={e => setCurGroup({ ...curGroup, name: e.target.value })} type="text" className='bg-white w-full pt-2 text-base text-gray-600 mb-4 border-b outline-none border-gray-400' />
+                <input value={curGroup.name} onChange={e => handleChangeInputName(e)} type="text" className='bg-white w-full pt-2 text-base text-gray-600 mb-4 border-b outline-none border-gray-400' />
                 <div className='flex flex-col mb-2'>
                     <BaoGiaSearchPhuKien acsData={acsData} acs={tempAcs} productId={0} selectAccessories={selectAccessories} />
                 </div>
@@ -178,7 +196,7 @@ export default function GanlenhFormAdd(props: Props) {
                 {curGroup.accessoriesAndType.length > 0 ? <button className='bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded w-full my-2'>Lưu</button>
                     : <div className='h-14'></div>}
             </form>
-            {curGroup.name == "" ?
+            {(curGroup.name == "" && curGroup.accessoriesAndType.length==0) ?
                 <div className='bg-white absolute h-32 w-full top-24 justify-center flex items-center'>
                     <h2 className='text-gray-600 font-bold text-lg' >Nhập tên nhóm phụ kiện</h2>
                 </div>
