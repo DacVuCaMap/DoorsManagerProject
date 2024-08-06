@@ -4,14 +4,17 @@ class GroupAccessory {
     id:any;
     name:string;
     accessoriesAndType:AcsAndType[];
+    type:string;
     constructor(
         id: any,
         name: string,
-        accessoriesAndType:AcsAndType[]
+        accessoriesAndType:AcsAndType[],
+        type:string
     ) {
         this.id = id;
         this.name = name;
         this.accessoriesAndType = accessoriesAndType;
+        this.type = type;
     }
 }
 export default GroupAccessory;

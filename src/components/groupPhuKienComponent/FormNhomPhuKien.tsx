@@ -5,8 +5,8 @@ import React, { use, useEffect, useState } from 'react'
 import BaoGiaSearchPhuKien from '../baogiaComponents/BaoGiaSearchPhuKien';
 import GetPattern from '@/ApiPattern/GetPattern';
 import { genNumberByTime } from '@/data/FunctionAll';
-import { Boxes, Trash2 } from 'lucide-react';
-import { ScaleLoader } from 'react-spinners';
+import { Boxes, Check, CircleAlert, Trash2 } from 'lucide-react';
+import { BarLoader, ScaleLoader } from 'react-spinners';
 import PostPattern from '@/ApiPattern/PostPattern';
 import GroupAccessory from '@/Model/GroupAccessory';
 import AcsAndType from '@/Model/AcsAndType';
@@ -18,49 +18,58 @@ type Props = {
     setRefreshTrigger: (trigger: number) => void;
 }
 export default function GanlenhFormAdd(props: Props) {
-    const [curGroup, setCurGroup] = useState<GroupAccessory>(new GroupAccessory("", "", []));
+    const [curGroup, setCurGroup] = useState<GroupAccessory>(new GroupAccessory("", "", [], "s"));
     const [acsData, setAcsData] = useState<Accessories[]>([]);
     const [loading, setLoading] = useState(false);
+    const [success, setSuccess] = useState(false);
+    const [failed, setFailed] = useState(false);
+    const [loadingSubmit, setLoadingSubmit] = useState(false);
     const handleSubmit = async (e: any) => {
         e.preventDefault();
-        let postArrays: any = curGroup.accessoriesAndType.map((item: AcsAndType, index) => {
-            return { id: item.accessories.id, type: item.type };
+        let postArrays: number[] = curGroup.accessoriesAndType.map((item: AcsAndType) => {
+            return parseFloat(item.accessories.id);
         });
-        let postData: AccessoryGroupRequest = { name: curGroup.name, accessoriesAndType:postArrays}
+        let postData: any = { id: curGroup.id, name: curGroup.name, type: curGroup.type, accessoriesIdLong: postArrays }
         try {
             let url = process.env.NEXT_PUBLIC_API_URL + "/api/accessories/add-group";
-            const response = await PostPattern(url,postData,{})
+            setLoadingSubmit(true)
+            const response = await PostPattern(url, postData, {})
+            props.setRefreshTrigger(props.refreshTrigger + 1);
             console.log(postData);
             console.log(response);
+            setLoadingSubmit(false);
+            setSuccess(true);
+            setTimeout(() => {
+                setSuccess(false);
+            }, 5000); // 5000 milliseconds = 5 seconds
         } catch (error) {
             console.log(error)
         }
     }
     // update when select item in list
-    useEffect(()=>{
+    useEffect(() => {
         console.log(props.cmdMain)
-        if (props.cmdMain!="" && props.cmdMain.length>0) {
-            const fetchData = async () =>{
-                setCurGroup({...curGroup,accessoriesAndType:[]})
+        if (props.cmdMain != "" && props.cmdMain.length > 0) {
+            const fetchData = async () => {
+                setCurGroup({ ...curGroup, name: props.cmdMain, accessoriesAndType: [] })
                 setLoading(true);
-                let url = process.env.NEXT_PUBLIC_API_URL + "/api/accessories/get-list-group?name="+props.cmdMain;
-                const response = await GetPattern(url,{});
-                if (response && response.value ) {
-                    const arr : AcsAndType[] = response.value.relations.map((item:any,index:number)=>{
-                        return {type:item.type,accessories:acsData.find(acs=>acs.id===item.accessoriesId)}
+                let url = process.env.NEXT_PUBLIC_API_URL + "/api/accessories/get-list-group?name=" + props.cmdMain;
+                const response = await GetPattern(url, {});
+                if (response && response.value) {
+                    const arr: AcsAndType[] = response.value.accessories.map((item: any, index: number) => {
+                        return { type: "", accessories: acsData.find(acs => acs.id === item.id) }
                     })
-                    let newItem = new GroupAccessory(response.value.id,response.value.name,arr)
-                    console.log(newItem);
+                    let newItem = new GroupAccessory(response.value.id, response.value.name, arr, response.value.type)
+                    console.log(newItem)
                     setLoading(false);
                     setCurGroup(newItem);
                 }
             }
-            
             fetchData();
-           
+
         }
 
-    },[props.cmdMain])
+    }, [props.cmdMain])
     //cap nhap data accessories có sẵn
     useEffect(() => {
         const fetchData = async () => {
@@ -112,34 +121,23 @@ export default function GanlenhFormAdd(props: Props) {
         const accessoriesAndTypeUpdate = curGroup.accessoriesAndType.filter((item: AcsAndType, ind) => ind != index);
         setCurGroup({ ...curGroup, accessoriesAndType: accessoriesAndTypeUpdate })
     }
-    const handleSelectType = (e: any, index: number) => {
+    const handleSelectType = (e: any) => {
         let val = e.target.value;
-        let acsAndTypeUpdated = curGroup.accessoriesAndType[index];
-        acsAndTypeUpdated = { ...acsAndTypeUpdated, type: val };
-        setCurGroup((parentItem: GroupAccessory) => {
-            return {
-                ...parentItem, accessoriesAndType: parentItem.accessoriesAndType.map((item: AcsAndType, ind) => {
-                    if (ind === index) {
-                        return acsAndTypeUpdated;
-                    }
-                    return item;
-                })
-            }
-        })
+        setCurGroup({ ...curGroup, type: val })
     }
-    const handleChangeInputName = async(e:any)=>{
+    const handleChangeInputName = async (e: any) => {
         const value = e.target.value;
-        setCurGroup({...curGroup,name:value});
+        setCurGroup({ ...curGroup, name: value });
         setLoading(true)
-        let url = process.env.NEXT_PUBLIC_API_URL+"/api/accessories/get-list-group?name="+value;
-        const response = await GetPattern(url,{});
+        let url = process.env.NEXT_PUBLIC_API_URL + "/api/accessories/get-list-group?name=" + value;
+        const response = await GetPattern(url, {});
         setLoading(false)
         console.log(response)
         if (response && response.value && response.value.relations) {
-            const arr : AcsAndType[] = response.value.relations.map((item:any,index:number)=>{
-                return {type:item.type,accessories:acsData.find(acs=>acs.id===item.accessoriesId)}
+            const arr: AcsAndType[] = response.value.relations.map((item: any, index: number) => {
+                return { type: item.type, accessories: acsData.find(acs => acs.id === item.accessoriesId) }
             })
-            setCurGroup({name:value,id:response.value.id,accessoriesAndType:arr})
+            setCurGroup({ type: response.value.type, name: value, id: response.value.id, accessoriesAndType: arr })
         }
     }
     return (
@@ -154,7 +152,15 @@ export default function GanlenhFormAdd(props: Props) {
                 <div className='flex flex-col mb-2'>
                     <BaoGiaSearchPhuKien acsData={acsData} acs={tempAcs} productId={0} selectAccessories={selectAccessories} />
                 </div>
-
+                <div className='flex flex-col mb-2'>
+                    <span className='text-xs text-gray-400'>
+                        Kiểu
+                    </span>
+                    <select value={curGroup.type} onChange={e => handleSelectType(e)} name="" id="" className='text-sm text-gray-600 border border-black rounded p-2'>
+                        <option value="s">Hiện</option>
+                        <option value="h">Ẩn</option>
+                    </select>
+                </div>
 
                 {curGroup.accessoriesAndType.length > 0 &&
                     <div className="w-full max-w-md p-2 bg-white border border-gray-200 rounded-lg shadow">
@@ -165,7 +171,7 @@ export default function GanlenhFormAdd(props: Props) {
                                         <div className="flex-1 min-w-0 ms-4">
                                             <p className="text-base font-semibold text-gray-900 truncate">Thông tin</p>
                                         </div>
-                                        <div className="inline-flex items-center w-20 text-base font-semibold text-gray-900">Loại</div>
+                                        <div className="inline-flex items-center w-20 text-base font-semibold text-gray-900"></div>
                                     </div>
                                 </li>
                                 {curGroup.accessoriesAndType.map((item: AcsAndType, index) => (
@@ -176,10 +182,6 @@ export default function GanlenhFormAdd(props: Props) {
                                                 <p className="text-xs text-gray-600 truncate pr-2">{item.accessories.name}</p>
                                             </div>
                                             <div className="w-20 items-center text-base font-semibold text-gray-900 flex flex-row space-x-2">
-                                                <select onChange={e => handleSelectType(e, index)} value={item.type} name="" id="" className='text-sm text-gray-600'>
-                                                    <option value="s">Hiện</option>
-                                                    <option value="h">Ẩn</option>
-                                                </select>
                                                 <button type='button' className='text-red-600' onClick={e => handleDel(index)}><Trash2 /></button>
                                             </div>
                                         </div>
@@ -189,15 +191,16 @@ export default function GanlenhFormAdd(props: Props) {
                         </div>
                     </div>
                 }
-                
-                {loading && <div className='w-full text-center py-20'>
+
+                {loading && <div className='w-full text-center py-14'>
                     <ScaleLoader color='gray' />
                 </div>}
-                {curGroup.accessoriesAndType.length > 0 ? <button className='bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded w-full my-2'>Lưu</button>
+                {(curGroup.accessoriesAndType.length > 0 && !success) ? <button className='bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded w-full my-2'>{loadingSubmit ? <BarLoader className='w-full' /> : "Lưu"}</button>
                     : <div className='h-14'></div>}
+                {success && <div className='flex flex-col justify-center items-center'><Check size={40} className=' p-2 bg-green-400 rounded-full text-white' /> <span className='text-gray-500 font-semibold'>success</span></div>}
             </form>
-            {(curGroup.name == "" && curGroup.accessoriesAndType.length==0) ?
-                <div className='bg-white absolute h-32 w-full top-24 justify-center flex items-center'>
+            {(curGroup.name == "" && curGroup.accessoriesAndType.length == 0) ?
+                <div className='bg-white absolute h-40 w-full top-24 justify-center flex items-center'>
                     <h2 className='text-gray-600 font-bold text-lg' >Nhập tên nhóm phụ kiện</h2>
                 </div>
                 : ""
