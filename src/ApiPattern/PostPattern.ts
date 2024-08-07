@@ -6,6 +6,7 @@ export default async function PostPattern(url: any, data: any, thirdValue: any) 
 
     try {
         const response = await axios.post(url, data, thirdValue)
+        console.log(response)
         return response.data;
     } catch (error) {
         const axiosError = error as AxiosError;

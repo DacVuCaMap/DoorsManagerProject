@@ -33,12 +33,12 @@ export default function GanlenhList(props:Props) {
     props.setRefreshTrigger(props.refreshTrigger + 1 );
   }
   return (
-    <div className='overflow-auto h-[500px]'>
+    <div className='overflow-auto h-[450px] bg-white'>
       <table className='w-full'>
         <thead>
           <tr>
             <th className='sticky top-0 bg-blue-700 text-white z-10'></th>
-            <th className='sticky top-0 bg-blue-700 text-white z-10 py-2'>Tên qui cách</th>
+            <th className='sticky top-0 bg-blue-700 text-white z-10 py-2'>Danh sách gán</th>
             <th className='sticky top-0 bg-blue-700 text-white z-10'></th>
           </tr>
         </thead>

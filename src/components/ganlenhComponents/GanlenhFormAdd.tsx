@@ -9,6 +9,7 @@ import { genNumberByTime } from '@/data/FunctionAll';
 import { Trash2 } from 'lucide-react';
 import { ScaleLoader } from 'react-spinners';
 import PostPattern from '@/ApiPattern/PostPattern';
+import DoorNameSelect from '@/Model/DoorNameSelect';
 
 type AccessoriesAndQuantity = {
   accessories: Accessories,
@@ -19,15 +20,20 @@ type DefaultCommand = {
   acsAndQuantity: AccessoriesAndQuantity[]
 }
 type Props = {
-  cmdMain: { name1: string, name2: string };
-  refreshTrigger:number
+  cmdMain: { name1: string, name2: string, name3: string };
+  refreshTrigger: number
   setRefreshTrigger: (trigger: number) => void;
+  selectDoorName: DoorNameSelect[]
 }
 export default function GanlenhFormAdd(props: Props) {
   //data select
-  const selectName = dataSelect[0];
+  const [selectName, setSelectName] = useState(props.selectDoorName);
+  const [curSelectName, setCurSelectName] = useState<DoorNameSelect>(new DoorNameSelect("", "", [], [], [], ""));
+  useEffect(() => {
+    setSelectName(props.selectDoorName);
+  }, [props.selectDoorName])
   const [curCmd, setCurCmd] = useState<DefaultCommand>({ command: "", acsAndQuantity: [] });
-  const [command, setCommand] = useState<{ name1: string, name2: string }>({ name1: "", name2: "" });
+  const [command, setCommand] = useState<{ name1: string, name2: string, name3: string }>({ name1: "", name2: "", name3: "" });
   const [acsData, setAcsData] = useState<Accessories[]>([]);
   const [loading, setLoading] = useState(false);
   const [isSuccess, setSuccess] = useState("");
@@ -54,17 +60,25 @@ export default function GanlenhFormAdd(props: Props) {
       console.log(error);
       return;
     }
-    
+
   }
   const handleSelect = (e: any, key: string) => {
     let val = e.target.value;
+    console.log(val)
     setCommand({ ...command, [key]: val });
+    if (key === "name1") {
+      let temp: DoorNameSelect = selectName.find((item: DoorNameSelect) => item.name === val) ?? curSelectName;
+      setCurSelectName(temp)
+    }
   }
   useEffect(() => {
     setCommand(props.cmdMain)
-    setCurCmd({ ...curCmd, command: props.cmdMain.name1 + props.cmdMain.name2 })
+    setCurCmd({ ...curCmd, command: props.cmdMain.name1 + props.cmdMain.name2 + props.cmdMain.name3 })
+    // curselect
+    let temp: DoorNameSelect = selectName.find((item: DoorNameSelect) => item.name === props.cmdMain.name1) ?? curSelectName;
+    setCurSelectName(temp)
   }, [props.cmdMain])
-  
+
   //cap nhap data accessories có sẵn
   useEffect(() => {
     const fetchData = async () => {
@@ -108,10 +122,10 @@ export default function GanlenhFormAdd(props: Props) {
 
   // search to loading by command
   useEffect(() => {
-    let cmd = command.name1 + "-" + command.name2;
-    if (command.name1 != "" && command.name2 != "") {
+    let cmd = command.name1 + "-" + command.name2 + "-" + command.name3;
+    if (command.name1 != "" && command.name2 != "" && command.name3 != "") {
       const fecthData = async () => {
-        let url = process.env.NEXT_PUBLIC_API_URL + `/api/product-command/get-command?command=${command.name1}-${command.name2}`;
+        let url = process.env.NEXT_PUBLIC_API_URL + `/api/product-command/get-command?command=${cmd}`;
         try {
           setLoading(true)
           const response = await GetPattern(url, {});
@@ -175,18 +189,36 @@ export default function GanlenhFormAdd(props: Props) {
       <form action="" onSubmit={handleSubmit}>
         <label htmlFor="" className='text-sm text-gray-400'>Tên qui cách</label>
         <div className='flex flex-row space-x-2 bg-white pt-4 pb-2 mb-4 border-b border-gray-400'>
-          <select name="" id="" value={command.name1} onChange={e => handleSelect(e, "name1")}>
+
+          {selectName.length != 0 ? <select name="" id="" value={command.name1} onChange={e => handleSelect(e, "name1")}>
             <option value="" disabled hidden>--Chọn loại--</option>
-            {selectName.type.map((item: any, index) => (
-              <option key={index} value={item}>{item}</option>
+            {selectName.map((item: any, index) => (
+              <option key={index} value={item.name}>{item.name}</option>
             ))}
           </select>
-          <select name="" id="" onChange={e => handleSelect(e, "name2")} value={command.name2}>
-            <option value="" disabled hidden>--Chọn cánh--</option>
-            {selectName.numberDoor.map((item: any, index) => (
-              <option key={index} value={item}>{item}</option>
-            ))}
-          </select>
+          :
+          <div>
+            ...loading
+          </div>  
+        }
+
+          {curSelectName.name != "" &&
+            <select name="" id="" value={command.name2} onChange={e => handleSelect(e, "name2")}>
+              <option value="" disabled hidden>--Chọn loại--</option>
+              {curSelectName.type.map((item: any, index) => (
+                <option key={index} value={item}>{item}</option>
+              ))}
+            </select>
+
+          }
+          {curSelectName.name != "" &&
+            <select name="" id="" onChange={e => handleSelect(e, "name3")} value={command.name3}>
+              <option value="" disabled hidden>--Chọn cánh--</option>
+              {curSelectName.numberDoor.map((item: any, index) => (
+                <option key={index} value={item}>{item}</option>
+              ))}
+            </select>
+          }
         </div>
 
         <div className='flex flex-col mb-2'>
@@ -238,8 +270,8 @@ export default function GanlenhFormAdd(props: Props) {
         {loading && <div className='w-full text-center py-20'>
           <ScaleLoader color='gray' />
         </div>}
-        {curCmd.acsAndQuantity.length>0 ? <button className='bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded w-full my-2'>Lưu</button>
-        : <div className='h-14'></div> }
+        {curCmd.acsAndQuantity.length > 0 ? <button className='bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded w-full my-2'>Lưu</button>
+          : <div className='h-14'></div>}
       </form>
       {command.name1 == "" && command.name2 == "" ?
         <div className='bg-white absolute h-32 w-full top-36 justify-center flex items-center'>
