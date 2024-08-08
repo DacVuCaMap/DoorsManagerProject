@@ -10,6 +10,7 @@ import { LoadSelectData } from '@/data/FunctionAll';
 export default function GanlenhMain() {
   const [cmd, setCmd] = useState({ name1: "", name2: "",name3:"" });
   const [openDoorSelect,setOpenDoorSelect] = useState(false);
+  const [reFreshData,setReFreshData] = useState(0);
   const selectCommand = (command: string) => {
     console.log(command);
     const parts = command.split('-');
@@ -26,12 +27,12 @@ export default function GanlenhMain() {
       setDoorNameSelect(await LoadSelectData());
     }
     fetchData();
-  },[openDoorSelect])
+  },[openDoorSelect,reFreshData])
   return (
     <div className='w-full flex lg:flex-row flex-col justify-center space-x-4'>
-      {openDoorSelect && <DoorSelectNameComponent data={doorNameSelect} setOpen={setOpenDoorSelect}/>}
+      {openDoorSelect && <DoorSelectNameComponent reFreshData={reFreshData} setReFreshData={setReFreshData} data={doorNameSelect} setOpen={setOpenDoorSelect}/>}
       {/* left */}
-      <div className='w-[500px] flex flex-col space-y-4'>
+      <div className='min-w-[500px] flex flex-col space-y-4'>
         <div className='w-full bg-white rounded-lg p-4 shadow-md hover:shadow-2xl transition duration-150 ease-out'>
           <GanlenhFormAdd selectDoorName={doorNameSelect} cmdMain={cmd} refreshTrigger={refreshTrigger} setRefreshTrigger={setRefreshTrigger} />
         </div>
