@@ -25,7 +25,8 @@ export default function AddBaoGia(props: Props) {
   const [acsData, setAcsData] = useState<Accessories[]>([]);
   //check form lưu chưa
   const [isFormDirty, setFormDirty] = useState(false);
-
+  
+  console.log(props.dataName);
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       if (isFormDirty) {
