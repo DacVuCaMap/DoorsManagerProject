@@ -53,8 +53,9 @@ export default function ListNhomPhuKien(props:Props) {
             <tr key={index} className={`${index % 2 != 0 ? "bg-gray-200" : "bg-white"} text-gray-700 hover:shadow-xl hover:bg-gray-800 hover:text-white`}>
               <td className='text-center'>{index + 1}</td>
               <td className=' text-center'>
-                <div className='hover:cursor-pointer py-4 px-2 h-full w-full' onClick={e=>handleClickItem(item)}>
-                  {item.name}
+                <div className='hover:cursor-pointer py-4 flex flex-col px-2 h-full w-full' onClick={e=>handleClickItem(item)}>
+                  <span className='font-semibold '>{item.name}</span>
+                  <span className='leading-3 text-xs text-gray-500'>{item.type}</span>
                 </div>
               </td>
               <td className='text-center text-red-600'><button onClick={e=>handleDelete(item.id)}><Trash2 /></button></td>

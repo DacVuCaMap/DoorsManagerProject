@@ -10,14 +10,19 @@ import { Trash2 } from 'lucide-react';
 import { ScaleLoader } from 'react-spinners';
 import PostPattern from '@/ApiPattern/PostPattern';
 import DoorNameSelect from '@/Model/DoorNameSelect';
+import AccessoryGroupRequest from '@/Request/AccessoryGroupRequest';
 
 type AccessoriesAndQuantity = {
   accessories: Accessories,
-  quantity: number
+  quantity: number,
+
 }
 type DefaultCommand = {
   command: string,
-  acsAndQuantity: AccessoriesAndQuantity[]
+  acsAndQuantity: AccessoriesAndQuantity[],
+  doorNameSelectId: any,
+  accessoryGroupId: any,
+  accessoryGroupType: string
 }
 type Props = {
   cmdMain: { name1: string, name2: string, name3: string };
@@ -32,27 +37,34 @@ export default function GanlenhFormAdd(props: Props) {
   useEffect(() => {
     setSelectName(props.selectDoorName);
   }, [props.selectDoorName])
-  const [curCmd, setCurCmd] = useState<DefaultCommand>({ command: "", acsAndQuantity: [] });
+  const [curCmd, setCurCmd] = useState<DefaultCommand>({ command: "", acsAndQuantity: [], doorNameSelectId: "", accessoryGroupId: "", accessoryGroupType: "" });
   const [command, setCommand] = useState<{ name1: string, name2: string, name3: string }>({ name1: "", name2: "", name3: "" });
   const [acsData, setAcsData] = useState<Accessories[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(0);
   const [isSuccess, setSuccess] = useState("");
+  const [mainAcs, setMainAcs] = useState([]);
   let tempAcs = new Accessories(genNumberByTime(), "", "", "", 0, 0, 0, 0, 0, 0, 0, "Bộ", false);
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+    if (curCmd.command === "" || curCmd.acsAndQuantity.length < 0 || curCmd.doorNameSelectId === "" || curCmd.accessoryGroupId === "") {
+      //error
+      // console.log("error")
+      // console.log(curCmd)
+      return;
+    }
     let listAcsId: number[] = [];
     let quantityList: number[] = [];
     for (let i = 0; i < curCmd.acsAndQuantity.length; i++) {
       listAcsId.push(curCmd.acsAndQuantity[i].accessories.id);
       quantityList.push(curCmd.acsAndQuantity[i].quantity);
     }
-    const dataPost = { command: curCmd.command, listAcsId: listAcsId, quantityList: quantityList };
+    const dataPost = { command: curCmd.command, listAcsId: listAcsId, quantityList: quantityList, doorNameSelectId: curCmd.doorNameSelectId, accessoryGroupId: curCmd.accessoryGroupId };
     console.log(dataPost)
     try {
       let url = process.env.NEXT_PUBLIC_API_URL + "/api/product-command/add"
       const response = await PostPattern(url, dataPost, {});
       if (response && response.success) {
-        console.log(response.message)
+        console.log(response.message);
         props.setRefreshTrigger(props.refreshTrigger + 1);
         return;
       }
@@ -64,12 +76,20 @@ export default function GanlenhFormAdd(props: Props) {
   }
   const handleSelect = (e: any, key: string) => {
     let val = e.target.value;
-    console.log(val)
+    if (key === "main") {
+      val = parseFloat(val)
+      let temp: any = mainAcs.find((item: any) => item.id === val);
+      setCurCmd({ ...curCmd, accessoryGroupId: temp.id, accessoryGroupType: temp.type });
+      return;
+    }
     setCommand({ ...command, [key]: val });
     if (key === "name1") {
       let temp: DoorNameSelect = selectName.find((item: DoorNameSelect) => item.name === val) ?? curSelectName;
       setCurSelectName(temp)
+      console.log(temp.id)
+      setCurCmd({ ...curCmd, doorNameSelectId: temp.id })
     }
+
   }
   useEffect(() => {
     setCommand(props.cmdMain)
@@ -78,6 +98,21 @@ export default function GanlenhFormAdd(props: Props) {
     let temp: DoorNameSelect = selectName.find((item: DoorNameSelect) => item.name === props.cmdMain.name1) ?? curSelectName;
     setCurSelectName(temp)
   }, [props.cmdMain])
+
+  useEffect(() => {
+    const fetchData = async () => {
+      let url = process.env.NEXT_PUBLIC_API_URL + "/api/accessories/get-list-group?type=main";
+      try {
+        const response = await GetPattern(url, {});
+        if (response && response.value && Array.isArray(response.value)) {
+          setMainAcs(response.value);
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    fetchData();
+  }, [])
 
   //cap nhap data accessories có sẵn
   useEffect(() => {
@@ -106,6 +141,7 @@ export default function GanlenhFormAdd(props: Props) {
           });
           // Kiểm tra kết quả
           setAcsData(newAcs);
+          // add main list
         }
       } catch (error) {
         console.log(error)
@@ -120,17 +156,17 @@ export default function GanlenhFormAdd(props: Props) {
     };
   }, [])
 
-  // search to loading by command
+  // search to loading by command , update command 
   useEffect(() => {
     let cmd = command.name1 + "-" + command.name2 + "-" + command.name3;
     if (command.name1 != "" && command.name2 != "" && command.name3 != "") {
       const fecthData = async () => {
         let url = process.env.NEXT_PUBLIC_API_URL + `/api/product-command/get-command?command=${cmd}`;
         try {
-          setLoading(true)
+          setLoading(1)
           const response = await GetPattern(url, {});
-          setLoading(false);
-          // console.log(response)
+          setLoading(0);
+          console.log(response)
           let newArr: AccessoriesAndQuantity[] = response.value.map((item: any, index: number) => {
             return {
               accessories: new Accessories(
@@ -150,7 +186,12 @@ export default function GanlenhFormAdd(props: Props) {
               ), quantity: item.quantity
             };
           });
-          setCurCmd({ command: cmd, acsAndQuantity: newArr })
+          setCurCmd({
+            command: cmd, acsAndQuantity: newArr
+            , accessoryGroupId: response.value[0].accessoryGroupId
+            , accessoryGroupType: response.value[0].accessoryGroupType
+            , doorNameSelectId: response.value[0].doorNameSelectId
+          })
         } catch (error) {
           return;
         }
@@ -183,6 +224,9 @@ export default function GanlenhFormAdd(props: Props) {
     let updatedAcsAndQuan = curCmd.acsAndQuantity.filter((item: AccessoriesAndQuantity, ind) => ind != index);
     setCurCmd({ ...curCmd, acsAndQuantity: updatedAcsAndQuan });
   }
+  useEffect(() => {
+    console.log(curCmd)
+  }, [curCmd])
   return (
     <div className='w-full h-full ganlenh relative'>
       <h2 className='font-bold text-lg mb-2'>Form gán mặc định</h2>
@@ -196,11 +240,11 @@ export default function GanlenhFormAdd(props: Props) {
               <option key={index} value={item.name}>{item.name}</option>
             ))}
           </select>
-          :
-          <div>
-            ...loading
-          </div>  
-        }
+            :
+            <div className='py-2 w-full text-center'>
+              <ScaleLoader height={20} color='gray' />
+            </div>
+          }
 
           {curSelectName.name != "" &&
             <select name="" id="" value={command.name2} onChange={e => handleSelect(e, "name2")}>
@@ -220,7 +264,19 @@ export default function GanlenhFormAdd(props: Props) {
             </select>
           }
         </div>
-
+        <div className='flex flex-col mb-2'>
+          <span className='text-xs text-gray-400'>
+            Nhóm phụ kiện chính
+          </span>
+          {loading > 0 ? <div className='w-full text-center'>
+            <ScaleLoader color='gray' />
+          </div>
+            :
+            <select onChange={e => handleSelect(e, "main")} value={curCmd.accessoryGroupId} name="" id="" className='text-sm text-gray-600 border border-black rounded p-2'>
+              <option value="" disabled hidden>--Chọn nhóm--</option>
+              {mainAcs.map((item: any, index) => (<option value={item.id} key={index}>{item.name}</option>))}
+            </select>}
+        </div>
         <div className='flex flex-col mb-2'>
           <BaoGiaSearchPhuKien acsData={acsData} acs={tempAcs} productId={0} selectAccessories={selectAccessories} />
         </div>
@@ -267,14 +323,14 @@ export default function GanlenhFormAdd(props: Props) {
             </div>
           </div>
         }
-        {loading && <div className='w-full text-center py-20'>
+        {loading > 0 && <div className='w-full text-center py-20'>
           <ScaleLoader color='gray' />
         </div>}
         {curCmd.acsAndQuantity.length > 0 ? <button className='bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded w-full my-2'>Lưu</button>
           : <div className='h-14'></div>}
       </form>
       {command.name1 == "" && command.name2 == "" ?
-        <div className='bg-white absolute h-32 w-full top-36 justify-center flex items-center'>
+        <div className='bg-white absolute h-40 w-full top-32 justify-center flex items-center'>
           <h2 className='text-gray-600 font-bold text-lg' >Chọn tên qui cách</h2>
         </div>
         : ""

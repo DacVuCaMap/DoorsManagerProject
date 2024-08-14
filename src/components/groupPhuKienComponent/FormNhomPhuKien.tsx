@@ -126,6 +126,7 @@ export default function GanlenhFormAdd(props: Props) {
         setCurGroup({ ...curGroup, type: val })
     }
     const handleChangeInputName = async (e: any) => {
+        // đang lỗi phần loading chậm nên không live search được
         const value = e.target.value;
         setCurGroup({ ...curGroup, name: value });
         setLoading(true)
@@ -156,10 +157,16 @@ export default function GanlenhFormAdd(props: Props) {
                     <span className='text-xs text-gray-400'>
                         Kiểu
                     </span>
-                    <select value={curGroup.type} onChange={e => handleSelectType(e)} name="" id="" className='text-sm text-gray-600 border border-black rounded p-2'>
-                        <option value="s">Hiện</option>
-                        <option value="h">Ẩn</option>
+                    {!loading ? <select value={curGroup.type} onChange={e => handleSelectType(e)} name="" id="" className='text-sm text-gray-600 border border-black rounded p-2'>
+                        <option value="normal">Phụ kiện thường</option>
+                        <option value="main">Phụ kiện chính</option>
+                        <option value="glass">Kính</option>
                     </select>
+                        :
+                        <div className='w-full text-center'>
+                            <ScaleLoader color='gray' />
+                        </div>
+                    }
                 </div>
 
                 {curGroup.accessoriesAndType.length > 0 &&

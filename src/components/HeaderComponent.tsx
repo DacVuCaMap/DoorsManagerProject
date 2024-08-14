@@ -4,10 +4,8 @@ import React from 'react'
 export default function HeaderComponent() {
     return (
         <div>
-            <header className='flex py-4 px-4 sm:px-10 bg-white font-[sans-serif] min-h-[70px] tracking-wide relative z-50'>
+            <header className=' shadow-xl rounded-b-lg flex py-4 px-4 sm:px-10 bg-gray-800 font-[sans-serif] min-h-[70px] tracking-wide relative z-50'>
                 <div className='flex flex-wrap items-center gap-5 w-full'>
-                    <Link href=""><img src="https://readymadeui.com/readymadeui.svg" alt="logo" className='w-36' />
-                    </Link>
 
                     <div id="collapseMenu"
                         className='max-lg:hidden lg:!block max-lg:w-full max-lg:fixed max-lg:before:fixed max-lg:before:bg-black max-lg:before:opacity-50 max-lg:before:inset-0 max-lg:before:z-50'>
@@ -48,7 +46,7 @@ export default function HeaderComponent() {
                     </div>
                     <div className='flex lg:ml-auto max-lg:w-full'>
                         <div
-                            className='flex xl:w-80 max-xl:w-full bg-gray-100 px-6 py-3 rounded outline outline-transparent focus-within:outline-[#007bff] focus-within:bg-transparent'>
+                            className='flex xl:w-80 max-xl:w-full bg-gray-600 px-6 py-3 rounded outline outline-transparent focus-within:outline-[#007bff] focus-within:bg-transparent'>
                             <input type='text' placeholder='Search something...'
                                 className='w-full text-sm bg-transparent rounded outline-none pr-2' />
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192.904 192.904" width="16px"

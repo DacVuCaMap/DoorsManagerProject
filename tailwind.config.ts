@@ -6,6 +6,12 @@ const config: Config = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  safelist:[
+    'hover:bg-blue-800',
+    'hover:bg-violet-900',
+    'hover:bg-green-900',
+    'hover:bg-pink-900',
+  ],
   theme: {
     extend: {
       backgroundImage: {

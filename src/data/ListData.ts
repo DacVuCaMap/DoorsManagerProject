@@ -1,4 +1,4 @@
-import { Boxes, NotepadText, PackagePlus, SquareTerminal, TrendingUp, User } from "lucide-react";
+import { Boxes, NotepadText, PackagePlus, ShieldCheck, SquareTerminal, TrendingUp, User } from "lucide-react";
 
 export const listMenu = [
     {
@@ -26,6 +26,12 @@ export const listMenu = [
         ,select:"gannhomphukien"
     },
     {
+        href:"/kiemdinh",
+        name:"Kiểm định",
+        icon:ShieldCheck   
+        ,select:"#"
+    },
+    {
         href:"#",
         name:"Tài Khoản",
         icon:User
@@ -37,4 +43,7 @@ export const listMenu = [
         icon:TrendingUp   
         ,select:"#"
     }
+]
+export const listColor = [
+    {id:0,color:"bg-blue-600"},{id:1,color:"bg-violet-700"},{id:2,color:"bg-green-700"},{id:3,color:"bg-pink-700"}
 ]

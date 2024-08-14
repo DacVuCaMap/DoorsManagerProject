@@ -32,7 +32,7 @@ export default function SideBar() {
         ref={buttonRef}
         type="button" 
         className='h-14 w-14 rounded fixed z-50 top-12 left-4 bg-gray-800 hover:bg-gray-900 shadow-lg flex 
-          items-center justify-center text-center hover:cursor-pointer' 
+          items-center justify-center text-center hover:cursor-pointer opacity-50 hover:opacity-100' 
         onClick={() => setOpenMenu(!openMenu)}
       >
         {!openMenu ? <AlignJustify className='text-white' size={40} /> : <X className='text-white' size={40} />}

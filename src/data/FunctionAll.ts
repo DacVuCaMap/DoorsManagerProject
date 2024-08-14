@@ -23,7 +23,7 @@ export const LoadSelectData = async () => {
             let numberDoor = (parentItem.numberDoor || "").split('./').map((item: string) => item.trim());
             let type = (parentItem.type || "").split('./').map((item: string) => item.trim());
             let code = (parentItem.code || "").split('./').map((item: string) => item.trim());
-            return {id:parentItem.id,name:parentItem.name,numberDoor:numberDoor,type:type,code:code,material:parentItem.material};
+            return { id: parentItem.id, name: parentItem.name, numberDoor: numberDoor, type: type, code: code, material: parentItem.material };
         })
         return rs;
     }
