@@ -135,9 +135,6 @@ export default function CreateBaoGiaItem(props: Props) {
         //other
         if (props.ReportItem.mainAccessory) {
             let thisThickness = extractFirstNumber(props.ReportItem.mainAccessory.code);
-            if (thisThickness) {
-                
-            }
         }
     }
 

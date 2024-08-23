@@ -6,7 +6,6 @@ import DoorNameSelect from '@/Model/DoorNameSelect';
 import Accessories, { getNewAcsWithName } from '@/Model/Accessories';
 import FireTest from '@/Model/FireTest';
 import { DoorOpen } from 'lucide-react';
-import { TransToFireTestCondition } from '@/data/BaoGiaFunction';
 import DataReport from '@/data/DataReport';
 import GroupAccessory from '@/Model/GroupAccessory';
 import cmdData from '@/Model/cmdData';
@@ -32,7 +31,7 @@ export default function CreateBaoGia(props: Props) {
     const [totalGroupItem,setTotalGroupItem]= useState<TotalGroup[]>(totalGroup(props.acsData));
     const [fireTestGroupTotal,setFireTestGroupTotal] = useState<FireTestTotal>(new FireTestTotal("",getNewAcsWithName("Chi phí hồ sơ kiểm định"),[]));
     ///
-    const listCondition = TransToFireTestCondition(props.fireTest);
+    // const listCondition = TransToFireTestCondition(props.fireTest);
     const [listReport, setListReport] = useState<DataReport[]>([]);
     const newPriceReport: PriceReport = new PriceReport("", 0, "", "", "", "", 0, 0, 1, 0, "Bộ", null, null, [], []);
     const handleAddNewReport = () => {
