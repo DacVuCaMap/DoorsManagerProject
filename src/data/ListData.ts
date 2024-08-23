@@ -29,7 +29,7 @@ export const listMenu = [
         href:"/kiemdinh",
         name:"Kiểm định",
         icon:ShieldCheck   
-        ,select:"#"
+        ,select:"kiemdinh"
     },
     {
         href:"#",

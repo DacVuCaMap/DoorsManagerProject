@@ -11,6 +11,7 @@ const config: Config = {
     'hover:bg-violet-900',
     'hover:bg-green-900',
     'hover:bg-pink-900',
+    'text-gray-300'
   ],
   theme: {
     extend: {

@@ -47,20 +47,20 @@ export default function BaoGiaSearchPhuKien(props: Props) {
     return (
         <div ref={containerRef}>
             {!status && <span className='text-red-500 text-xs'>Chưa chọn phụ kiện</span>}
-            <input onChange={e => handleChange(e)} type="text" placeholder='Nhập phụ kiện ...' value={inpVal} className={`h-10 px-2 outline-none w-full z-10 rounded border ${!status ? 'border-red-500' : ''}`} />
+            <input onChange={e => handleChange(e)} type="text" placeholder='Nhập phụ kiện ...' value={inpVal} className={`h-10 bg-gray-600 text-gray-300 px-2 outline-none w-full z-10 rounded border ${!status ? 'border-red-500' : ''}`} />
             <div className='w-full bg-white relative z-10' >
                 {open &&
-                    <div className='absolute top-0 bg-white shadow-2xl border border-gray-700 w-full z-20'>
+                    <div className='absolute top-0 bg-gray-600 shadow-2xl border border-gray-700 w-full z-20'>
                         <table className='w-full'>
                             <tbody>
                                 {list.map((item: any, index) => {
                                     if (index < 10) {
                                         return (
-                                            <tr key={index} className='text-center hover:bg-gray-300 hover:cursor-pointer' onClick={e => handleSelect(item)}>
+                                            <tr key={index} className='text-center hover:bg-gray-800 hover:cursor-pointer' onClick={e => handleSelect(item)}>
                                                 <td className='py-2'>
                                                     <div className='relative'>
-                                                        <h1 className='font-bold text-sm'>{item.name}</h1>
-                                                        <span className='absolute right-2 bottom-[1px] text-gray-500 text-xs'>{item.code}</span>
+                                                        <h1 className='font-bold text-sm text-gray-300 text-left w-full pr-10 pl-2'>{item.name}</h1>
+                                                        <span className='absolute right-2 bottom-[1px] text-gray-400 text-xs'>{item.code}</span>
                                                     </div>
                                                 </td>
                                             </tr>

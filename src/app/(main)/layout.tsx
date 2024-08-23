@@ -6,7 +6,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
 
     return (
         <div className="flex text-black">
-            <div className='w-full min-h-screen bg-gray-950 relative'>
+            <div className='w-full min-h-screen bg-slate-950 relative'>
                 <div className=' h-20 mb-10 mx-32'>
                     <HeaderComponent />
                 </div>

@@ -32,7 +32,7 @@ type FireTestItem = {
     command: command
 }
 type FireTestItemGroup = {
-    id:any
+    id: any
     fireTestItem: FireTestItem[],
     color: number
 }
@@ -48,6 +48,7 @@ export default function KiemDinhItem(props: Props) {
             val = !props.fireTestItemGroup.fireTestItem[index].showDetails;
             // console.log(val)
         }
+
         if (key === "name") {
             let temp: DoorNameSelect = props.selectData.find(item => item.id === parseFloat(val)) || newSelect;
             // get panic don doi
@@ -63,8 +64,8 @@ export default function KiemDinhItem(props: Props) {
                 tempType.push("thoát hiểm panic đơn", "thoát hiểm panic đôi");
                 temp.type = tempType;
             }
-            let fireTestUpdated : FireTest = {...props.fireTestItemGroup.fireTestItem[index].fireTest,doorNameSelectId:parseFloat(val)}
-            let updatedItem: FireTestItem = { ...props.fireTestItemGroup.fireTestItem[index], curSelect: temp, command: newCmd,fireTest:fireTestUpdated };
+            let fireTestUpdated: FireTest = { ...props.fireTestItemGroup.fireTestItem[index].fireTest, doorNameSelectId: parseFloat(val) }
+            let updatedItem: FireTestItem = { ...props.fireTestItemGroup.fireTestItem[index], curSelect: temp, command: newCmd, fireTest: fireTestUpdated };
             updatedItem = checkCmdAndAddCmd(updatedItem, index);
             updateToParent(updatedItem, index)
         }
@@ -74,8 +75,14 @@ export default function KiemDinhItem(props: Props) {
             updatedItem = checkCmdAndAddCmd(updatedItem, index);
             updateToParent(updatedItem, index)
         }
+        else if (key === "type") {
+            let newFireTest: FireTest = { ...props.fireTestItemGroup.fireTestItem[index].fireTest, [key]: val };
+            let updatedItem: FireTestItem = { ...props.fireTestItemGroup.fireTestItem[index], fireTest: newFireTest };
+            updateToParent(updatedItem, index);
+        }
         else {
             // chi update command
+            key= key==="typeDoor" ? "type" : key;
             let oldItem: FireTestItem = { ...props.fireTestItemGroup.fireTestItem[index] }
             let updatedItem: FireTestItem = { ...oldItem, command: { ...oldItem.command, [key]: val } };
             updatedItem = checkCmdAndAddCmd(updatedItem, index);
@@ -84,7 +91,7 @@ export default function KiemDinhItem(props: Props) {
 
     }
     const handleAddNew = () => {
-        let newItem: FireTestItem = { fireTest: new FireTest("", "", 0, 0, 0, 0, 0, 0, 0, 0, null), status: false, showDetails: true, curSelect: newSelect, command: newCmd, statusDetails: false }
+        let newItem: FireTestItem = { fireTest: new FireTest("", "", 0, 0, 0, 0, 0, 0, 0, 0, "", null), status: false, showDetails: true, curSelect: newSelect, command: newCmd, statusDetails: false }
         const updateItem: FireTestItem[] = [...props.fireTestItemGroup.fireTestItem, newItem];
         props.handleChangeFireTestItem(updateItem, props.index);
     }
@@ -124,19 +131,19 @@ export default function KiemDinhItem(props: Props) {
     }
     const handleFireTest = (e: any, key: string, index: number) => {
         let val = e.target.value;
-        val = val==='' ? 0 : val;
+        val = val === '' ? 0 : val;
         if (key != "thickness" && val != 0) {
             val = parseFloat(val.replace(/\./g, ''));
         }
-        else if (key==="thickness") {   
-            if (val==="") {
-                val=0;
+        else if (key === "thickness") {
+            if (val === "") {
+                val = 0;
             }
-            else if (val!=0 && !val.includes(".")) {
+            else if (val != 0 && !val.includes(".")) {
                 val = parseFloat(val);
             }
-            else{
-                if (val!=0) {
+            else {
+                if (val != 0) {
                     val = val.replace(/(\..*)\..*/g, '$1')
                 }
             }
@@ -156,7 +163,7 @@ export default function KiemDinhItem(props: Props) {
             </div>}
             {props.fireTestItemGroup.fireTestItem.map((item: FireTestItem, index) => (
                 <div key={index} className={`flex border- border-b hover:${props.colorHover} transition duration-200 ease-in-out`}>
-                    <div className='w-4/12 p-2 space-x-2 space-y-2 '>
+                    <div className='w-3/12 p-2 space-x-2 space-y-2 '>
                         {item.showDetails ?
                             <div>
                                 <span className='text-xs text-left ml-2'>
@@ -184,7 +191,7 @@ export default function KiemDinhItem(props: Props) {
                                         </select>
                                     }
                                     {item.curSelect.name != "" &&
-                                        <select name="" id="" onChange={e => handleSelect(e, "type", index)} value={item.command.type}>
+                                        <select name="" id="" onChange={e => handleSelect(e, "typeDoor", index)} value={item.command.type}>
                                             <option value="" disabled hidden>--Chọn loại--</option>
                                             {item.curSelect.type.map((item: any, ind: number) => (
                                                 <option key={ind} value={item}>{item}</option>
@@ -192,12 +199,21 @@ export default function KiemDinhItem(props: Props) {
                                         </select>
                                     }
                                     {item.curSelect.name != "" &&
-                                        <select name="" id="" onChange={e => handleSelect(e, "code", index)} value={item.command.code}>
-                                            <option value="" disabled hidden>--Chọn Mã--</option>
-                                            {item.curSelect.code.map((item: any, ind: number) => (
-                                                <option key={ind} value={item}>{item}</option>
-                                            ))}
-                                        </select>
+                                        <div className='flex flex-row space-x-2'>
+                                            <select name="" id="" onChange={e => handleSelect(e, "code", index)} value={item.command.code}>
+                                                <option value="" disabled hidden>--Chọn Mã--</option>
+                                                {item.curSelect.code.map((item: any, ind: number) => (
+                                                    <option key={ind} value={item}>{item}</option>
+                                                ))}
+                                            </select>
+                                            <div className='flex flex-col'>
+                                                <select onChange={e => handleSelect(e, "type", index)} value={item.fireTest.type || ""}>
+                                                    <option value="" disabled hidden>--Chọn A-B--</option>
+                                                    <option value="A">A</option>
+                                                    <option value="B">B</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     }
                                 </div>
                                 {item.curSelect.name != "" &&
@@ -211,6 +227,7 @@ export default function KiemDinhItem(props: Props) {
                                             <span className='text-xs'>chiều dài</span>
                                             <input value={item.command.height === 0 ? "" : item.command.height} onChange={e => handleSelect(e, "height", index)} type="number" className='py-2 text-black rounded-lg px-2' placeholder='nhập kích thước' />
                                         </div>
+
                                     </div>
                                 }
                                 {item.curSelect.name != "" &&
@@ -226,12 +243,12 @@ export default function KiemDinhItem(props: Props) {
                                         </div>
                                         <div className='flex flex-row space-x-2 items-center'>
                                             <div className='w-1/4'>
-                                                <span className='text-left text-xs'>Chiều rộng(mm)</span>
+                                                <span className='text-left text-xs'>Rộng(mm)</span>
                                                 <input value={item.command.glassW === 0 ? "" : item.command.glassW} onChange={e => handleSelect(e, "glassW", index)} type="number" className='w-full text-black rounded px-2' />
                                             </div>
                                             <span className='pt-4'>x</span>
                                             <div className='w-1/4'>
-                                                <span className='text-left text-xs'>Chiều dài(mm)</span>
+                                                <span className='text-left text-xs'>Dài(mm)</span>
                                                 <input value={item.command.glassH === 0 ? "" : item.command.glassH} onChange={e => handleSelect(e, "glassH", index)} type="number" className='w-full text-black rounded px-2' />
                                             </div>
                                             <span className='pt-4'>-</span>
@@ -257,13 +274,14 @@ export default function KiemDinhItem(props: Props) {
                         </div>
 
                     </div>
-                        <div className='w-1/12 p-2 text-center kd2-list'><input value={item.fireTest.thickness} onChange={e => handleFireTest(e, "thickness", index)} type="text" className='w-full h-full text-center' placeholder='Nhập độ dày' /></div>
-                    <div className='w-1/12 p-2 text-center kd2-list'><input value={formatToThousandDot(item.fireTest.m1000)} onChange={e => handleFireTest(e, "m1000", index)} type="text" className='w-full h-full text-center' placeholder='Nhập...' /></div>
-                    <div className='w-1/12 p-2 text-center kd2-list'><input value={formatToThousandDot(item.fireTest.m100)} onChange={e => handleFireTest(e, "m100", index)} type="text" className='w-full h-full text-center' placeholder='Nhập...' /></div>
-                    <div className='w-1/12 p-2 text-center kd2-list'><input value={formatToThousandDot(item.fireTest.m50)} onChange={e => handleFireTest(e, "m50", index)} type="text" className='w-full h-full text-center' placeholder='Nhập...' /></div>
-                    <div className='w-1/12 p-2 text-center kd2-list'><input value={formatToThousandDot(item.fireTest.m30)} onChange={e => handleFireTest(e, "m30", index)} type="text" className='w-full h-full text-center' placeholder='Nhập...' /></div>
-                    <div className='w-1/12 p-2 text-center kd2-list'><input value={formatToThousandDot(item.fireTest.u30)} onChange={e => handleFireTest(e, "u30", index)} type="text" className='w-full h-full text-center' placeholder='Nhập...' /></div>
-                    <div className='w-1/12 p-2 text-center kd2-list'><input value={formatToThousandDot(item.fireTest.u10)} onChange={e => handleFireTest(e, "u10", index)} type="text" className='w-full h-full text-center' placeholder='Nhập...' /></div>
+                    <div className='w-1/12 p-2 text-center kd2-list'><input value={item.fireTest.thickness} onChange={e => handleFireTest(e, "thickness", index)} type="text" className='w-full h-full text-center hover:outline rounded-lg' placeholder='Nhập độ dày' /></div>
+                    <div className='w-1/12 p-2 text-center kd2-list flex items-center justify-center'><span className=''>{index + 1}/{props.fireTestItemGroup.fireTestItem.length} mẫu</span></div>
+                    <div className='w-1/12 p-2 text-center kd2-list'><input value={formatToThousandDot(item.fireTest.m1000)} onChange={e => handleFireTest(e, "m1000", index)} type="text" className='w-full h-full text-center hover:outline rounded-lg' placeholder='Nhập...' /></div>
+                    <div className='w-1/12 p-2 text-center kd2-list'><input value={formatToThousandDot(item.fireTest.m100)} onChange={e => handleFireTest(e, "m100", index)} type="text" className='w-full h-full text-center hover:outline rounded-lg' placeholder='Nhập...' /></div>
+                    <div className='w-1/12 p-2 text-center kd2-list'><input value={formatToThousandDot(item.fireTest.m50)} onChange={e => handleFireTest(e, "m50", index)} type="text" className='w-full h-full text-center hover:outline rounded-lg' placeholder='Nhập...' /></div>
+                    <div className='w-1/12 p-2 text-center kd2-list'><input value={formatToThousandDot(item.fireTest.m30)} onChange={e => handleFireTest(e, "m30", index)} type="text" className='w-full h-full text-center hover:outline rounded-lg' placeholder='Nhập...' /></div>
+                    <div className='w-1/12 p-2 text-center kd2-list'><input value={formatToThousandDot(item.fireTest.u30)} onChange={e => handleFireTest(e, "u30", index)} type="text" className='w-full h-full text-center hover:outline rounded-lg' placeholder='Nhập...' /></div>
+                    <div className='w-1/12 p-2 text-center kd2-list'><input value={formatToThousandDot(item.fireTest.u10)} onChange={e => handleFireTest(e, "u10", index)} type="text" className='w-full h-full text-center hover:outline rounded-lg' placeholder='Nhập...' /></div>
                     <div className='w-1/12 p-2 text-center kd2-list flex items-center justify-center'>
                         <button onClick={e => handleDel(index)} className='bg-white p-2 rounded text-red-500 hover:bg-gray-300'><Trash2 /></button>
                     </div>

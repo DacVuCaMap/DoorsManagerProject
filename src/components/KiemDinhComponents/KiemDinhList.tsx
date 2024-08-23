@@ -126,7 +126,7 @@ export default function KiemDinhList(props:Props) {
         }
     }
     return (
-        <div className='w-full h-full py-4 kd-list flex flex-col space-y-4'>
+        <div className='w-full h-full py-4 kd-list flex flex-col space-y-10'>
             {listFireTest.map((item: FireTestItemGroup, index) =>
             (
                 <div key={index} className={`text-gray-200 text-sm flex flex-col ${listColor[item.color].color} rounded-xl items-center pb-2`}>

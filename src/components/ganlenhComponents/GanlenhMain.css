@@ -1,15 +1,13 @@
 .ganlenh select {
-    background-color: #F9FAFB;
+    background-color: rgb(156 163 175);
     /* bg-gray-50 */
-    border: 1px solid #D1D5DB;
     /* border and border-gray-300 */
-    color: #111827;
+    color: black;
     /* text-gray-900 */
     font-size: 0.875rem;
     /* text-sm */
     border-radius: 0.5rem;
     /* rounded-lg */
-
     /* block */
     padding: 0.625rem;
     /* p-2.5 */

@@ -6,8 +6,11 @@ import DoorSelectNameComponent from '../DoorSelectNameComponents/DoorSelectNameC
 import { Settings } from 'lucide-react';
 import DoorNameSelect from '@/Model/DoorNameSelect';
 import { LoadSelectData } from '@/data/FunctionAll';
-
-export default function GanlenhMain() {
+import GroupAccessory from '@/Model/GroupAccessory';
+type Props = {
+  acsGroupData : GroupAccessory[]
+}
+export default function GanlenhMain(props:Props) {
   const [cmd, setCmd] = useState({ name1: "", name2: "",name3:"" });
   const [openDoorSelect,setOpenDoorSelect] = useState(false);
   const [reFreshData,setReFreshData] = useState(0);
@@ -33,8 +36,8 @@ export default function GanlenhMain() {
       {openDoorSelect && <DoorSelectNameComponent reFreshData={reFreshData} setReFreshData={setReFreshData} data={doorNameSelect} setOpen={setOpenDoorSelect}/>}
       {/* left */}
       <div className='min-w-[500px] flex flex-col space-y-4'>
-        <div className='w-full bg-white rounded-lg p-4 shadow-md hover:shadow-2xl transition duration-150 ease-out'>
-          <GanlenhFormAdd selectDoorName={doorNameSelect} cmdMain={cmd} refreshTrigger={refreshTrigger} setRefreshTrigger={setRefreshTrigger} />
+        <div className='w-full bg-gray-800 rounded-lg p-4 shadow-md hover:shadow-2xl transition duration-150 ease-out'>
+          <GanlenhFormAdd selectDoorName={doorNameSelect} cmdMain={cmd} refreshTrigger={refreshTrigger} setRefreshTrigger={setRefreshTrigger} acsGroupData={props.acsGroupData} />
         </div>
       </div>
 
@@ -42,7 +45,7 @@ export default function GanlenhMain() {
       {/* right */}
       <div className='w-[500px]'>
         <div className='w-full rounded-lg  space-y-4'>
-          <button onClick={e=>setOpenDoorSelect(true)} className='w-full flex flex-row space-x-2 text-blue-500 font-bold hover:bg-blue-500 hover:text-white p-2 bg-white rounded shadow-md hover:shadow-2xl transition duration-150 ease-out'>
+          <button onClick={e=>setOpenDoorSelect(true)} className='w-full flex flex-row space-x-2 text-blue-400 font-bold hover:bg-gray-600 hover:text-white p-2 bg-gray-800 rounded shadow-md hover:shadow-2xl transition duration-150 ease-out'>
             <Settings /> <span>Thiết lập tên qui cách</span>
           </button>
           <div className='shadow-md hover:shadow-2xl transition duration-150 ease-out'>

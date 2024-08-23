@@ -1,0 +1,25 @@
+.create-bg input{
+    background-color: rgb(156 163 175);
+    color: black;
+}
+.create-bg input:focus{
+    outline: 2px solid white;
+    box-shadow: 0 0 8px 2px white
+}
+.create-bg input::placeholder {
+    color: rgb(105, 108, 114); /* Change this to the desired color */
+    opacity: 1; /* This ensures the placeholder text color is fully opaque */
+}
+.create-bg select{
+    background-color: rgb(156 163 175);
+    color: black;
+    padding: 0 15px 0 15px;
+}
+.create-bg select:focus{
+    outline: 2px solid white;
+    box-shadow: 0 0 8px 2px white;
+}
+.create-bg select option {
+    height: 40px;
+    padding: 10px;
+}

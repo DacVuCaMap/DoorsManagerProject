@@ -31,11 +31,11 @@ export default function SideBar() {
       <button 
         ref={buttonRef}
         type="button" 
-        className='h-14 w-14 rounded fixed z-50 top-12 left-4 bg-gray-800 hover:bg-gray-900 shadow-lg flex 
+        className='h-14 w-14 rounded fixed z-50 top-12 left-4 bg-gray-200 hover:bg-gray-100 shadow-lg flex 
           items-center justify-center text-center hover:cursor-pointer opacity-50 hover:opacity-100' 
         onClick={() => setOpenMenu(!openMenu)}
       >
-        {!openMenu ? <AlignJustify className='text-white' size={40} /> : <X className='text-white' size={40} />}
+        {!openMenu ? <AlignJustify className='text-gray-800' size={40} /> : <X className='text-gray-800' size={40} />}
       </button>
       {openMenu && (
         <div ref={sidebarRef}>

@@ -6,29 +6,31 @@ import './GanlenhMain.css'
 import BaoGiaSearchPhuKien from '../baogiaComponents/BaoGiaSearchPhuKien';
 import GetPattern from '@/ApiPattern/GetPattern';
 import { genNumberByTime } from '@/data/FunctionAll';
-import { Trash2 } from 'lucide-react';
-import { ScaleLoader } from 'react-spinners';
+import { Check, SquareTerminal, Trash2 } from 'lucide-react';
+import { BarLoader, ScaleLoader } from 'react-spinners';
 import PostPattern from '@/ApiPattern/PostPattern';
 import DoorNameSelect from '@/Model/DoorNameSelect';
 import AccessoryGroupRequest from '@/Request/AccessoryGroupRequest';
+import InputSearchAccessoryGroup from '../SearchingComponents/InputSearchAccessoryGroup';
+import GroupAccessory from '@/Model/GroupAccessory';
 
-type AccessoriesAndQuantity = {
-  accessories: Accessories,
+type GroupAccessoriesAndQuantity = {
+  groupAcs: GroupAccessory,
   quantity: number,
 
 }
 type DefaultCommand = {
   command: string,
-  acsAndQuantity: AccessoriesAndQuantity[],
+  groupAcsAndQuan: GroupAccessoriesAndQuantity[],
   doorNameSelectId: any,
   accessoryGroupId: any,
-  accessoryGroupType: string
 }
 type Props = {
   cmdMain: { name1: string, name2: string, name3: string };
   refreshTrigger: number
   setRefreshTrigger: (trigger: number) => void;
-  selectDoorName: DoorNameSelect[]
+  selectDoorName: DoorNameSelect[],
+  acsGroupData: GroupAccessory[]
 }
 export default function GanlenhFormAdd(props: Props) {
   //data select
@@ -37,39 +39,34 @@ export default function GanlenhFormAdd(props: Props) {
   useEffect(() => {
     setSelectName(props.selectDoorName);
   }, [props.selectDoorName])
-  const [curCmd, setCurCmd] = useState<DefaultCommand>({ command: "", acsAndQuantity: [], doorNameSelectId: "", accessoryGroupId: "", accessoryGroupType: "" });
+  const newDefaultCommand : DefaultCommand = { command: "", groupAcsAndQuan: [], doorNameSelectId: "", accessoryGroupId: "" }
+  const [curCmd, setCurCmd] = useState<DefaultCommand>(newDefaultCommand);
   const [command, setCommand] = useState<{ name1: string, name2: string, name3: string }>({ name1: "", name2: "", name3: "" });
-  const [acsData, setAcsData] = useState<Accessories[]>([]);
   const [loading, setLoading] = useState(0);
-  const [isSuccess, setSuccess] = useState("");
+  const [isSuccess, setSuccess] = useState(false);
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
+  const [error, setError] = useState(0);
   const [mainAcs, setMainAcs] = useState([]);
-  let tempAcs = new Accessories(genNumberByTime(), "", "", "", 0, 0, 0, 0, 0, 0, 0, "Bộ", false);
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    if (curCmd.command === "" || curCmd.acsAndQuantity.length < 0 || curCmd.doorNameSelectId === "" || curCmd.accessoryGroupId === "") {
-      //error
-      // console.log("error")
-      // console.log(curCmd)
-      return;
-    }
-    let listAcsId: number[] = [];
+    let listGroupAcsId: number[] = [];
     let quantityList: number[] = [];
-    for (let i = 0; i < curCmd.acsAndQuantity.length; i++) {
-      listAcsId.push(curCmd.acsAndQuantity[i].accessories.id);
-      quantityList.push(curCmd.acsAndQuantity[i].quantity);
+    for (let i = 0; i < curCmd.groupAcsAndQuan.length; i++) {
+      listGroupAcsId.push(curCmd.groupAcsAndQuan[i].groupAcs.id);
+      quantityList.push(curCmd.groupAcsAndQuan[i].quantity);
     }
-    const dataPost = { command: curCmd.command, listAcsId: listAcsId, quantityList: quantityList, doorNameSelectId: curCmd.doorNameSelectId, accessoryGroupId: curCmd.accessoryGroupId };
-    console.log(dataPost)
-    try {
-      let url = process.env.NEXT_PUBLIC_API_URL + "/api/product-command/add"
-      const response = await PostPattern(url, dataPost, {});
-      if (response && response.success) {
-        console.log(response.message);
-        props.setRefreshTrigger(props.refreshTrigger + 1);
-        return;
-      }
-    } catch (error) {
-      console.log(error);
+    let cmd = command.name1 + "-" + command.name2 + "-" + command.name3;
+    const dataPost = { command: cmd, listGroupAcsId: listGroupAcsId, quantityList: quantityList, doorNameSelectId: curCmd.doorNameSelectId, mainAccessoryGroupId: curCmd.accessoryGroupId };
+    // console.log(dataPost)
+    // console.log(command);
+    setLoadingSubmit(true);
+    let url = process.env.NEXT_PUBLIC_API_URL + "/api/product-command/add"
+    const response = await PostPattern(url, dataPost, {});
+    setLoadingSubmit(false);
+    setSuccess(true)
+    setTimeout(() => { setSuccess(false) }, 3000)
+    if (response && response.success) {
+      props.setRefreshTrigger(props.refreshTrigger + 1);
       return;
     }
 
@@ -79,21 +76,20 @@ export default function GanlenhFormAdd(props: Props) {
     if (key === "main") {
       val = parseFloat(val)
       let temp: any = mainAcs.find((item: any) => item.id === val);
-      setCurCmd({ ...curCmd, accessoryGroupId: temp.id, accessoryGroupType: temp.type });
+      setCurCmd({ ...curCmd, accessoryGroupId: temp.id });
       return;
     }
     setCommand({ ...command, [key]: val });
     if (key === "name1") {
       let temp: DoorNameSelect = selectName.find((item: DoorNameSelect) => item.name === val) ?? curSelectName;
       setCurSelectName(temp)
-      console.log(temp.id)
       setCurCmd({ ...curCmd, doorNameSelectId: temp.id })
     }
 
   }
   useEffect(() => {
     setCommand(props.cmdMain)
-    setCurCmd({ ...curCmd, command: props.cmdMain.name1 + props.cmdMain.name2 + props.cmdMain.name3 })
+    setCurCmd({ ...newDefaultCommand, command: props.cmdMain.name1 + props.cmdMain.name2 + props.cmdMain.name3 })
     // curselect
     let temp: DoorNameSelect = selectName.find((item: DoorNameSelect) => item.name === props.cmdMain.name1) ?? curSelectName;
     setCurSelectName(temp)
@@ -114,127 +110,82 @@ export default function GanlenhFormAdd(props: Props) {
     fetchData();
   }, [])
 
-  //cap nhap data accessories có sẵn
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        let url = process.env.NEXT_PUBLIC_API_URL + "/api/accessories/list?page=0&size=100&search";
-        const response = await GetPattern(url, {});
-        if (response.content && Array.isArray(response.content)) {
-          const list: any[] = response.content;
-          let newAcs: Accessories[] = list.map((item: any, index: number) => {
-            return new Accessories(
-              item.id,
-              item.code,
-              item.name,
-              item.supplier,
-              0,
-              0,
-              0,
-              0,
-              item.orgPrice,
-              item.lowestPricePercent,
-              0,
-              item.unit,
-              true
-            );
-          });
-          // Kiểm tra kết quả
-          setAcsData(newAcs);
-          // add main list
-        }
-      } catch (error) {
-        console.log(error)
-      }
-    }
-    fetchData();
-    // Thiết lập interval
-    const intervalId = setInterval(fetchData, 5 * 60 * 1000);
-    // Trả về hàm clean up
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [])
-
   // search to loading by command , update command 
   useEffect(() => {
     let cmd = command.name1 + "-" + command.name2 + "-" + command.name3;
+    // console.log(cmd)
     if (command.name1 != "" && command.name2 != "" && command.name3 != "") {
-      const fecthData = async () => {
-        let url = process.env.NEXT_PUBLIC_API_URL + `/api/product-command/get-command?command=${cmd}`;
-        try {
-          setLoading(1)
-          const response = await GetPattern(url, {});
-          setLoading(0);
-          console.log(response)
-          let newArr: AccessoriesAndQuantity[] = response.value.map((item: any, index: number) => {
-            return {
-              accessories: new Accessories(
-                item.accessories.id,
-                item.accessories.code,
-                item.accessories.name,
-                item.accessories.supplier,
-                0,
-                0,
-                0,
-                0,
-                item.accessories.orgPrice,
-                item.accessories.lowestPricePercent,
-                0,
-                item.accessories.unit,
-                false
-              ), quantity: item.quantity
-            };
+      const fetchData = async () => {
+        setLoading(1)
+        let url = process.env.NEXT_PUBLIC_API_URL + "/api/product-command/get-command?command=" + cmd
+        const response = await GetPattern(url, {});
+        setLoading(0);
+        // console.log(response)
+        if (response && response.value && Array.isArray(response.value) && response.value.length > 0) {
+          let newArr: GroupAccessoriesAndQuantity[] = response.value.map((item: any, index: number) => {
+
+            return { groupAcs: {id:item.id,name:item.accessoryGroup.name,accesoriesAndType:[],type:item.accessoryGroup.type}
+            , quantity: item.quantity };
           });
           setCurCmd({
-            command: cmd, acsAndQuantity: newArr
+            command: cmd, groupAcsAndQuan: newArr
             , accessoryGroupId: response.value[0].accessoryGroupId
-            , accessoryGroupType: response.value[0].accessoryGroupType
             , doorNameSelectId: response.value[0].doorNameSelectId
           })
-        } catch (error) {
-          return;
+        }else{
+          setCurCmd({ ...curCmd, command: cmd,  groupAcsAndQuan:[],accessoryGroupId:""  })
         }
       }
-      fecthData();
+      fetchData()
+    }
+    else {
+      setCurCmd({ ...curCmd, command: cmd  })
     }
   }, [command])
-  const selectAccessories = (acsId: any, newAcs: Accessories, productId: any) => {
-    const accessoriesAndQuantity = curCmd.acsAndQuantity;
-    let quan = newAcs.name.includes("Doorsill") ? -1 : 1;
-    const newItem: AccessoriesAndQuantity = { accessories: newAcs, quantity: quan };
-    accessoriesAndQuantity.push(newItem);
-    setCurCmd({ ...curCmd, acsAndQuantity: accessoriesAndQuantity });
-  }
   const handleChangeQuantity = (e: any, index: number) => {
     let val = e.target.value;
-    let updatedAcsAndQuan = curCmd.acsAndQuantity;
+    let updatedAcsAndQuan = curCmd.groupAcsAndQuan;
     if (val >= 0) {
       val = parseInt(val);
-      updatedAcsAndQuan = updatedAcsAndQuan.map((item: AccessoriesAndQuantity, ind) => {
+      updatedAcsAndQuan = updatedAcsAndQuan.map((item: GroupAccessoriesAndQuantity, ind) => {
         if (index === ind) {
-          return { accessories: item.accessories, quantity: val };
+          return { groupAcs: item.groupAcs, quantity: val };
         }
         return item;
       })
-      setCurCmd({ ...curCmd, acsAndQuantity: updatedAcsAndQuan });
+      setCurCmd({ ...curCmd, groupAcsAndQuan: updatedAcsAndQuan });
     }
   }
   const handleDel = (index: number) => {
-    let updatedAcsAndQuan = curCmd.acsAndQuantity.filter((item: AccessoriesAndQuantity, ind) => ind != index);
-    setCurCmd({ ...curCmd, acsAndQuantity: updatedAcsAndQuan });
+    let updatedAcsAndQuan = curCmd.groupAcsAndQuan.filter((item: GroupAccessoriesAndQuantity, ind) => ind != index);
+    setCurCmd({ ...curCmd, groupAcsAndQuan: updatedAcsAndQuan });
   }
-  useEffect(() => {
-    console.log(curCmd)
-  }, [curCmd])
+  const handleSetAcsGroup = (acsGroup: GroupAccessory, index: number) => {
+    let flag = curCmd.groupAcsAndQuan.find(item => item.groupAcs.id === acsGroup.id);
+    if (!flag) {
+      setError(0);
+      let quan = acsGroup.type != "normal" ? -1 : 1;
+      let temp: GroupAccessoriesAndQuantity[] = [...curCmd.groupAcsAndQuan, { groupAcs: acsGroup, quantity: quan }];
+      setCurCmd({ ...curCmd, groupAcsAndQuan: temp });
+    }
+    else { setError(1) }
+  }
+  const handleKeyDown = (event:any) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+    }
+  };
   return (
     <div className='w-full h-full ganlenh relative'>
-      <h2 className='font-bold text-lg mb-2'>Form gán mặc định</h2>
-      <form action="" onSubmit={handleSubmit}>
+      <div className='flex flex-row text-gray-300 space-x-2'>
+        <SquareTerminal />
+        <h2 className='font-bold text-lg mb-2'>Form gán mặc định</h2>
+      </div>
+      <form action="" onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
         <label htmlFor="" className='text-sm text-gray-400'>Tên qui cách</label>
-        <div className='flex flex-row space-x-2 bg-white pt-4 pb-2 mb-4 border-b border-gray-400'>
+        <div className='flex flex-row space-x-2 bg-gray-800 pt-4 pb-2 mb-4 border-b border-gray-400'>
 
-          {selectName.length != 0 ? <select name="" id="" value={command.name1} onChange={e => handleSelect(e, "name1")}>
+          {selectName.length != 0 ? <select required name="" id="" value={command.name1} onChange={e => handleSelect(e, "name1")}>
             <option value="" disabled hidden>--Chọn loại--</option>
             {selectName.map((item: any, index) => (
               <option key={index} value={item.name}>{item.name}</option>
@@ -247,7 +198,7 @@ export default function GanlenhFormAdd(props: Props) {
           }
 
           {curSelectName.name != "" &&
-            <select name="" id="" value={command.name2} onChange={e => handleSelect(e, "name2")}>
+            <select required name="" id="" value={command.name2} onChange={e => handleSelect(e, "name2")}>
               <option value="" disabled hidden>--Chọn loại--</option>
               {curSelectName.type.map((item: any, index) => (
                 <option key={index} value={item}>{item}</option>
@@ -256,7 +207,7 @@ export default function GanlenhFormAdd(props: Props) {
 
           }
           {curSelectName.name != "" &&
-            <select name="" id="" onChange={e => handleSelect(e, "name3")} value={command.name3}>
+            <select required name="" id="" onChange={e => handleSelect(e, "name3")} value={command.name3}>
               <option value="" disabled hidden>--Chọn cánh--</option>
               {curSelectName.numberDoor.map((item: any, index) => (
                 <option key={index} value={item}>{item}</option>
@@ -272,48 +223,53 @@ export default function GanlenhFormAdd(props: Props) {
             <ScaleLoader color='gray' />
           </div>
             :
-            <select onChange={e => handleSelect(e, "main")} value={curCmd.accessoryGroupId} name="" id="" className='text-sm text-gray-600 border border-black rounded p-2'>
+            <select required onChange={e => handleSelect(e, "main")} value={curCmd.accessoryGroupId} name="" id="" className='text-sm text-gray-600 rounded p-2'>
               <option value="" disabled hidden>--Chọn nhóm--</option>
-              {mainAcs.map((item: any, index) => (<option value={item.id} key={index}>{item.name}</option>))}
+              {mainAcs.map((item: any, index) => (<option value={item.id} key={index}>
+                {item.name}
+              </option>))}
             </select>}
         </div>
         <div className='flex flex-col mb-2'>
-          <BaoGiaSearchPhuKien acsData={acsData} acs={tempAcs} productId={0} selectAccessories={selectAccessories} />
+          <span className='text-gray-400 text-xs'>Nhóm phụ kiện thường</span>
+          <InputSearchAccessoryGroup condition='normal doorsill' accessoryGroupData={props.acsGroupData} handleSetAcsGroup={handleSetAcsGroup} index={0} />
+          {error === 1 && <span className='text-red-500'>Đã tồn tại</span>}
         </div>
 
 
-        {curCmd.acsAndQuantity.length > 0 &&
-          <div className="w-full max-w-md p-2 bg-white border border-gray-200 rounded-lg shadow">
+        {curCmd.groupAcsAndQuan.length > 0 &&
+          <div className="w-full p-2 bg-gray-600 rounded-lg shadow">
             <div className="flow-root">
               <ul role="list" className="divide-y divide-gray-200">
                 <li className="py-3">
                   <div className="flex items-center">
                     <div className="flex-1 min-w-0 ms-4">
-                      <p className="text-base font-semibold text-gray-900 truncate">Thông tin</p>
+                      <p className="text-base font-semibold text-black truncate">Thông tin</p>
                     </div>
-                    <div className="inline-flex items-center w-20 text-base font-semibold text-gray-900">Số bộ</div>
+                    <div className="inline-flex items-center w-20 text-base font-semibold text-black">Số bộ</div>
                   </div>
                 </li>
-                {curCmd.acsAndQuantity.map((item: AccessoriesAndQuantity, index) => (
+                {curCmd.groupAcsAndQuan.map((item: GroupAccessoriesAndQuantity, index) => (
                   <li key={index} className="py-3 sm:py-4 relative group">
                     <div className="flex items-center">
                       <div className="flex-1 min-w-0 ms-4">
-                        <p className="text-sm truncate font-bold">{item.accessories.code}</p>
-                        <p className="text-xs text-gray-600 truncate pr-2">{item.accessories.name}</p>
+                        <p className="text-sm truncate font-bold text-gray-300">{item.groupAcs.name}</p>
+                        <p className="text-xs truncate font-bold text-gray-400">{item.groupAcs.type}</p>
                       </div>
                       <div className="w-20 items-center text-base font-semibold text-gray-900 flex flex-row space-x-2">
-                        {item.accessories.name.includes("Doorsill") ?
-                          <div className='w-20'>
-                            Width
-                          </div>
-                          :
-                          <input
-                            type="number"
-                            required
-                            value={item.quantity}
-                            onChange={e => handleChangeQuantity(e, index)}
-                            className="border-gray-400 border rounded w-12 text-center"
-                          />}
+                        <div className='w-16 flex justify-center'>
+                          {item.quantity != -1 ?
+                            <input
+                              type="number"
+                              required
+                              value={item.quantity}
+                              onChange={e => handleChangeQuantity(e, index)}
+                              className="bg-gray-400 border rounded w-12 text-center"
+                            />
+                            :
+                            "Khác"
+                          }
+                        </div>
                         <button type='button' className='text-red-600' onClick={e => handleDel(index)}><Trash2 /></button>
                       </div>
                     </div>
@@ -326,12 +282,13 @@ export default function GanlenhFormAdd(props: Props) {
         {loading > 0 && <div className='w-full text-center py-20'>
           <ScaleLoader color='gray' />
         </div>}
-        {curCmd.acsAndQuantity.length > 0 ? <button className='bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded w-full my-2'>Lưu</button>
+        {(curCmd.groupAcsAndQuan.length > 0 && !isSuccess) ? <button className='bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded w-full my-2'>{loadingSubmit ? <BarLoader className='w-full' /> : "Lưu"}</button>
           : <div className='h-14'></div>}
+        {isSuccess && <div className='flex flex-col justify-center items-center'><Check size={40} className=' p-2 bg-green-400 rounded-full text-white' /> <span className='text-gray-500 font-semibold'>success</span></div>}
       </form>
       {command.name1 == "" && command.name2 == "" ?
-        <div className='bg-white absolute h-40 w-full top-32 justify-center flex items-center'>
-          <h2 className='text-gray-600 font-bold text-lg' >Chọn tên qui cách</h2>
+        <div className='bg-gray-800 absolute h-40 w-full top-32 justify-center flex items-center'>
+          <h2 className='text-gray-400 font-bold text-lg' >Chọn tên qui cách</h2>
         </div>
         : ""
       }

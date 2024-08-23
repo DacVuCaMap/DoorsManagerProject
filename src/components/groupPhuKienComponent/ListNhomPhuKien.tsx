@@ -43,19 +43,19 @@ export default function ListNhomPhuKien(props:Props) {
       <table className='w-full'>
         <thead>
           <tr>
-            <th className='sticky top-0 bg-blue-700 text-white z-10'></th>
-            <th className='sticky top-0 bg-blue-700 text-white z-10 py-2'>Tên nhóm cửa</th>
-            <th className='sticky top-0 bg-blue-700 text-white z-10'></th>
+            <th className='sticky top-0 bg-blue-800 text-white z-10'></th>
+            <th className='sticky top-0 bg-blue-800 text-white z-10 py-2'>Tên nhóm cửa</th>
+            <th className='sticky top-0 bg-blue-800 text-white z-10'></th>
           </tr>
         </thead>
         <tbody>
           {list?.map((item: any, index) => (
-            <tr key={index} className={`${index % 2 != 0 ? "bg-gray-200" : "bg-white"} text-gray-700 hover:shadow-xl hover:bg-gray-800 hover:text-white`}>
+            <tr key={index} className={`${index % 2 != 0 ? "bg-gray-800" : "bg-gray-700"} text-gray-300 hover:shadow-xl hover:bg-gray-200 hover:text-black`}>
               <td className='text-center'>{index + 1}</td>
               <td className=' text-center'>
                 <div className='hover:cursor-pointer py-4 flex flex-col px-2 h-full w-full' onClick={e=>handleClickItem(item)}>
                   <span className='font-semibold '>{item.name}</span>
-                  <span className='leading-3 text-xs text-gray-500'>{item.type}</span>
+                  <span className='leading-3 text-xs text-gray-400'>{item.type}</span>
                 </div>
               </td>
               <td className='text-center text-red-600'><button onClick={e=>handleDelete(item.id)}><Trash2 /></button></td>

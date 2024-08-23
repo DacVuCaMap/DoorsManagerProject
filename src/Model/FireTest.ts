@@ -9,6 +9,7 @@ class FireTest {
     u30:number;
     u10:number;
     index:number;
+    type:string;
     doorNameSelectId:any;
     constructor(
         id: any,
@@ -21,6 +22,7 @@ class FireTest {
         u30: number,
         u10: number,
         index: number,
+        type:string,
         doorNameSelectId: any
     ) {
         this.id = id;
@@ -33,6 +35,7 @@ class FireTest {
         this.u30 = u30;
         this.u10 = u10;
         this.index = index;
+        this.type = type;
         this.doorNameSelectId = doorNameSelectId;
     }
 }

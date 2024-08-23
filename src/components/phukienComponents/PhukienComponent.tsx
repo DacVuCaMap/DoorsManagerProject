@@ -23,7 +23,7 @@ export default function PhukienComponent() {
         </div>
       </div>
       <div className='lg:flex-1'>
-        <div className='bg-white mb-2  w-full h-full rounded-lg shadow-md hover:shadow-2xl transition duration-150 ease-out'>
+        <div className='w-full h-full rounded-lg shadow-md hover:shadow-2xl transition duration-150 ease-out'>
           <PhukienList />
         </div>
         

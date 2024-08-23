@@ -13,14 +13,14 @@ export default function GroupPhukienComponent() {
         <div className='w-full flex lg:flex-row flex-col justify-center'>
             {/* left */}
             <div className='w-[500px] p-4 flex flex-col space-y-4'>
-                <div className='w-full bg-white rounded-lg p-4 shadow-md hover:shadow-2xl transition duration-150 ease-out'>
+                <div className='w-full bg-gray-800 rounded-lg p-4 shadow-md hover:shadow-2xl transition duration-150 ease-out'>
                     <FormNhomPhuKien cmdMain={cmd} refreshTrigger={refreshTrigger} setRefreshTrigger={setRefreshTrigger} />
                 </div>
             </div>
 
             {/* right */}
             <div className='w-96 p-4'>
-                <div className='bg-white w-full rounded-lg shadow-md hover:shadow-2xl transition duration-150 ease-out'>
+                <div className='bg-gray-800 w-full rounded-lg shadow-md hover:shadow-2xl transition duration-150 ease-out'>
                     <ListNhomPhuKien selectCommand={selectCommand} refreshTrigger={refreshTrigger} setRefreshTrigger={setRefreshTrigger} />
                 </div>
             </div>

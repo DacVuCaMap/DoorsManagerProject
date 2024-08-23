@@ -36,18 +36,18 @@ export default function PhukienList() {
         return (numArr[index] * 100).toFixed(2);
     }
     return (
-        <div className="max-h-[500px] overflow-auto phukien-list">
+        <div className="max-h-[500px] overflow-auto phukien-list bg-gray-800">
             <table className="table-auto w-full">
                 <thead className='bg-blue-700 border-b-2 text-white border-black'>
                     <tr>
-                        <th scope="col" className="sticky top-0 bg-blue-700 text-white z-10 border-black">Mã</th>
-                        <th scope="col" className="sticky top-0 bg-blue-700 text-white z-10 border-black">Tên vật tư</th>
-                        <th scope="col" className="sticky top-0 bg-blue-700 text-white z-10 border-black">Đơn vị</th>
-                        <th scope="col" className="sticky top-0 bg-blue-700 text-white z-10 border-black">Đơn giá</th>
-                        <th scope="col" className="sticky top-0 bg-blue-700 text-white z-10 border-black">HSCP</th>
-                        <th scope="col" className="sticky top-0 bg-blue-700 text-white z-10 border-black">HSCP&lt;10</th>
-                        <th scope="col" className="sticky top-0 bg-blue-700 text-white z-10 border-black">HSCP&lt;20</th>
-                        <th scope="col" className="sticky top-0 bg-blue-700 text-white z-10 border-black">HSCP&lt;30</th>
+                        <th scope="col" className="sticky top-0 bg-gray-900 text-gray-300 text-sm z-10 border-black">Mã</th>
+                        <th scope="col" className="sticky top-0 bg-gray-900 text-gray-300 text-sm z-10 border-black">Tên vật tư</th>
+                        <th scope="col" className="sticky top-0 bg-gray-900 text-gray-300 text-sm z-10 border-black">Đơn vị</th>
+                        <th scope="col" className="sticky top-0 bg-gray-900 text-gray-300 text-sm z-10 border-black">Đơn giá</th>
+                        <th scope="col" className="sticky top-0 bg-gray-900 text-gray-300 text-sm z-10 border-black">HSCP</th>
+                        <th scope="col" className="sticky top-0 bg-gray-900 text-gray-300 text-sm z-10 border-black">HSCP&lt;10</th>
+                        <th scope="col" className="sticky top-0 bg-gray-900 text-gray-300 text-sm z-10 border-black">HSCP&lt;20</th>
+                        <th scope="col" className="sticky top-0 bg-gray-900 text-gray-300 text-sm z-10 border-black">HSCP&lt;30</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -62,7 +62,7 @@ export default function PhukienList() {
                         :
                         (
                             data.map((item: any, index) => (
-                                <tr key={index} className={`${index % 2 === 0 ? "odd:bg-white even:bg-gray-50 border-b h-16" : "odd:bg-white even:bg-gray-200 border-b h16"} text-gray-700`}>
+                                <tr key={index} className={`${index % 2 === 0 ? "odd:bg-gray-500 even:bg-gray-700 h-16" : "odd:bg-white even:bg-gray-700 h-16"} text-gray-300`}>
                                     <td className='px-4 py-2 text-center font-bold'>{item.code}</td>
                                     <td className='py-2'>{item.name}</td>
                                     <td className='px-4 py-2 text-center'>{item.unit}</td>

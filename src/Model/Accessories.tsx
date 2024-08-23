@@ -1,17 +1,19 @@
 class Accessories {
-    id:any;
-    code:string;
-    name:string;
-    supplier:string;
-    totalQuantity:number;
-    quantity:number;
-    width:number;
-    height:number;
-    orgPrice:number;
-    lowestPricePercent:number;
-    price:number;
-    unit:string;
-    status:boolean;
+    id: any;
+    code: string;
+    name: string;
+    supplier: string;
+    totalQuantity: number;
+    quantity: number;
+    width: number;
+    height: number;
+    orgPrice: number;
+    lowestPricePercent: number;
+    lowPercent: number[];
+    price: number;
+    unit: string;
+    status: boolean;
+    type?: string;
     isCommand?: boolean;
     constructor(
         id: any,
@@ -26,7 +28,7 @@ class Accessories {
         lowestPricePercent: number,
         price: number,
         unit: string,
-        status:boolean,
+        status: boolean,
         isCommand?: boolean
     ) {
         this.id = id;
@@ -39,6 +41,7 @@ class Accessories {
         this.height = height;
         this.orgPrice = orgPrice;
         this.lowestPricePercent = lowestPricePercent;
+        this.lowPercent = [];
         this.price = price;
         this.unit = unit;
         this.status = status;
@@ -46,3 +49,48 @@ class Accessories {
     }
 }
 export default Accessories;
+
+export const getNewAcs = (): Accessories => {
+    return new Accessories("", "", "", "", 0, 0, 0, 0, 0, 0, 0, "", false, false);
+}
+export const TransRequestToAcs = (item: any): Accessories => {
+    return {
+        id: item?.id,
+        code: item?.code,
+        name: item?.name,
+        supplier: item?.supplier,
+        totalQuantity: 0,
+        quantity: 0,
+        width: 0,
+        height: 0,
+        orgPrice: item?.orgPrice,
+        lowestPricePercent: item?.lowestPricePercent,
+        lowPercent: item?.lowPercent?.split(",").map(Number),
+        price: 0,
+        unit: item?.unit,
+        status: false,
+        type: item?.type,
+        isCommand: true
+    }
+}
+export const getNewAcsWithName = (str:string): Accessories => {
+    return {
+        id: "",
+        code: "",
+        name: str,
+        supplier: "",
+        totalQuantity: 0,
+        quantity: 0,
+        width: 0,
+        height: 0,
+        orgPrice: 0,
+        lowestPricePercent: 0,
+        lowPercent: [],
+        price: 0,
+        unit: "",
+        status: false,
+        type: "",
+        isCommand: false
+    }
+
+}
