@@ -5,6 +5,7 @@ class GroupAccessory {
     name:string;
     accessoriesAndType:AcsAndType[];
     type:string;
+    quantity?:number;
     constructor(
         id: any,
         name: string,

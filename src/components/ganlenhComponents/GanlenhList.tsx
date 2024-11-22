@@ -38,7 +38,7 @@ export default function GanlenhList(props:Props) {
         <thead>
           <tr>
             <th className='sticky top-0 bg-blue-900 text-white z-10'></th>
-            <th className='sticky top-0 bg-blue-900 text-white z-10 py-2'>Danh sách gán</th>
+            <th className='sticky top-0 bg-blue-900 text-white z-10 py-2'>Danh sách Mẫu cửa</th>
             <th className='sticky top-0 bg-blue-900 text-white z-10'></th>
           </tr>
         </thead>

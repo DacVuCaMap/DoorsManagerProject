@@ -14,10 +14,10 @@ export const listMenu = [
         ,select:"phukien"
     },
     {
-        href:"/ganlenh",
-        name:"Gán Lệnh",
+        href:"/maucua",
+        name:"Mẫu cửa",
         icon:SquareTerminal 
-        ,select:"ganlenh"
+        ,select:"maucua"
     },
     {
         href:"/gannhomphukien",

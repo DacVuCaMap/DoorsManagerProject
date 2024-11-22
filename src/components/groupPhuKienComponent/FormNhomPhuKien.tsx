@@ -154,7 +154,7 @@ export default function GanlenhFormAdd(props: Props) {
                 <h2 className='font-bold text-lg mb-2'>Form gán nhóm phụ kiện</h2>
             </div>
             <form action="" onSubmit={handleSubmit}>
-                <label htmlFor="" className='text-sm text-gray-400'>Tên nhóm cửa</label>
+                <label htmlFor="" className='text-sm text-gray-400'>Tên nhóm phụ kiện</label>
                 <input value={curGroup.name} onChange={e => handleChangeInputName(e)} type="text" placeholder='Nhập tên nhóm cửa....' className='bg-gray-600 w-full pt-2 text-base text-gray-300 px-2 mb-4 border-b outline-none border-gray-400' />
                 <div className='flex flex-col mb-2'>
                     <BaoGiaSearchPhuKien acsData={acsData} acs={tempAcs} productId={0} selectAccessories={selectAccessories} />

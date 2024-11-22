@@ -179,7 +179,7 @@ export default function GanlenhFormAdd(props: Props) {
     <div className='w-full h-full ganlenh relative'>
       <div className='flex flex-row text-gray-300 space-x-2'>
         <SquareTerminal />
-        <h2 className='font-bold text-lg mb-2'>Form gán mặc định</h2>
+        <h2 className='font-bold text-lg mb-2'>Form nhập mẫu cửa</h2>
       </div>
       <form action="" onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
         <label htmlFor="" className='text-sm text-gray-400'>Tên qui cách</label>

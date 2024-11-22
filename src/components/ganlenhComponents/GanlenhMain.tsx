@@ -46,7 +46,7 @@ export default function GanlenhMain(props:Props) {
       <div className='w-[500px]'>
         <div className='w-full rounded-lg  space-y-4'>
           <button onClick={e=>setOpenDoorSelect(true)} className='w-full flex flex-row space-x-2 text-blue-400 font-bold hover:bg-gray-600 hover:text-white p-2 bg-gray-800 rounded shadow-md hover:shadow-2xl transition duration-150 ease-out'>
-            <Settings /> <span>Thiết lập tên qui cách</span>
+            <Settings /> <span>Thiết lập tên mẫu cửa</span>
           </button>
           <div className='shadow-md hover:shadow-2xl transition duration-150 ease-out'>
             <GanlenhList selectCommand={selectCommand} refreshTrigger={refreshTrigger} setRefreshTrigger={setRefreshTrigger} />

@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.1.5",
+    "antd": "^5.22.2",
     "axios": "^1.7.2",
     "lodash": "^4.17.21",
     "lucide": "^0.408.0",

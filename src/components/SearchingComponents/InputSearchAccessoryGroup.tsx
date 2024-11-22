@@ -86,6 +86,7 @@ export default function InputSearchAccessoryGroup(props: Props) {
                 type="text"
                 className='rounded px-2 py-1 w-full bg-gray-400 outline-none'
                 value={current.name}
+                placeholder='Nhập nhóm phụ kiện'
             />
             {isOpen &&
                 <div className='absolute bg-gray-400 shadow-lg w-full z-50'>
