@@ -3,8 +3,8 @@ import React, { useEffect, useState } from 'react'
 import BaoGiaSearchPhuKien from '../baogiaComponents/BaoGiaSearchPhuKien'
 import Accessories from '@/Model/Accessories'
 import InputSearchAcs from '../SearchingComponents/InputSearchAcs'
-import DataReport from '@/data/DataReport'
 import { formatNumberFixed3, formatNumberFixed4, formatNumberToDot } from '@/data/FunctionAll'
+import DataReport from '@/Model/DataReport'
 type Props = {
     acsData: Accessories[],
     acsIndex: number,
@@ -87,8 +87,8 @@ export default function CreateBaoGiaSecondAcs(props: Props) {
             <div className='overflow-auto w-1/12 pl-4 text-center '>
                 <span className='w-full'>{formatNumberToDot(curAcs.totalQuantity * curAcs.price)}</span>
             </div>
-            <div className='w-1/12 p-2 flex flex-row justify-center space-x-2'>
-                <div onClick={e => handleDelete()}> <Trash2 /> </div>
+            <div className='w-1/12 p-2 flex flex-row justify-center space-x-2 '>
+                <div onClick={e => handleDelete()} className='cursor-pointer'> <Trash2 /> </div>
             </div>
         </div>
     )

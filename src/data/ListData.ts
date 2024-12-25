@@ -26,12 +26,6 @@ export const listMenu = [
         ,select:"gannhomphukien"
     },
     {
-        href:"/kiemdinh",
-        name:"Kiểm định",
-        icon:ShieldCheck   
-        ,select:"kiemdinh"
-    },
-    {
         href:"#",
         name:"Tài Khoản",
         icon:User
@@ -47,3 +41,5 @@ export const listMenu = [
 export const listColor = [
     {id:0,color:"bg-blue-600"},{id:1,color:"bg-violet-700"},{id:2,color:"bg-green-700"},{id:3,color:"bg-pink-700"}
 ]
+
+export const listEI = ["15","30","45","60","70","90"]

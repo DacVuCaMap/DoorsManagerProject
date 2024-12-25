@@ -1,6 +1,7 @@
-import DataReport from '@/data/DataReport';
+
 import { formatDotToNumber, formatNumberFixed3, formatNumberToDot } from '@/data/FunctionAll';
 import Accessories, { getNewAcs } from '@/Model/Accessories';
+import DataReport from '@/Model/DataReport';
 import TotalGroup from '@/Model/TotalGroup'
 import TotalItem from '@/Model/TotalItem';
 import React, { useEffect } from 'react'
@@ -11,62 +12,27 @@ type Props = {
     handleUpdateTotalList: (totalItem: TotalGroup, totalGroupIndex: number) => void
 }
 export default function CreateBaoGiaTotalItem(props: Props) {
-    const handleTotalQuantity = (itemIndex: number) : TotalItem => {
-        let tot = 0;
-        let tempAcs: Accessories = getNewAcs();
-        const totalItem = props.totalGroup.totalItem[itemIndex];
-        if (totalItem.typeTotal === "main") {
-            // tong main acs
-            tot = props.listReport.reduce((sum, item) => {
-                if (item.mainAccessory) {
-                    return sum + item.mainAccessory.totalQuantity
-                }
-                else { return sum }
-            }, 0)
-            tempAcs = { ...totalItem.acs, totalQuantity: tot };
+    const handleUpdate = (e: any, key: string, index: number) => {
+        let value = e.target.value;
+        if (key === "price") {
+            value = value.replace(/\./g, "");
+            value = parseFloat(value);
+            if (value >= 1000000000) {
+                return;
+            }
         }
-        else if (totalItem.typeTotal === "" || !totalItem.typeTotal) {
-            //giu nguyen
-            tempAcs = { ...totalItem.acs };
-        }
-        else {
-            tot = props.listReport.reduce((sum, item) => {
-                let check: Accessories | undefined = item.priceReport.accessories.find(acs => acs.code === totalItem.typeTotal);
-                if (item.mainAccessory && check) {
-                    return sum + item.mainAccessory.totalQuantity
-                }
-                else { return sum }
-
-            }, 0)
-            tempAcs = { ...totalItem.acs, totalQuantity: tot };
-        }
-        return { ...totalItem, acs: tempAcs };
+        let tempTotalGroup: TotalGroup = { ...props.totalGroup };
+        let tempTotalItemm: TotalItem[] = tempTotalGroup.totalItem.map((item: TotalItem, ind) => {
+            if (index === ind) {
+                return { ...item, [key]: value };
+            }
+            return item;
+        });
+        tempTotalGroup = { ...tempTotalGroup, totalItem: tempTotalItemm };
+        props.handleUpdateTotalList(tempTotalGroup, props.totalGroupIndex);
     }
-
-    const handleUpdateTotalItem = (totalItem: TotalItem, itemIndex: number) => {
-        let temp: TotalItem[] = [...props.totalGroup.totalItem];
-        temp[itemIndex] = totalItem;
-        props.handleUpdateTotalList({ ...props.totalGroup, totalItem: temp }, props.totalGroupIndex);
-    }
-    const handleChangeInputInsideAcs = (value: any, key: string, totalItem: TotalItem, itemIndex: number) => {
-        if (key === "totalQuantity" || key === "price") {
-            value = value === "" ? 0 : value;
-            value = key === "price" ? formatDotToNumber(value) : parseFloat(value);
-        }
-        let tempAcs: Accessories = { ...totalItem.acs, [key]: value }
-        handleUpdateTotalItem({ ...totalItem, acs: tempAcs }, itemIndex);
-    }
-
-    //update totalQuantity
-    useEffect(()=>{
-        let totalItemList: TotalItem[] = [...props.totalGroup.totalItem];
-        props.totalGroup.totalItem.forEach((item:TotalItem,index:number)=>{     
-            totalItemList[index] = handleTotalQuantity(index);
-        })
-        props.handleUpdateTotalList({ ...props.totalGroup, totalItem: totalItemList },props.totalGroupIndex)
-    },[props.listReport])
     return (
-        <div className='text-sm'>
+        <div className='text-sm create-bg-total'>
             <div className='mb-2'>
                 <span className='border-b border-gray-500 text-gray-400'>{props.totalGroup.name}</span>
             </div>
@@ -78,18 +44,18 @@ export default function CreateBaoGiaTotalItem(props: Props) {
                             <input
                                 type="text"
                                 className='outline-none  px-2 py-1 w-full bg-transparent border-b border-gray-300'
-                                value={item.acs.name}
-                                onChange={e => handleChangeInputInsideAcs(e.target.value, "name", item, index)}
+                                value={item.name}
+                                onChange={e => handleUpdate(e, "name", index)}
                             />
                         </div>
-                        <div className='w-1/12 p-2 text-center font-bold'>{item.acs.code}</div>
+                        <div className='w-1/12 p-2 text-center font-bold'>{item.code}</div>
                         <div className='w-2/12 p-2 text-center font-bold flex flex-col '>
                         </div>
                         <div className='w-2/12 p-2 text-center font-bold flex flex-col '>
                             <div className='flex flex-row space-x-2'>
                                 <span className='w-1/2'></span>
                                 <span className='w-1/2'>
-                                    {formatNumberFixed3(item.acs.totalQuantity)}
+                                    {formatNumberFixed3(item.totalQuantity)}
                                 </span>
                             </div>
                         </div>
@@ -97,17 +63,18 @@ export default function CreateBaoGiaTotalItem(props: Props) {
                             <input
                                 type="text"
                                 className='text-center outline-none py-1 w-full bg-transparent border-b border-gray-300'
-                                value={formatNumberToDot(item.acs.price)}
-                                onChange={e => handleChangeInputInsideAcs(e.target.value, "price", item, index)}
+                                value={formatNumberToDot(item.price)}
+                                onChange={e => handleUpdate(e, "price", index)}
                             />
                         </div>
                         <div className='w-1/12 p-2 text-center font-bold'>
-                            {formatNumberToDot(item.acs.price * item.acs.totalQuantity)}
+                            {formatNumberToDot(item.price * item.totalQuantity)}
                         </div>
                         <div className='w-1/12 p-2 text-center font-bold'></div>
                     </div>
                 </div>
             )}
+
         </div>
     )
 }

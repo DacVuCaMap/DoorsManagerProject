@@ -15,6 +15,7 @@ class Accessories {
     status: boolean;
     type?: string;
     isCommand?: boolean;
+    accessoryGroup?:any;
     constructor(
         id: any,
         code: string,
@@ -29,7 +30,7 @@ class Accessories {
         price: number,
         unit: string,
         status: boolean,
-        isCommand?: boolean
+        isCommand?: boolean,
     ) {
         this.id = id;
         this.code = code;

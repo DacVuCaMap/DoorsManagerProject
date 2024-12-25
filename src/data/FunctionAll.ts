@@ -1,5 +1,8 @@
 import GetPattern from "@/ApiPattern/GetPattern";
 import Accessories from "@/Model/Accessories";
+import AccessoryAndFeature from "@/Model/AccessoryAndFeature";
+import AcsAndType from "@/Model/AcsAndType";
+import DoorModel from "@/Model/DoorModel";
 import DoorNameSelect from "@/Model/DoorNameSelect";
 import FireTest from "@/Model/FireTest";
 import GroupAccessory from "@/Model/GroupAccessory";
@@ -15,10 +18,10 @@ export const extractNumber = (inputString: any) => {
     // Trả về số đầu tiên tìm được hoặc null nếu không tìm thấy
     return match ? match[0] : null;
 };
-export const extractFirstNumber = (str:any)=> {
+export const extractFirstNumber = (str: any) => {
     const match = str.match(/\d+(\.\d+)?/);
     return match ? match[0] : null;
-  }
+}
 export const genNumberByTime = () => {
     return Date.now();
 }
@@ -60,7 +63,7 @@ export const LoadSelectData = async () => {
     return [];
 }
 export const LoadAccessoriesDataOffline = async () => {
-    let url = process.env.NEXT_PUBLIC_API_URL + "/api/accessories/list?page=0&size=150&search";
+    let url = process.env.NEXT_PUBLIC_API_URL + "/api/accessories/list?page=0&size=1000&search";
     const response = await GetPattern(url, {});
     if (response && response.content && Array.isArray(response.content)) {
         const list: any[] = response.content;
@@ -81,10 +84,20 @@ export const LoadAccessoriesDataOffline = async () => {
                 unit: item.unit,
                 status: false,
                 type: item.type,
-                isCommand: false
+                isCommand: false,
+                accessoryGroup: item.accessoryGroup ? item.accessoryGroup : null
             };
         });
         return newAcs;
+    }
+    return [];
+}
+
+export const LoadListDoorModelData = async () => {
+    const url = process.env.NEXT_PUBLIC_API_URL + "/api/door-model/list";
+    const response = await GetPattern(url, {});
+    if (response && Array.isArray(response) && response.length > 0 && response[0].name) {
+        return response;
     }
     return [];
 }
@@ -106,7 +119,10 @@ export const LoadAccesoryGroupNoAcs = async () => {
     const response = await GetPattern(url, {});
     if (response && response.value && Array.isArray(response.value)) {
         const rs: GroupAccessory[] = response.value.map((item: any, index: number) => {
-            return { id: item.id, name: item.name, type: item.type, accessoriesAndType: [] };
+            const acsAndType : AcsAndType[] = item.accessories.map((acs: any) => {
+                return {accessories:acs,type:acs.type};
+            })
+            return { id: item.id, name: item.name, type: item.type, accessoriesAndType:acsAndType  };
         })
         return rs;
     }

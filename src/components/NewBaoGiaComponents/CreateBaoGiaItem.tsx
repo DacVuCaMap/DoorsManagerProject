@@ -1,58 +1,66 @@
-import DoorNameSelect from '@/Model/DoorNameSelect';
+
 import PriceReport from '@/Model/PriceReport';
 import React, { useEffect, useRef, useState } from 'react'
 import "./CreateBaoGiaItem.css"
 import { ChevronDown, PackageOpen, Trash2 } from 'lucide-react';
 import Accessories, { getNewAcs, TransRequestToAcs } from '@/Model/Accessories';
 import InputSearchPDC from './InputSearchPDC';
-import FireTest from '@/Model/FireTest';
-import CreateBaoGiaMainAcs from './CreateBaoGiaMainAcs';
-import DataReport from '@/data/DataReport';
 import GroupAccessory from '@/Model/GroupAccessory';
-import cmdData from '@/Model/cmdData';
+import DataReport from '@/Model/DataReport';
+import { listEI } from '@/data/ListData';
+import CreateBaoGiaMainAcs from './CreateBaoGiaMainAcs';
 import CreateBaoGiaSecondAcs from './CreateBaoGiaSecondAcs';
-import GetPattern from '@/ApiPattern/GetPattern';
-import PostPattern from '@/ApiPattern/PostPattern';
 import { ScaleLoader } from 'react-spinners';
-import { extractFirstNumber, extractNumber, formatNumberFixed3, formatNumberToDot } from '@/data/FunctionAll';
-import FireTestCondition from '@/Model/FireTestCondition';
-type fireTestGroup = {
-    id: any,
-    fireTest: FireTest[]
-}
+import { formatNumberFixed3, formatNumberToDot } from '@/data/FunctionAll';
 type Props = {
     parentIndex: number;
+    doorModelData: any[],
     ReportItem: DataReport;
-    doorNameSelectData: DoorNameSelect[];
-    fireTest: fireTestGroup[];
-    commandData: cmdData[];
     updateToParent: (childItem: DataReport, parentIndex: number) => void;
     groupAcsData: GroupAccessory[],
     acsData: Accessories[],
     deleteDataReport: (parentIndex: number) => void;
 }
 export default function CreateBaoGiaItem(props: Props) {
-    const [curSelectDoorName, setCurSelectDoorName] = useState<DoorNameSelect>(new DoorNameSelect("", "", [], [], [], ""));
-    const [mainAcsName, setMainAcsName] = useState("");
-    const [cmdToLoad, setCmdToLoad] = useState<string[]>([]);
     const [loading, setLoading] = useState(0);
 
-    const handleSetCmd = (cmd: string[], mainAcsId: any) => {
-        //set doorNameSelectId
-        let doorNameSelect: DoorNameSelect | undefined = props.doorNameSelectData.find(item => item.name === cmd[0]);
-        //set name
-        if (doorNameSelect) {
-            let name = props.groupAcsData.find(item => item.id === mainAcsId)?.name ?? "";
-            setMainAcsName(name);
-            setCurSelectDoorName(doorNameSelect);
-            handleChangeReport("", "fireTestCode");
-            let newPriceReport: PriceReport = { ...props.ReportItem.priceReport, name: cmd.join(" "), doorNameSelectId: doorNameSelect.id }
-            let newReportItem : DataReport  = {...props.ReportItem,priceReport:newPriceReport,fireTestCondition:handleSetFireTest(newPriceReport)}
-            // updateWithPriceReport(newPriceReport);
-            console.log(newReportItem)
-            props.updateToParent(newReportItem,props.parentIndex); 
-            setCmdToLoad(cmd);
+    useEffect(() => {
+        const updateMainAcsItemTotalQuantity = () => {
+            
+            if (props.ReportItem.priceReport.mainAcs) {
+                const tempMainAcs: Accessories = {
+                    ...props.ReportItem.priceReport.mainAcs
+                    , totalQuantity:formatNumberFixed3(props.ReportItem.priceReport.width / 1000 * props.ReportItem.priceReport.height / 1000 * props.ReportItem.priceReport.totalQuantity)
+                };
+                console.log("up", tempMainAcs);
+                handleChangeReport(tempMainAcs,"mainAcs");
+            }
+
         }
+        updateMainAcsItemTotalQuantity();
+    }, [props.ReportItem.priceReport.width, props.ReportItem.priceReport.height, props.ReportItem.priceReport.totalQuantity,props.ReportItem.priceReport.mainAcs?.name])
+
+
+    const handleSelectDoorModel = (doorModelItem: any, newPriceReport: PriceReport) => {
+        const acsList: Accessories[] = [];
+        /// get list acs
+        console.log(doorModelItem);
+        if (doorModelItem.accessoryAndFeatures && doorModelItem.accessoryAndFeatures.length > 0) {
+            doorModelItem.accessoryAndFeatures.map((item: any) => {
+                const acsExisted: GroupAccessory | null = props.groupAcsData.find((acsGroup: GroupAccessory) => acsGroup.id === item.accessoryGroupId) ?? null;
+                if (acsExisted && acsExisted.accessoriesAndType.length > 0) {
+                    acsList.push({ ...acsExisted.accessoriesAndType[0].accessories, quantity: item.quantity });
+                }
+            })
+        }
+        newPriceReport = {
+            ...newPriceReport,
+            doorModel: doorModelItem,
+            name: doorModelItem.name ? doorModelItem.name : newPriceReport.name,
+            accessories: acsList
+        };
+        console.log(newPriceReport);
+        updateWithPriceReport(newPriceReport);
     }
 
     const handleChangeReport = (value: any, key: string) => {
@@ -60,6 +68,10 @@ export default function CreateBaoGiaItem(props: Props) {
         if (key === "width" || key === "height" || key === "totalQuantity") {
             value = value === "" ? 0 : value;
             value = parseFloat(value);
+        }
+        if (key === "doorModel") {
+            handleSelectDoorModel(value, newPriceReport);
+            return;
         }
         newPriceReport = { ...newPriceReport, [key]: value };
         updateWithPriceReport(newPriceReport);
@@ -86,17 +98,16 @@ export default function CreateBaoGiaItem(props: Props) {
         }
 
     }
-    const handleCalTotalPrice = (reportItem: DataReport) => {
-        if (reportItem.mainAccessory) {
-            let totMain = reportItem.mainAccessory.price * reportItem.mainAccessory.totalQuantity;
-            let totAcs = reportItem.priceReport.accessories.reduce((tot, acs) => {
-                return tot + (acs.price * acs.totalQuantity);
-            }, 0);
-            return formatNumberFixed3(formatNumberToDot(totMain + totAcs));
+    const handleCalTotalPrice = () : number => {
+        let total = 0;
+        props.ReportItem.priceReport.accessories.map((item: Accessories) => {
+            total += item.price * (item.quantity * props.ReportItem.priceReport.totalQuantity);
+        })
+        if (props.ReportItem.priceReport.mainAcs) {
+            total += props.ReportItem.priceReport.mainAcs.totalQuantity * props.ReportItem.priceReport.mainAcs.price;
+            
         }
-        else {
-            return 0;
-        }
+        return total;
     }
     const showDetails = (e: any) => {
         // Kiểm tra nếu sự kiện xảy ra trên chính thẻ cha hoặc không phải là thẻ con
@@ -107,92 +118,6 @@ export default function CreateBaoGiaItem(props: Props) {
             handleChangeDataReport(!props.ReportItem.isShowDetails, "isShowDetails");
         }
     }
-   
-    /////FIRETEST SET VALUE
-    const handleSetFireTest = (priceReport: PriceReport) : FireTestCondition => {
-        let newFireTestCondition: FireTestCondition = {...props.ReportItem.fireTestCondition };
-        if (priceReport.doorNameSelectId) {
-            for (const item of props.fireTest) {
-                const fireTest = item.fireTest.find(childItem => {
-                    const arrStr = childItem.name.split('./');
-                    return (
-                        childItem.doorNameSelectId === priceReport.doorNameSelectId &&
-                        priceReport.name.includes(`${arrStr[1]} ${arrStr[0]}`)
-                    );
-                });
-                if (fireTest) {
-                    newFireTestCondition = {fireTestGroupId: item.id,fireTest: fireTest,status: false};
-                    break;
-                }
-            }
-        }
-        return newFireTestCondition;
-    }
-    /// check width, height and thickness
-    const handleCheckValueFireTestCondition = ()=>{
-        ///panic đôi and panic đơn
-        
-        //other
-        if (props.ReportItem.mainAccessory) {
-            let thisThickness = extractFirstNumber(props.ReportItem.mainAccessory.code);
-        }
-    }
-
-    //update width height mainAcs
-    useEffect(() => {
-        if (props.ReportItem.mainAccessory) {
-            let quan = (props.ReportItem.priceReport.width / 1000) * (props.ReportItem.priceReport.height / 1000);
-            let newMainAcs: Accessories = {
-                ...props.ReportItem.mainAccessory, width: props.ReportItem.priceReport.width,
-                height: props.ReportItem.priceReport.height,
-                quantity: quan,
-                totalQuantity: quan * props.ReportItem.priceReport.totalQuantity
-            }
-            handleChangeDataReport(newMainAcs, "mainAccessory");
-        }
-    }, [props.ReportItem.priceReport.width, props.ReportItem.priceReport.height, props.ReportItem.priceReport.totalQuantity, props.ReportItem.mainAccessory?.name])
-    useEffect(() => {
-        //add phu kien
-        const fetchData = async () => {
-            let acs: Accessories[] = [];
-            const command = cmdToLoad.join("-")
-            let url = process.env.NEXT_PUBLIC_API_URL + "/api/product-command/get-command?command=" + command;
-            setLoading(1);
-            const response = await GetPattern(url, {});
-            if (response && response.value) {
-
-                acs = response.value.map((item: any) => {
-                    return { ...TransRequestToAcs(item.accessoryGroup.accessories[0]), quantity: item.quantity };
-                })
-                let oldAcs: Accessories[] = [...props.ReportItem.priceReport.accessories];
-                oldAcs = oldAcs.filter(item => !item.isCommand);
-                let newPriceReport: PriceReport = { ...props.ReportItem.priceReport, accessories: [...oldAcs, ...acs] }
-                updateWithPriceReport(newPriceReport);
-                setLoading(0);
-            }
-        }
-        if (cmdToLoad.length > 0) {
-            fetchData();
-        }
-    }, [cmdToLoad])
-    
-    ///update fireTestCondition
-    useEffect(()=>{
-
-    },[props.ReportItem.priceReport.width,props.ReportItem.priceReport.height,props.ReportItem.mainAccessory?.name])
-
-
-    ///check fireTestCondition to set status
-    useEffect(()=>{
-        let status=false;
-        if (props.ReportItem.fireTestCondition.fireTest && props.ReportItem.fireTestCondition.fireTestGroupId!="") {
-            status=true;
-        }
-        let newFireTestCondition : FireTestCondition = {...props.ReportItem.fireTestCondition,status:status};
-        console.log(newFireTestCondition);
-        handleChangeDataReport(newFireTestCondition,"fireTestCondition");
-    },[props.ReportItem.fireTestCondition.fireTest,props.ReportItem.fireTestCondition.fireTestGroupId])
-
     return (
         <div className='w-full px-4 transition-all ease-in-out duration-300 hover:px-0 create-bg text-sm text-gray-300 group'>
             <div className='ml-2 flex flex-row space-x-2 text-xs'>
@@ -204,16 +129,15 @@ export default function CreateBaoGiaItem(props: Props) {
                 <div className='w-1/12 text-center font-bold inline-block'>{props.parentIndex + 1}</div>
                 <div className='w-11/12 flex flex-row items-center'>
                     <div className='w-4/12 p-2 text-center flex flex-row space-x-2 font-bold'>
-                        <InputSearchPDC name={props.ReportItem.priceReport.name} handleChangeReport={handleChangeReport} commandData={props.commandData} handleSetCMD={handleSetCmd} />
-                        {curSelectDoorName.code.length > 0 &&
-                            <select className='rounded' name="" id="" onChange={e => handleChangeReport(e.target.value, "fireTestCode")} value={props.ReportItem.priceReport.fireTestCode}>
-                                <option value="" disabled hidden>-chọn-</option>
-                                {curSelectDoorName.code.map((item: string, ind: number) => (
-                                    <option key={ind} value={item}>{item}</option>
-                                ))}
-                            </select>
-                        }
+                        <InputSearchPDC doorModelData={props.doorModelData} name={props.ReportItem.priceReport.name} handleChangeReport={handleChangeReport} />
+                        <select className='rounded' name="" id="" onChange={e => handleChangeReport(e.target.value, "EI")} value={props.ReportItem.priceReport.EI}>
+                            <option value="" disabled hidden>-chọn-</option>
+                            {listEI.map((item: string, ind: number) => (
+                                <option key={ind} value={"EI" + item}>EI{item}</option>
+                            ))}
+                        </select>
                     </div>
+
                     <div className='w-1/12 p-2 text-center font-bold'>
                         <input onChange={e => handleChangeReport(e.target.value, "code")} value={props.ReportItem.priceReport.code} type="text" className='text-center rounded px-2 py-1 w-full' />
                     </div>
@@ -242,10 +166,10 @@ export default function CreateBaoGiaItem(props: Props) {
                         </div>
                     </div>
                     <div className='overflow-auto w-1/12 p-2 font-bold text-center border-r border-gray-300'>
-                        <span className='w-full'>{props.ReportItem.priceReport.totalQuantity === 0 ? 0 : handleCalTotalPrice(props.ReportItem) / props.ReportItem.priceReport.totalQuantity}</span>
+                        <span className='w-full'>{props.ReportItem.priceReport.totalQuantity === 0 ? 0 :  formatNumberToDot(handleCalTotalPrice() /props.ReportItem.priceReport.totalQuantity)}</span>
                     </div>
                     <div className='overflow-auto w-1/12 p-2 text-center font-bold '>
-                        <span className='w-full'>{handleCalTotalPrice(props.ReportItem)}</span>
+                        <span className='w-full'>{formatNumberToDot(handleCalTotalPrice())}</span>
                     </div>
                     <div className='w-1/12 flex flex-row justify-center space-x-2 items-center'>
                         <div className=''>
@@ -262,24 +186,23 @@ export default function CreateBaoGiaItem(props: Props) {
             <div className={`bg-gray-800 w-full flex flex-col space-y-2 transition-all duration-300 ease-in-out 
                 overflow-hidden ${props.ReportItem.isShowDetails ? 'max-h-[1000px] py-4' : 'max-h-0 py-0'}`}>
                 <span className='border-b border-gray-400 ml-4 text-gray-400 text-xs'>Vật liệu chính</span>
-                {props.ReportItem.priceReport.doorNameSelectId ?
-                    <CreateBaoGiaMainAcs handleSetAcsMain={handleChangeDataReport} parentIndex={props.parentIndex} ReportItem={props.ReportItem} name={mainAcsName} />
+                {props.ReportItem.priceReport.doorModel ?
+                    <CreateBaoGiaMainAcs handleChangeReport={handleChangeReport} parentIndex={props.parentIndex} ReportItem={props.ReportItem} name={props.ReportItem.priceReport.name} />
                     :
                     <div className='flex flex-row px-2'>
                         <div className='w-1/12 p-2 text-center font-bold'></div>
                         <div className='w-11/12 flex flex-row items-center py-1 bg-gray-600'>
                             <div className='w-full flex flex-row font-bold text-gray-400 items-center justify-center space-x-2'>
                                 <PackageOpen />
-                                <span>Chọn tên qui cách cửa</span>
+                                <span>Chọn mẫu cửa</span>
                             </div>
                         </div>
                     </div>
                 }
 
 
-
                 <span className='border-b border-gray-400 ml-4 text-gray-400 text-xs'>Phụ kiện và chi phí kèm theo</span>
-                <div>
+                <div className='pb-10'>
                     {props.ReportItem.priceReport.accessories.map((item: Accessories, index: number) =>
                         <div key={index} className='flex flex-row px-2'>
                             <div className='w-1/12 p-2 text-center font-bold'>{props.parentIndex + 1},{3 + index}</div>
@@ -290,7 +213,7 @@ export default function CreateBaoGiaItem(props: Props) {
                     <div className='flex flex-row px-2'>
                         <div className='w-1/12 p-2 text-center font-bold'></div>
                         <div className='w-11/12 flex flex-row items-center bg-gray-600'>
-                            {props.ReportItem.priceReport.doorNameSelectId ?
+                            {props.ReportItem.priceReport.doorModel ?
                                 <div className='px-2 py-2 w-full flex flex-col'>
                                     {(props.ReportItem.priceReport.accessories.length === 0 && loading != 1) &&
                                         <div className='flex flex-col space-y-2 justify-center items-center py-4 text-gray-400'>
@@ -309,9 +232,9 @@ export default function CreateBaoGiaItem(props: Props) {
                                         + Thêm phụ kiện</button>
                                 </div>
                                 :
-                                <div className='w-full py-1 flex flex-row font-bold text-gray-400 items-center justify-center space-x-2'>
+                                <div className='w-full py-10 flex flex-row font-bold text-gray-400 items-center justify-center space-x-2'>
                                     <PackageOpen />
-                                    <span>Chọn tên qui cách cửa</span>
+                                    <span>Chọn mẫu cửa</span>
                                 </div>
                             }
                         </div>

@@ -1,7 +1,7 @@
 import GetPattern from '@/ApiPattern/GetPattern';
-import DataReport from '@/data/DataReport';
 import { formatNumberFixed3, formatNumberToDot } from '@/data/FunctionAll';
 import Accessories from '@/Model/Accessories'
+import DataReport from '@/Model/DataReport';
 import GroupAccessory from '@/Model/GroupAccessory';
 import PriceReport from '@/Model/PriceReport';
 import { ChevronDown, Trash2 } from 'lucide-react'
@@ -11,22 +11,24 @@ type Props = {
     parentIndex: number;
     ReportItem: DataReport;
     name: string;
-    handleSetAcsMain: (mainAcs: Accessories, key: string) => void
+    handleChangeReport: (mainAcs: any, key: string) => void
 }
 export default function CreateBaoGiaMainAcs(props: Props) {
     const [currentSelectItem, setCurrentSelectItem] = useState<Accessories[]>([]);
-    const [isOpen, setOpen] = useState(false)
+    const [isOpen, setOpen] = useState(false);
     const [isLoading, setLoading] = useState(0);
-    const MainKey = "mainAccessory";
     const containerRef = useRef<HTMLDivElement>(null);
+    const dataFetchedRef = useRef(false);
     useEffect(() => {
         const fetchData = async () => {
+            if (dataFetchedRef.current) return;
+            dataFetchedRef.current = true;
             setLoading(1)
-            let url = process.env.NEXT_PUBLIC_API_URL + "/api/accessories/get-list-group?name=" + props.name;
+            let url = process.env.NEXT_PUBLIC_API_URL + "/api/accessories/get-acs-by-type?type=main";
             const response = await GetPattern(url, {});
             setLoading(0)
-            if (response && response.value && response.value.accessories) {
-                const list: any[] = response.value.accessories;
+            if (response && response.value && response.value.length > 0 && response.value[0].accessories) {
+                const list: any[] = response.value[0].accessories;
                 let temp: Accessories[] = list.map((item: any) => {
                     return {
                         id: item.id,
@@ -51,7 +53,7 @@ export default function CreateBaoGiaMainAcs(props: Props) {
             }
         }
         fetchData();
-    }, [props.name])
+    }, [])
     //ui ux
     const handleClickOutside = useCallback((event: MouseEvent) => {
         if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
@@ -67,18 +69,18 @@ export default function CreateBaoGiaMainAcs(props: Props) {
 
     //select main acs
     const handleSelect = (acs: Accessories) => {
-        props.handleSetAcsMain(acs, MainKey);
+        props.handleChangeReport(acs, "mainAcs");
         setOpen(false)
     }
     const handleChangeInput = (e: any, key: string) => {
         let value = e.target.value;
         value = value === "" ? 0 : value;
-        if (key==="price" && value!=0) {
+        if (key === "price" && value != 0) {
             value = value.replace(/\./g, '');
         }
-        if (props.ReportItem.mainAccessory) {
-            let newMainAcs: Accessories = { ...props.ReportItem.mainAccessory, [key]: parseFloat(value) };
-            props.handleSetAcsMain(newMainAcs, MainKey);
+        if (props.ReportItem.priceReport.mainAcs) {
+            let newMainAcs: Accessories = { ...props.ReportItem.priceReport.mainAcs, [key]: parseFloat(value) };
+            props.handleChangeReport(newMainAcs, "mainAcs");
         }
     }
     return (
@@ -89,17 +91,18 @@ export default function CreateBaoGiaMainAcs(props: Props) {
                     {(currentSelectItem.length > 0 && isLoading != 1) &&
                         <div className='w-3/4 relative' ref={containerRef}>
                             <div onClick={e => setOpen(true)} className='hover:cursor-pointer rounded px-2 py-1 w-full bg-gray-400 text-gray-800 text-left'>
-                                {props.ReportItem.mainAccessory ? props.ReportItem.mainAccessory.name : "-- Chọn phụ kiện chính --"}</div>
-                            {isOpen && <div className='absolute bg-gray-500 shadow-lg w-full z-20'>
-                                {currentSelectItem.map((item: Accessories, index: number) => (
-                                    <div key={index} onClick={e => handleSelect(item)}
-                                        className='hover:cursor-pointer truncate flex flex-col text-left px-2 py-2 w-full hover:bg-gray-700'>
-                                        <span>{item.name}</span>
-                                        <span className='text-xs text-gray-300'>{item.code}</span>
-                                    </div>
-
-                                ))}
-                            </div>}
+                                {props.ReportItem.priceReport.mainAcs ? props.ReportItem.priceReport.mainAcs.name : "-- Chọn phụ kiện chính --"}</div>
+                            {isOpen &&
+                                <div className='absolute bg-gray-500 shadow-lg w-full z-20 h-40 overflow-auto'>
+                                    {currentSelectItem.map((item: Accessories, index: number) => (
+                                        <div key={index} onClick={e => handleSelect(item)}
+                                            className='hover:cursor-pointer truncate flex flex-col text-left px-2 py-2 w-full hover:bg-gray-700'>
+                                            <span>{item.name}</span>
+                                            <span className='text-xs text-gray-300'>{item.code}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            }
                             <div className='absolute right-0 top-1 text-black'><ChevronDown /></div>
                         </div>
                     }
@@ -108,35 +111,35 @@ export default function CreateBaoGiaMainAcs(props: Props) {
                     </div>}
                 </div>
                 <div className='w-1/12 p-2 text-center'>
-                    <span>{props.ReportItem.mainAccessory ? props.ReportItem.mainAccessory.code : ""}</span>
+                    <span>{props.ReportItem.priceReport.mainAcs ? props.ReportItem.priceReport.mainAcs.code : ""}</span>
                 </div>
                 <div className='w-2/12 p-2 text-center flex flex-col '>
                     <div className='flex flex-row space-x-2 items-center'>
                         <div className='w-1/2'>
-                            <span>{formatNumberFixed3(props.ReportItem.mainAccessory?.width)}</span>
+                            <span>{formatNumberFixed3(props.ReportItem.priceReport.width/1000)}</span>
                         </div>
                         <span>X</span>
                         <div className='w-1/2'>
-                            <span>{formatNumberFixed3(props.ReportItem.mainAccessory?.height)}</span>
+                            <span>{formatNumberFixed3(props.ReportItem.priceReport.height/1000)}</span>
                         </div>
                     </div>
                 </div>
                 <div className='w-2/12 p-2 text-center flex flex-col '>
                     <div className='flex flex-row space-x-2 items-center'>
                         <div className='w-1/2'>
-                            <span>{formatNumberFixed3(props.ReportItem.mainAccessory?.quantity)}</span>
+                            <span>{formatNumberFixed3(props.ReportItem.priceReport.width/1000*props.ReportItem.priceReport.height/1000)}</span>
                         </div>
                         <div className='w-1/2'>
-                            <span>{formatNumberFixed3(props.ReportItem.mainAccessory?.totalQuantity)}</span>
+                            <span>{ (props.ReportItem.priceReport.mainAcs?.totalQuantity)}</span>
                         </div>
                     </div>
                 </div>
                 <div className='overflow-auto w-1/12 p-2 text-center'>
-                    <input onChange={e => handleChangeInput(e, "price")} value={formatNumberToDot(props.ReportItem.mainAccessory?.price)} type="text" className='rounded px-2 py-1 w-full' />
+                    <input onChange={e => handleChangeInput(e, "price")} value={formatNumberToDot(props.ReportItem.priceReport.mainAcs?.price)} type="text" className='rounded px-2 py-1 w-full' />
                 </div>
                 <div className='overflow-auto w-1/12 pl-4 text-center '>
-                    {props.ReportItem.mainAccessory ?
-                        <span className='w-full'>{formatNumberToDot(props.ReportItem.mainAccessory.price * props.ReportItem.mainAccessory.totalQuantity)}</span>
+                    {props.ReportItem.priceReport.mainAcs ?
+                        <span className='w-full'>{formatNumberToDot(props.ReportItem.priceReport.mainAcs.price * props.ReportItem.priceReport.mainAcs.totalQuantity)}</span>
                         :
                         <span className='w-full'>0</span>
                     }
