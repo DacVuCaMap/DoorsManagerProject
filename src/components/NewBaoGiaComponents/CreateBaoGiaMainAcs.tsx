@@ -130,7 +130,7 @@ export default function CreateBaoGiaMainAcs(props: Props) {
                             <span>{formatNumberFixed3(props.ReportItem.priceReport.width/1000*props.ReportItem.priceReport.height/1000)}</span>
                         </div>
                         <div className='w-1/2'>
-                            <span>{ (props.ReportItem.priceReport.mainAcs?.totalQuantity)}</span>
+                            <span>{ (props.ReportItem.priceReport.mainAcs?.totalQuantity)?.toFixed(2)}</span>
                         </div>
                     </div>
                 </div>

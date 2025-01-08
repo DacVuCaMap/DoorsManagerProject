@@ -32,7 +32,7 @@ export default function CreateBaoGiaItem(props: Props) {
                     ...props.ReportItem.priceReport.mainAcs
                     , totalQuantity:formatNumberFixed3(props.ReportItem.priceReport.width / 1000 * props.ReportItem.priceReport.height / 1000 * props.ReportItem.priceReport.totalQuantity)
                 };
-                console.log("up", tempMainAcs);
+                // console.log(tempMainAcs)
                 handleChangeReport(tempMainAcs,"mainAcs");
             }
 
@@ -53,11 +53,14 @@ export default function CreateBaoGiaItem(props: Props) {
                 }
             })
         }
+        const mainAcs = props.acsData.find((item: Accessories) => item.id === doorModelItem.accessoryMainId) ?? null;
         newPriceReport = {
             ...newPriceReport,
             doorModel: doorModelItem,
+            numberDoor:doorModelItem.numberDoor ? doorModelItem.numberDoor : 0,
             name: doorModelItem.name ? doorModelItem.name : newPriceReport.name,
-            accessories: acsList
+            accessories: acsList,
+            mainAcs: mainAcs,
         };
         console.log(newPriceReport);
         updateWithPriceReport(newPriceReport);
@@ -120,16 +123,17 @@ export default function CreateBaoGiaItem(props: Props) {
     }
     return (
         <div className='w-full px-4 transition-all ease-in-out duration-300 hover:px-0 create-bg text-sm text-gray-300 group'>
-            <div className='ml-2 flex flex-row space-x-2 text-xs'>
+            {/* <div className='ml-2 flex flex-row space-x-2 text-xs'>
                 <span className='text-red-500 border-l border-red-500 px-2'>Chưa có mẫu kiểm định phù hợp</span>
                 <span className='text-red-500 border-l border-red-500 px-2'>Thiếu dữ liệu nhập vào</span>
-            </div>
+            </div> */}
             <div onClick={showDetails} className={`flex flex-row justify-center items-center py-2 bg-gray-800 transition-all ease-in-out duration-300 
                 group-hover:rounded-none group-hover:py-4 hover:bg-gray-900 hover:cursor-pointer ${props.ReportItem.isShowDetails ? 'rounded-t-lg' : 'rounded-lg'}`}>
                 <div className='w-1/12 text-center font-bold inline-block'>{props.parentIndex + 1}</div>
                 <div className='w-11/12 flex flex-row items-center'>
                     <div className='w-4/12 p-2 text-center flex flex-row space-x-2 font-bold'>
                         <InputSearchPDC doorModelData={props.doorModelData} name={props.ReportItem.priceReport.name} handleChangeReport={handleChangeReport} />
+                        {(props.ReportItem.priceReport.doorModel && props.ReportItem.priceReport.numberDoor!=0) && <span className='text-xs text-gray-400'>{props.ReportItem.priceReport.doorModel.numberDoor} cánh</span>}
                         <select className='rounded' name="" id="" onChange={e => handleChangeReport(e.target.value, "EI")} value={props.ReportItem.priceReport.EI}>
                             <option value="" disabled hidden>-chọn-</option>
                             {listEI.map((item: string, ind: number) => (
@@ -206,7 +210,7 @@ export default function CreateBaoGiaItem(props: Props) {
                     {props.ReportItem.priceReport.accessories.map((item: Accessories, index: number) =>
                         <div key={index} className='flex flex-row px-2'>
                             <div className='w-1/12 p-2 text-center font-bold'>{props.parentIndex + 1},{3 + index}</div>
-                            <CreateBaoGiaSecondAcs ReportItem={props.ReportItem} acsIndex={index} handleChangeAcsList={handleChangeAcsList} acsData={props.acsData} />
+                            <CreateBaoGiaSecondAcs   ReportItem={props.ReportItem} acsIndex={index} handleChangeAcsList={handleChangeAcsList} acsData={props.acsData} />
                         </div>
                     )}
 

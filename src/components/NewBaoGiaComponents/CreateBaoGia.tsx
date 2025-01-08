@@ -5,7 +5,7 @@ import CreateBaoGiaItem from './CreateBaoGiaItem';
 import DoorNameSelect from '@/Model/DoorNameSelect';
 import Accessories, { getNewAcsWithName } from '@/Model/Accessories';
 import FireTest from '@/Model/FireTest';
-import { DoorOpen } from 'lucide-react';
+import { DoorOpen, Filter, Save } from 'lucide-react';
 import GroupAccessory from '@/Model/GroupAccessory';
 import cmdData from '@/Model/cmdData';
 import CreateBaoGiaTotalItem from './CreateBaoGiaTotalItem';
@@ -15,6 +15,13 @@ import FireTestTotal from '@/Model/FireTestTotal';
 import DataReport from '@/Model/DataReport';
 import TotalItem, { createTotalItem } from '@/Model/TotalItem';
 import { formatNumberToDot } from '@/data/FunctionAll';
+import { message } from 'antd';
+import PostPattern from '@/ApiPattern/PostPattern';
+import { access } from 'fs';
+import BGreadExcel from '../handleExcelComponent/BGreadExcel';
+import { set } from 'lodash';
+import FilterBaoGia from './FilterBaoGia';
+import { motion } from 'framer-motion';
 
 type Props = {
     groupAcsData: GroupAccessory[],
@@ -25,41 +32,27 @@ type Props = {
 export default function CreateBaoGia(props: Props) {
     // console.log(props.groupAcsData,3);
     // console.log(props.acsData,4);
-    // console.log(props.doorModelData,5);
+    // console.log(props.doorModelData, 5);
+    const [openFilter, setOpenFilter] = useState(false);
     const [listReport, setListReport] = useState<DataReport[]>([]);
     const [totalGroupItem, setTotalGroupItem] = useState<TotalGroup[]>(createNewTotalGroupArray());
     const [finalTotalArray, setFinalTotal] = useState<number[]>([0, 0, 0]);
+    const [listAcsExist,setListAcsExist] = useState<Accessories[]>([]);
     /// create total
     useEffect(() => {
-        const updateTotal = () => {
-            console.log("update total");
-            let tempTotalGroup: TotalGroup[] = [...totalGroupItem];
-            if (tempTotalGroup.length === 0) {
-                tempTotalGroup = [new TotalGroup(0, [], "Chi chí chung")]
-            }
-            /// SUM mainAcs
-            const totalMainQuantity = listReport.reduce((total: number, item: DataReport) => {
-                if (item.priceReport.mainAcs) {
-                    return total + item.priceReport.mainAcs.totalQuantity;
-                }
-                return total;
-            }, 0)
-
-            let newTotalItemList: TotalItem[] = tempTotalGroup[0].totalItem.map((item: TotalItem) => {
-                if (item.code === "CPV" || item.code === "CPLD") {
-                    return { ...item, totalQuantity: totalMainQuantity };
-                }
-                return item;
-            });
-            tempTotalGroup = tempTotalGroup.map((item: TotalGroup, index) => {
-                if (index === 0) {
-                    return { ...item, totalItem: newTotalItemList };
-                }
-                return item;
+        const getListAcsExist = ()=>{
+            const tempAcsList : Accessories[] = [];
+            listReport.forEach((item:DataReport,index)=>{
+                item.priceReport.accessories.forEach((acs:Accessories,childIndex)=>{
+                    const temp : Accessories|undefined = tempAcsList.find(acsChild=>acsChild.id===acs.id);
+                    if (!temp) {
+                        tempAcsList.push(acs);
+                    }
+                })
             })
-            setTotalGroupItem(tempTotalGroup);
+            setListAcsExist(tempAcsList);
         }
-        updateTotal();
+        getListAcsExist();
     }, [listReport])
 
     const handleAddNewReport = () => {
@@ -110,13 +103,70 @@ export default function CreateBaoGia(props: Props) {
             return total;
         }
         if (num === 1) {
-            return total * 0.08;
+            let tot1 = 0;
+            let tot2 = 0;
+            listReport.map((item: DataReport) => {
+                item.priceReport.accessories.map((childItem: Accessories) => {
+                    tot1 += childItem.price * (childItem.quantity * item.priceReport.totalQuantity);
+                })
+                if (item.priceReport.mainAcs) {
+                    tot1 += item.priceReport.mainAcs.totalQuantity * item.priceReport.mainAcs.price;
+                }
+            })
+            totalGroupItem.map((item: TotalGroup) => {
+                item.totalItem.map((childItem: TotalItem) => {
+                    tot2 += childItem.price * childItem.totalQuantity;
+                })
+            })
+            return tot1 * 0.1 + tot2 * 0.08;
         }
-        return total + total * 0.08;
+        return total + total * 0.1;
+    }
+    const handleSaveReport = async () => {
+        if (listReport.length === 0) {
+            message.error("Chưa có dữ liệu để lưu");
+            return
+        }
+        const priceReports: any[] = [];
+        const reportTotals: any[] = [];
+        listReport.map((item: DataReport) => {
+            const acsId = item.priceReport.accessories.map((childItem: Accessories) => childItem.id);
+            const temp = {
+                ...item.priceReport
+                , doorModelId: item.priceReport.doorModel.id
+                , mainAcsId: item.priceReport.mainAcs?.id
+                , accessoriesId: acsId
+            };
+            priceReports.push(temp);
+        })
+        totalGroupItem[0].totalItem.map((item: TotalItem) => {
+            const temp = { ...item, id: 0, groupName: totalGroupItem[0].name };
+            reportTotals.push(temp);
+        })
+        const postData: any = {
+            priceReports: priceReports,
+            reportTotals: reportTotals
+        }
+        console.log(postData);
+        const url = process.env.NEXT_PUBLIC_API_URL + "/api/excel/export";
+        const response = await PostPattern(url, postData, {});
+        console.log(response);
+    }
+    const handlePushToDataReport = (newDataReport: DataReport[]) => {
+        const tempReport = [...listReport];
+        tempReport.push(...newDataReport);
+        setListReport(tempReport);
     }
     return (
         <div className='flex flex-col space-y-4 py-2'>
-            <button className='bg-red-100 fixed top-4 right-4 p-10' onClick={e => console.log(listReport)}>check gia tri</button>
+
+
+
+            <div className='w-[300px]'>
+                {openFilter && <FilterBaoGia  setDataReport={setListReport} acsData={props.acsData} setOpenFilter={setOpenFilter} openFilter={openFilter} listReport={listReport}/>}
+                <BGreadExcel acsData={props.acsData} doorModelData={props.doorModelData} groupAcsData={props.groupAcsData} handlePushToDataReport={handlePushToDataReport} />
+            </div>
+            <button className='bg-red-100 fixed top-64 right-4 p-10 bg-opacity-50' onClick={e => console.log(listReport)}>check gia tri</button>
             <div className='flex flex-row bg-slate-950 border-b px-2 border-gray-500 shadow-xl text-white sticky z-20 top-0'>
                 <div className='w-1/12 p-2 text-center font-bold'>STT</div>
                 <div className='w-11/12 flex flex-row'>
@@ -138,7 +188,13 @@ export default function CreateBaoGia(props: Props) {
                     </div>
                     <div className='w-1/12 p-2 text-center font-bold'>Đơn giá</div>
                     <div className='w-1/12 p-2 text-center font-bold'>Tổng giá</div>
-                    <div className='w-1/12 p-2 text-center font-bold'></div>
+                    <div className='w-1/12 p-2 text-center font-bold'>
+                        <button className='py-2 font-semibold bg-blue-600 text-white rounded-xl w-full hover:bg-blue-900 flex flex-row space-x-2 justify-center items-center'
+                            onClick={e => setOpenFilter(true)}>
+                            <Filter />
+                            <span>T.Quát</span>
+                        </button>
+                    </div>
                 </div>
             </div >
             {listReport.map((item: DataReport, parentIndex: number) =>
@@ -162,7 +218,7 @@ export default function CreateBaoGia(props: Props) {
                 <span className='font-bold border-b'>PHẦN CHUNG</span>
                 {totalGroupItem.map((item: TotalGroup, index: number) =>
                     <div key={index}>
-                        <CreateBaoGiaTotalItem handleUpdateTotalList={handleUpdateTotalList} listReport={listReport} totalGroup={item} totalGroupIndex={index} />
+                        <CreateBaoGiaTotalItem listAcsExist={listAcsExist} handleUpdateTotalList={handleUpdateTotalList} listReport={listReport} totalGroup={item} totalGroupIndex={index} />
                     </div>
                 )}
 
@@ -176,7 +232,7 @@ export default function CreateBaoGia(props: Props) {
                             <div className='w-4/12 p-2 font-bold'>TỔNG HÀNG HÓA</div>
                             <div className='w-6/12 p-2 text-center font-bold'></div>
                             <div className='w-1/12 p-2 text-center font-bold'>
-                                {formatNumberToDot(handleUpdateFinalTotal(0))}
+                                {formatNumberToDot(handleUpdateFinalTotal(0).toFixed(0))}
                             </div>
                             <div className='w-1/12 p-2 text-center font-bold'></div>
                         </div>
@@ -187,7 +243,7 @@ export default function CreateBaoGia(props: Props) {
                             <div className='w-4/12 p-2 font-bold'>THUẾ VAT</div>
                             <div className='w-6/12 p-2 text-center font-bold'></div>
                             <div className='w-1/12 p-2 text-center font-bold'>
-                                {formatNumberToDot(handleUpdateFinalTotal(1))}
+                                {formatNumberToDot(handleUpdateFinalTotal(1).toFixed(0))}
                             </div>
                             <div className='w-1/12 p-2 text-center font-bold'></div>
                         </div>
@@ -198,12 +254,18 @@ export default function CreateBaoGia(props: Props) {
                             <div className='w-4/12 p-2 font-bold'>TỔNG CỘNG (ĐÃ BAO GỒM THUẾ VAT)</div>
                             <div className='w-6/12 p-2 text-center font-bold'></div>
                             <div className='w-1/12 p-2 text-center font-bold'>
-                                {formatNumberToDot(handleUpdateFinalTotal(2))}
+                                {formatNumberToDot(handleUpdateFinalTotal(2).toFixed(0))}
                             </div>
                             <div className='w-1/12 p-2 text-center font-bold'></div>
                         </div>
                     </div>
                 </div>
+            </div>
+            <div className='px-2'>
+                <button className='px-4 py-2 font-semibold bg-blue-600 text-white rounded-xl w-full hover:bg-blue-900 flex flex-row space-x-2 justify-center items-center' onClick={e => handleSaveReport()}>
+                    <Save size={20} />
+                    <span>Lưu</span>
+                </button>
             </div>
 
         </div>

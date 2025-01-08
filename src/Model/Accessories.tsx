@@ -16,6 +16,7 @@ class Accessories {
     type?: string;
     isCommand?: boolean;
     accessoryGroup?:any;
+    supplierShow?:string;
     constructor(
         id: any,
         code: string,
@@ -31,6 +32,7 @@ class Accessories {
         unit: string,
         status: boolean,
         isCommand?: boolean,
+        supplierShow?:string
     ) {
         this.id = id;
         this.code = code;
@@ -47,12 +49,13 @@ class Accessories {
         this.unit = unit;
         this.status = status;
         this.isCommand = isCommand ?? false
+        this.supplierShow = supplierShow;
     }
 }
 export default Accessories;
 
 export const getNewAcs = (): Accessories => {
-    return new Accessories("", "", "", "", 0, 0, 0, 0, 0, 0, 0, "", false, false);
+    return new Accessories("", "", "", "", 0, 0, 0, 0, 0, 0, 0, "", false, false,"");
 }
 export const TransRequestToAcs = (item: any): Accessories => {
     return {

@@ -7,15 +7,17 @@ class TotalItem {
     name:string;
     price:number;
     code:string;
-    
-    constructor(quantity: number, totalQuantity: number, typeTotal: any, name: string, price: number, code: string) {
+    typeQuantity:any;
+    constructor(quantity: number, totalQuantity: number, typeTotal: any, name: string, price: number, code: string,typeQuantity?:any) {
         this.quantity = quantity;
         this.totalQuantity = totalQuantity;
         this.typeTotal = typeTotal;
         this.name = name;
         this.price = price;
         this.code = code;
+        this.typeQuantity = typeQuantity;
     }
+    
    
 }
 export default TotalItem;

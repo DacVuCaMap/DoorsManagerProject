@@ -3,7 +3,8 @@ import { debounce } from 'lodash';
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 type Props = {
     acsData: Accessories[];
-    handleSelectAcs: (acs: Accessories) => void,
+    itemSelect?:any;
+    handleSelectAcs: (acs: Accessories,itemSelect?:any) => void,
     curAcs:Accessories,
 }
 export default function InputSearchAcs(props: Props) {
@@ -27,7 +28,9 @@ export default function InputSearchAcs(props: Props) {
 
     const selectKey = (acs: Accessories) => {
         ///set
-        props.handleSelectAcs(acs);
+        if(props.itemSelect){props.handleSelectAcs(acs,props.itemSelect)}
+        else{props.handleSelectAcs(acs);}
+
         setKey(acs.name);
         //close window
         setOpen(false);

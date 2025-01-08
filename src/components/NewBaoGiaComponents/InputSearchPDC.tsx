@@ -46,7 +46,7 @@ export default function InputSearchPDC(props: Props) {
     }
 
     const selectKey = (item: any) => {
-        props.handleChangeReport(item,"doorModel");
+        props.handleChangeReport(item, "doorModel");
         //close window
         setOpen(false);
     };
@@ -103,7 +103,10 @@ export default function InputSearchPDC(props: Props) {
                             onClick={() => selectKey(item)}
                             className={`flex flex-row justify-between text-sm truncate w-full hover:bg-gray-700 hover:text-gray-300 py-2 px-2  ${index === currentIndex ? 'bg-gray-700 text-gray-300' : 'text-gray-800'}`}
                         >
-                            <span>{item.name}</span>
+                            <div className='space-x-1'>
+                                <span>{item.name}</span>
+                                {item.numberDoor && <span className='text-xs'>({item.numberDoor} cánh)</span>}
+                            </div>
                             <span className='text-xs'>{item.shortName}</span>
                         </div>
                     ))}

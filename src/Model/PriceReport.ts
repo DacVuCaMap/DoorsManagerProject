@@ -17,6 +17,7 @@ class PriceReport {
     doorModel:any;
     accessories:Accessories[];
     mainAcs:Accessories | null;
+    numberDoor?:number;
     constructor(
         id: any,
         index: number,
@@ -31,7 +32,8 @@ class PriceReport {
         unit: string,
         doorModel:any,
         accessories:Accessories[],
-        mainAcs:Accessories | null
+        mainAcs:Accessories | null,
+        numberDoor?:number
     ) {
         this.id = id;
         this.index = index;
@@ -47,10 +49,11 @@ class PriceReport {
         this.doorModel = doorModel;
         this.accessories = accessories;
         this.mainAcs = mainAcs;
+        this.numberDoor = numberDoor;
     }
 }
 export default PriceReport
 
 export const createNewPriceReport = () : PriceReport=>{
-    return new PriceReport("",0,"","","","",0,0,1,0,"",null,[],null);
+    return new PriceReport("",0,"","","","",0,0,1,0,"",null,[],null,0);
 }

@@ -6,6 +6,7 @@ import DoorModel from "@/Model/DoorModel";
 import DoorNameSelect from "@/Model/DoorNameSelect";
 import FireTest from "@/Model/FireTest";
 import GroupAccessory from "@/Model/GroupAccessory";
+import PriceReport from "@/Model/PriceReport";
 type fireTestGroup = {
     id: any,
     fireTest: FireTest[]

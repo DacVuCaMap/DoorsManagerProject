@@ -11,6 +11,7 @@ class DoorModel{
     glassBracket:Accessories | null;
     fireTestCondition:string;
     fireTestValue:string;
+    numberDoor:number;
     constructor(
         id: any,
         name: string,
@@ -20,7 +21,8 @@ class DoorModel{
         accessoryGlass: Accessories | null,
         glassBracket: Accessories | null,
         fireTestCondition: string,
-        fireTestValue:string
+        fireTestValue:string,
+        numberDoor:number
     ) {
         this.id = id;
         this.name = name;
@@ -31,10 +33,11 @@ class DoorModel{
         this.glassBracket = glassBracket;
         this.fireTestCondition = fireTestCondition;
         this.fireTestValue = fireTestValue;
+        this.numberDoor = numberDoor;
     }
 }
 export default DoorModel;
 
 export const newDoorModel=()=>{
-    return new DoorModel(null,"","",[],null,null,null,"","");
+    return new DoorModel(null,"","",[],null,null,null,"","",1);
 }
