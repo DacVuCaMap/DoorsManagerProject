@@ -67,7 +67,7 @@ const listToGetTotalGroup: any[] =[{name:"",code:"CPV",typeTotal:"main"},{name:"
   ,{name:"",code:"CPLDBLS",typeTotal:"BLS"},{name:"Chi phí vận chuyển",code:"",typeTotal:""},{name:"Chi phí lắp đặt cửa thép an toàn",code:"",typeTotal:""}] 
 
 export const totalGroup = (acsData:Accessories[]): TotalGroup[]   =>{
-  let totalItemList : TotalItem[] = listToGetTotalGroup.map((item:any,index:number)=>{
+  let totalItemList : any[] = listToGetTotalGroup.map((item:any,index:number)=>{
     let acs : Accessories | undefined= acsData.find(child=>child.code===item.code);
     if (!acs) {
       acs=getNewAcsWithName(item.name);

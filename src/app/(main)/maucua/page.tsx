@@ -1,3 +1,4 @@
+"use server"
 import GetPattern from '@/ApiPattern/GetPattern';
 import MauCuaComponent from '@/components/MaucuaComponent/MauCuaComponent'
 import { LoadAccesoryGroupNoAcs, LoadAccessoriesDataOffline } from '@/data/FunctionAll';
@@ -8,21 +9,16 @@ import React from 'react'
 export default async function page() {
   let acsGlass: Accessories[] = [];
   let acsGroup: GroupAccessory[] = [];
-  const fetchAcsGlass = async () => {
-    const url = process.env.NEXT_PUBLIC_API_URL + "/api/accessories/get-acs-by-type?type=glass";
-    const response = await GetPattern(url, {});
-    if (response && response.value && response.value[0] && response.value[0].accessories) {
-      acsGlass = response.value[0].accessories;
-    }
+  const url = process.env.NEXT_PUBLIC_API_URL + "/api/accessories/get-acs-by-type?type=glass";
+  const response = await GetPattern(url, {});
+  if (response && response.value && response.value[0] && response.value[0].accessories) {
+    acsGlass = response.value[0].accessories;
   }
-  const fetchAcsGroup = async () => {
-    const result: GroupAccessory[] = await LoadAccesoryGroupNoAcs();
-    acsGroup = result;
-  };
-  await fetchAcsGlass();
-  await fetchAcsGroup();
-  const acsData : Accessories[] = await LoadAccessoriesDataOffline();
+  
+  const result: GroupAccessory[] = await LoadAccesoryGroupNoAcs();
+  acsGroup = result;
+  const acsData: Accessories[] = await LoadAccessoriesDataOffline();
   return (
-    <MauCuaComponent acsGlass={acsGlass} acsGroup={acsGroup} acsData={acsData}/>
+    <MauCuaComponent acsGlass={acsGlass} acsGroup={acsGroup} acsData={acsData} />
   )
 }
