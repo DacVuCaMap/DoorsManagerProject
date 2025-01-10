@@ -5,7 +5,7 @@ type Props = {
     accessoryGroupData: GroupAccessory[],
     handleSetAcsGroup: (groupItem: GroupAccessory, index: number) => void
     index: number,
-    condition?: string
+    condition?: string,
 }
 export default function InputSearchAccessoryGroup(props: Props) {
     const newGroupAcs = new GroupAccessory("", "", [], "");

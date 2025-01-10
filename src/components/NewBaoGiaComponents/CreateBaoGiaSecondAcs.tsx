@@ -5,6 +5,7 @@ import Accessories from '@/Model/Accessories'
 import InputSearchAcs from '../SearchingComponents/InputSearchAcs'
 import { formatNumberFixed3, formatNumberFixed4, formatNumberToDot } from '@/data/FunctionAll'
 import DataReport from '@/Model/DataReport'
+import { readConditionAndCal } from '@/utils/bgFunction'
 type Props = {
     acsData: Accessories[],
     acsIndex: number,
@@ -36,17 +37,23 @@ export default function CreateBaoGiaSecondAcs(props: Props) {
 
     //update totalQuan
     useEffect(() => {
-        handleChangeInput(props.ReportItem.priceReport.totalQuantity * curAcs.quantity, "totalQuantity");
-    }, [props.ReportItem.priceReport.totalQuantity, curAcs.quantity])
+
+        if (curAcs.type!="glass" && curAcs.type!="nep" && curAcs.condition && curAcs.condition==="1") {
+            const quan = readConditionAndCal(curAcs.condition,props.ReportItem.priceReport.width/1000,props.ReportItem.priceReport.height/1000);
+            const totalQuan = quan * props.ReportItem.priceReport.totalQuantity*curAcs.quantity;
+            handleChangeInput(totalQuan,"totalQuantity");
+        }
+        else{
+            handleChangeInput(props.ReportItem.priceReport.totalQuantity * curAcs.quantity, "totalQuantity");
+        }
+    }, [props.ReportItem.priceReport.totalQuantity, curAcs.quantity,props.ReportItem.priceReport.width,props.ReportItem.priceReport.height])
     //update quantity with doorsill
     useEffect(() => {
-        if (props.ReportItem.priceReport.width > 0 && curAcs.type === "doorsill") {
-            handleChangeInput(props.ReportItem.priceReport.width / 1000, "quantity");
+        if (curAcs.type==="doorsill" && curAcs.condition) {
+            const quan = readConditionAndCal(curAcs.condition,props.ReportItem.priceReport.width/1000,props.ReportItem.priceReport.height/1000);
+            handleChangeInput(quan,"quantity")
         }
-        if (props.ReportItem.priceReport.width === 0 && curAcs.type === "doorsill") {
-            handleChangeInput(0, "quantity");
-        }
-    }, [props.ReportItem.priceReport.width])
+    }, [props.ReportItem.priceReport.width,props.ReportItem.priceReport.height])
     return (
         <div className='w-11/12 flex flex-row items-center py-1 bg-gray-600'>
             <div className='w-4/12 p-2 text-center flex flex-row justify-center space-x-4'>
@@ -56,15 +63,6 @@ export default function CreateBaoGiaSecondAcs(props: Props) {
                 <span>{curAcs.code}</span>
             </div>
             <div className='w-2/12 p-2 text-center flex flex-col '>
-                {/* <div className='flex flex-row space-x-2 items-center'>
-                    <div className='w-1/2'>
-                        {curAcs.width}
-                    </div>
-                    <span>X</span>
-                    <div className='w-1/2'>
-                        {curAcs.height}
-                    </div>
-                </div> */}
             </div>
             <div className='w-2/12 p-2 text-center flex flex-col '>
                 <div className='flex flex-row space-x-2'>

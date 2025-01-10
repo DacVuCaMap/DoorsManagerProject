@@ -17,7 +17,11 @@ class PriceReport {
     doorModel:any;
     accessories:Accessories[];
     mainAcs:Accessories | null;
+    glassAcs:Accessories | null;
+    nepAcs:Accessories | null;
+    onGlass:boolean;
     numberDoor?:number;
+
     constructor(
         id: any,
         index: number,
@@ -33,7 +37,10 @@ class PriceReport {
         doorModel:any,
         accessories:Accessories[],
         mainAcs:Accessories | null,
-        numberDoor?:number
+        numberDoor?:number,
+        glassAcs?:Accessories|null,
+        nepAcs?:Accessories|null,
+        onGlass?:boolean
     ) {
         this.id = id;
         this.index = index;
@@ -50,6 +57,10 @@ class PriceReport {
         this.accessories = accessories;
         this.mainAcs = mainAcs;
         this.numberDoor = numberDoor;
+        this.glassAcs = glassAcs ?? null;
+        this.nepAcs = nepAcs ?? null;
+        this.onGlass = onGlass ?? true;
+
     }
 }
 export default PriceReport

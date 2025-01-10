@@ -6,12 +6,13 @@ import React, { useEffect, useState } from 'react'
 import InputSearchAcs from '../SearchingComponents/InputSearchAcs';
 import PriceReport from '@/Model/PriceReport';
 import "./CreateBaoGiaItem.css"
+import { Trash2 } from 'lucide-react';
 type Props = {
     setOpenFilter(flag: boolean): any;
     openFilter: boolean;
     listReport: DataReport[];
     acsData: Accessories[];
-    setDataReport(item:DataReport[]):any;
+    setDataReport(item: DataReport[]): any;
 
 }
 type ListSelect = {
@@ -24,28 +25,30 @@ export default function FilterBaoGia(props: Props) {
     useEffect(() => {
         const filterListReport = () => {
             let temp: ListSelect[] = [];
-            props.listReport.forEach((item : DataReport, index) => {
+            props.listReport.forEach((item: DataReport, index) => {
                 // main Acs 
                 if (item.priceReport.mainAcs) {
                     const check = temp.find(itemSelect => itemSelect.acs.id === item.priceReport.mainAcs?.id);
-                    const quantity = (item.priceReport.width/1000 * item.priceReport.height/1000)*item.priceReport.totalQuantity;
+                    const quantity = (item.priceReport.width / 1000 * item.priceReport.height / 1000) * item.priceReport.totalQuantity;
                     if (check) {
                         check.numberIndex.push(index);
-                        check.acs.totalQuantity+=quantity;
+                        check.acs.totalQuantity += quantity;
                     }
                     else {
-                        temp.push({ numberIndex: [index], acs: {...item.priceReport.mainAcs,totalQuantity:quantity} });
+                        temp.push({ numberIndex: [index], acs: { ...item.priceReport.mainAcs, totalQuantity: quantity } });
                     }
                 }
-                item.priceReport.accessories.map((acs: Accessories) => {
-                    const check = temp.find(itemSelect => itemSelect.acs.id === acs.id);
-                    const quantity = acs.quantity*item.priceReport.totalQuantity
-                    if (check) {
-                        check.numberIndex.push(index);  
-                        check.acs.totalQuantity+=quantity;
-                    }
-                    else {
-                        temp.push({ numberIndex: [index], acs: {...acs,totalQuantity:quantity} });
+                item.priceReport.accessories.forEach((acs: Accessories) => {
+                    if (acs.type!="cost") {
+                        const check = temp.find(itemSelect => itemSelect.acs.id === acs.id);
+                        const quantity = acs.quantity * item.priceReport.totalQuantity
+                        if (check) {
+                            check.numberIndex.push(index);
+                            check.acs.totalQuantity += quantity;
+                        }
+                        else {
+                            temp.push({ numberIndex: [index], acs: { ...acs, totalQuantity: quantity } });
+                        }
                     }
                 });
             });
@@ -53,60 +56,73 @@ export default function FilterBaoGia(props: Props) {
         }
         filterListReport();
     }, [props.listReport])
-    const handleUpdateToParent = (acs: Accessories,itemSelect:ListSelect) => {
-        const tempReport : DataReport[] = [...props.listReport].map((report:DataReport,index)=>{
+    const handleUpdateToParent = (acs: Accessories, itemSelect: ListSelect) => {
+        const tempReport: DataReport[] = [...props.listReport].map((report: DataReport, index) => {
             if (itemSelect.numberIndex.includes(index)) {
-                let tempChildReport : PriceReport = report.priceReport;
-                const checkAcs : Accessories|undefined = tempChildReport.accessories.find(item=>item.id===acs.id);
-                if (tempChildReport.mainAcs && itemSelect.acs===tempChildReport.mainAcs.id) {
-                    tempChildReport = {...tempChildReport,mainAcs:acs};
+                let tempChildReport: PriceReport = report.priceReport;
+                const checkAcs: Accessories | undefined = tempChildReport.accessories.find(item => item.id === acs.id);
+                if (tempChildReport.mainAcs && itemSelect.acs === tempChildReport.mainAcs.id) {
+                    tempChildReport = { ...tempChildReport, mainAcs: acs };
                 }
-                else if (checkAcs && itemSelect.acs.id!=checkAcs.id) {
-                    const tempAcsList : Accessories[] = tempChildReport.accessories.filter(item=>item.id!=checkAcs.id);
-                    tempChildReport={...tempChildReport,accessories:tempAcsList};
+                else if (checkAcs && itemSelect.acs.id != checkAcs.id) {
+                    const tempAcsList: Accessories[] = tempChildReport.accessories.filter(item => item.id != checkAcs.id);
+                    tempChildReport = { ...tempChildReport, accessories: tempAcsList };
                 }
-                else{
-                    const tempAcsList : Accessories[] = tempChildReport.accessories.map((acsItem:Accessories,childInd)=>{
-                        if (acsItem.id===itemSelect.acs.id) {
-                            return {...acs,price:acsItem.price,quantity:acsItem.quantity}
+                else {
+                    const tempAcsList: Accessories[] = tempChildReport.accessories.map((acsItem: Accessories, childInd) => {
+                        if (acsItem.id === itemSelect.acs.id) {
+                            return { ...acs, price: acsItem.price, quantity: acsItem.quantity }
                         }
                         return acsItem;
                     })
-                    tempChildReport={...tempChildReport,accessories:tempAcsList};
+                    tempChildReport = { ...tempChildReport, accessories: tempAcsList };
                 }
-                return {...report,priceReport:tempChildReport};
+                return { ...report, priceReport: tempChildReport };
             }
             return report;
         })
         props.setDataReport(tempReport);
-       
+
     }
     const handleUpdatePrice = (itemSelect: ListSelect, e: any) => {
         let value = e.target.value;
 
-       
+
         value = parseFloat(value.replace(/\./g, ''));
         value = !value ? 0 : value;
-        const tempReport : DataReport[] = [...props.listReport].map((report:DataReport,index)=>{
+        const tempReport: DataReport[] = [...props.listReport].map((report: DataReport, index) => {
             if (itemSelect.numberIndex.includes(index)) {
-                let tempChildReport : PriceReport = report.priceReport;
-                if (tempChildReport.mainAcs && itemSelect.acs.id===tempChildReport.mainAcs.id) {
-                    let mainAcs : Accessories= {...tempChildReport.mainAcs,price:value};
-                    tempChildReport = {...tempChildReport,mainAcs:mainAcs};
+                let tempChildReport: PriceReport = report.priceReport;
+                if (tempChildReport.mainAcs && itemSelect.acs.id === tempChildReport.mainAcs.id) {
+                    let mainAcs: Accessories = { ...tempChildReport.mainAcs, price: value };
+                    tempChildReport = { ...tempChildReport, mainAcs: mainAcs };
                 }
-                else{
-                    const tempAcsList : Accessories[] = tempChildReport.accessories.map((acs:Accessories,childInd)=>{
-                        if (acs.id===itemSelect.acs.id) {
-                            return {...acs,price:value}
+                else {
+                    const tempAcsList: Accessories[] = tempChildReport.accessories.map((acs: Accessories, childInd) => {
+                        if (acs.id === itemSelect.acs.id) {
+                            return { ...acs, price: value }
                         }
                         return acs;
                     })
-                    tempChildReport={...tempChildReport,accessories:tempAcsList};
+                    tempChildReport = { ...tempChildReport, accessories: tempAcsList };
                 }
-                return {...report,priceReport:tempChildReport};
+                return { ...report, priceReport: tempChildReport };
 
             }
             return report;
+        })
+        props.setDataReport(tempReport);
+    }
+    const handleDeleteFilter = (item: ListSelect) => {
+        const tempReport: DataReport[] = [...props.listReport].map((report: DataReport, index) => {
+            // main
+            if (report.priceReport.mainAcs?.id === item.acs.id) {
+                const newPriceReport: PriceReport = { ...report.priceReport, mainAcs: null };
+                return { ...report, priceReport: newPriceReport };
+            }
+            const newAcs: Accessories[] = report.priceReport.accessories.filter(acs => acs.id != item.acs.id);
+            const newPriceReport: PriceReport = { ...report.priceReport, accessories: newAcs };
+            return { ...report, priceReport: newPriceReport };
         })
         props.setDataReport(tempReport);
     }
@@ -142,7 +158,10 @@ export default function FilterBaoGia(props: Props) {
                                                 <td className='text-center'>{item.acs.code}</td>
                                                 <td className='text-center'>{item.acs.totalQuantity}</td>
                                                 <td className='text-gray-700 px-10'>
-                                                    <input onChange={e => handleUpdatePrice(item,e)} value={item.acs.price} type="text" className='rounded px-2 py-1 w-full' />
+                                                    <input onChange={e => handleUpdatePrice(item, e)} value={item.acs.price} type="text" className='rounded px-2 py-1 w-full' />
+                                                </td>
+                                                <td>
+                                                    <button onClick={e => handleDeleteFilter(item)} className='hover:bg-gray-700 p-2'><Trash2 /></button>
                                                 </td>
                                             </tr>
                                         ))}

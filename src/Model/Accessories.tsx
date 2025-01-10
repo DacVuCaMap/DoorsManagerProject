@@ -17,6 +17,7 @@ class Accessories {
     isCommand?: boolean;
     accessoryGroup?:any;
     supplierShow?:string;
+    condition?:string;
     constructor(
         id: any,
         code: string,

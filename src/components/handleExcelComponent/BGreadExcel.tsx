@@ -78,7 +78,7 @@ export default function BGreadExcel(props: Props) {
             doorModelItem.accessoryAndFeatures.map((item: any) => {
                 const acsExisted: GroupAccessory | null = props.groupAcsData.find((acsGroup: GroupAccessory) => acsGroup.id === item.accessoryGroupId) ?? null;
                 if (acsExisted && acsExisted.accessoriesAndType.length > 0) {
-                    acsList.push({ ...acsExisted.accessoriesAndType[0].accessories, quantity: item.quantity });
+                    acsList.push({ ...acsExisted.accessoriesAndType[0].accessories, quantity: item.quantity,condition:item.condition });
                 }
             })
         }

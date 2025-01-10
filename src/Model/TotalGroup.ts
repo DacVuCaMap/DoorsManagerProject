@@ -15,9 +15,7 @@ class TotalGroup {
 }
 export default TotalGroup;
 export const createNewTotalGroupArray = (): TotalGroup[] =>{
-    const mainAcs1 : TotalItem = new TotalItem(0,0,0,"Chi phí vữa nhét vào khung cửa thép chống cháy",0,"CPV");
-    const mainAcs2 : TotalItem = new TotalItem(0,0,0,"Chi phí lắp đặt, hoàn thiện cửa thép chống cháy",0,"CPLD");
     const cpvc : TotalItem = new TotalItem(1,0,1,"Chi phí vận chuyển",0,"CPVC");
     const cpkd : TotalItem = new TotalItem(1,0,1,"Chi phí hồ sơ kiểm định PCCC",0,"BCA",-1);
-    return [new TotalGroup(0,[mainAcs1,mainAcs2,cpvc,cpkd],"Chi chí chung")];
+    return [new TotalGroup(0,[cpvc,cpkd],"Chi chí chung")];
 }

@@ -16,12 +16,14 @@ import { BarLoader } from 'react-spinners';
 
 type Props = {
     curDoorModel: DoorModel;
+    acsGlass: Accessories[];
+    acsGroup: GroupAccessory[];
 }
-export default function MauCuaEditComponent(props:Props) {
+export default function MauCuaEditComponent(props: Props) {
     const [curDoorModel, setDoorModel] = useState<DoorModel>(newDoorModel());
-    const [listMainAcs, setListMianAcs] = useState<Accessories[]>([]);
-    const [listAcsGroup, setListAcsGroup] = useState<GroupAccessory[]>([]);
-    const [listMainGlass, setListMainGlass] = useState<Accessories[]>([]);
+    const [listMainAcs, setListMainAcs] = useState<Accessories[]>([]);
+    const [listAcsGroup, setListAcsGroup] = useState<GroupAccessory[]>(props.acsGroup);
+    const [listMainGlass, setListMainGlass] = useState<Accessories[]>(props.acsGlass);
     const [curFireTestCondition, setCurFireTestCondition] = useState<string[]>([]);
     const [curFireTestValue, setCurFireTestValue] = useState<string[]>([]);
     let curAcs = new Accessories(genNumberByTime(), "", "", "", 0, 0, 0, 0, 0, 0, 0, "Bộ", false);
@@ -33,36 +35,26 @@ export default function MauCuaEditComponent(props:Props) {
             const response = await GetPattern(url, {});
             if (response && response.value && response.value[0] && response.value[0].accessories) {
                 // console.log(response.value[0].accessories)
-                setListMianAcs(response.value[0].accessories)
+                setListMainAcs(response.value[0].accessories)
             }
             else {
                 message.error("false");
             }
         }
-
-        const fetchAcsGlass = async () => {
-            const url = process.env.NEXT_PUBLIC_API_URL + "/api/accessories/get-acs-by-type?type=glass";
-            const response = await GetPattern(url, {});
-            if (response && response.value && response.value[0] && response.value[0].accessories) {
-                // console.log(response.value[0].accessories)
-                setListMainGlass(response.value[0].accessories)
-            }
-            else {
-                message.error("false");
-            }
-        }
-        const fetchAcsGroup = async () => {
-            const result: GroupAccessory[] = await LoadAccesoryGroupNoAcs();
-            setListAcsGroup(result); // Set the resolved result to the state
-        };
         fetchData();
-        fetchAcsGroup();
-        fetchAcsGlass();
     }, [])
-    useEffect(() => {setDoorModel(props.curDoorModel);},[props.curDoorModel])
+    useEffect(() => {
+
+        setDoorModel(props.curDoorModel);
+        const newFireTestCondition: string[] = props.curDoorModel.fireTestCondition.split("./");
+        const newFireTestValue: string[] = props.curDoorModel.fireTestValue.split("./");
+        setCurFireTestCondition(newFireTestCondition);
+        setCurFireTestValue(newFireTestValue);
+    }, [props.curDoorModel])
+
     const handleSetAcsGroup = (groupItem: GroupAccessory) => {
         const listTemp = [...curDoorModel.accessoryAndFeature];
-        const tempGroup: AccessoryAndFeature = { id: groupItem.id, accessoryGroup: groupItem, quantity: 1, condition: "normal" };
+        const tempGroup: AccessoryAndFeature = { id: groupItem.id, accessoryGroup: groupItem, quantity: 1, condition: "1", acsType: "normal" };
         const exist = listTemp.find(item => item.id === groupItem.id);
         if (exist) {
             message.error("Đã tồn tại");
@@ -71,19 +63,32 @@ export default function MauCuaEditComponent(props:Props) {
         listTemp.push(tempGroup);
         setDoorModel({ ...curDoorModel, accessoryAndFeature: listTemp });
     }
-    const handleDelete = (index: number) => {
-        const listTemp = curDoorModel.accessoryAndFeature.filter((item, ind) => ind != index);
-        setDoorModel({ ...curDoorModel, accessoryAndFeature: listTemp });
+    const handleDelete = (index: number, key: string) => {
+        if (key === "1") {
+            const listTemp = curDoorModel.accessoryAndFeature.filter((item, ind) => ind != index);
+            setDoorModel({ ...curDoorModel, accessoryAndFeature: listTemp });
+        }
+        else {
+            const listTemp = curDoorModel.acsGroupCost.filter((item, ind) => ind != index);
+            setDoorModel({ ...curDoorModel, acsGroupCost: listTemp });
+        }
     }
-    const handleChangeQuantity = (index: number, e: any) => {
+    const handleChangeQuantity = (index: number, e: any, key: string) => {
         let value = e.target.value;
-        value = value ? value : 0;
-        if (value < 0) {
+        const regex = /^[0-9wh\*\+\-\/]*$/;
+        if (key === "quantity") {
+            value = value ? value : 0;
+            value = parseFloat(value);
+            if (value < 0) {
+                return;
+            }
+        }
+        if (key === "condition" && !regex.test(value)) {
             return;
         }
         const listTemp = curDoorModel.accessoryAndFeature.map((item, ind) => {
             if (index === ind) {
-                return { ...item, quantity: parseFloat(value) }
+                return { ...item, [key]: value }
             }
             return item;
         })
@@ -92,25 +97,30 @@ export default function MauCuaEditComponent(props:Props) {
     }
     const handleChangeDoorModel = (key: string, e: any) => {
         const value = e.target.value;
+
         let temp: any = null;
         if (key === "accessoryMain") {
             temp = listMainAcs.find(item => item.id === parseFloat(value));
         }
-        if (key === "accessoryGlass") {
+        else if (key === "accessoryGlass") {
             temp = listMainGlass.find(item => item.id === parseFloat(value));
         }
-        if (key === "name") {
+        else if (key === "name" || key === "showName") {
             temp = value;
         }
-        if (key === "shortName") {
+        else if (key === "shortName") {
             temp = value;
         }
-        if (key === "numberDoor") {
+        else if (key === "numberDoor") {
             const finalVal = value < 10 ? value : value % 10;
             temp = parseFloat(finalVal);
         }
+        else {
+            temp = value;
+        }
         setDoorModel({ ...curDoorModel, [key]: temp })
     }
+
     const handleAddFiretest = () => {
         const tempCondition = [...curFireTestCondition]
         const tempValue = [...curFireTestValue]
@@ -151,31 +161,37 @@ export default function MauCuaEditComponent(props:Props) {
         e.preventDefault();
         setLoadingSubmit(true);
         const accessoryAndFeatures = curDoorModel.accessoryAndFeature.map((item: AccessoryAndFeature, index) => {
-            return { id: item.id, quantity: item.quantity, condition: item.condition, accessoryGroupId: item.accessoryGroup.id, doorModelId: 0 }
+            return { id: item.id, quantity: item.quantity, condition: item.condition, accessoryGroupId: item.accessoryGroup.id, doorModelId: 0, acsType: "normal" }
         });
+        const acsGroupCostPost = curDoorModel.acsGroupCost.map((item: AccessoryAndFeature, index) => {
+            return { id: item.id, quantity: item.quantity, condition: item.condition, accessoryGroupId: item.accessoryGroup.id, doorModelId: 0, acsType: "cost" }
+        });
+
         const postData = {
-            id: 0, name: curDoorModel.name,
+            id: curDoorModel.id, name: curDoorModel.name,
+            showName: curDoorModel.showName,
             shortName: curDoorModel.shortName,
-            accessoryAndFeatures: accessoryAndFeatures,
+            accessoryAndFeatures: [...accessoryAndFeatures, ...acsGroupCostPost],
             accessoryMainId: curDoorModel.accessoryMain?.id,
             accessoryGlassId: curDoorModel.accessoryGlass?.id,
             glassBracketId: null,
             fireTestCondition: curFireTestCondition.join("./"),
             fireTestValue: curFireTestValue.join("./"),
-            numberDoor: curDoorModel.numberDoor
+            numberDoor: curDoorModel.numberDoor,
+            wingType: curDoorModel.wingType,
+
         }
         console.log(postData);
         const url = process.env.NEXT_PUBLIC_API_URL + "/api/door-model/add"
         const response = await PostPattern(url, postData, {});
         console.log(response);
-        if (response && response.status===200) {
+        if (response && response.status === 200) {
             setSuccess(true);
         }
-        else if(response && response.status===400){
-            message.error(response.message);    
-
+        else if (response && response.status === 400) {
+            message.error(response.message);
         }
-        else{
+        else {
             message.error("fail");
         }
         setLoadingSubmit(false);
@@ -183,6 +199,38 @@ export default function MauCuaEditComponent(props:Props) {
             setSuccess(false);
         }, 5000);
     }
+    const handleSetCost = (groupItem: GroupAccessory) => {
+        const listTemp = [...curDoorModel.acsGroupCost];
+        const tempGroup: AccessoryAndFeature = { id: groupItem.id, accessoryGroup: groupItem, quantity: 1, condition: "", acsType: "cost" };
+        const exist = listTemp.find(item => item.id === groupItem.id);
+        if (exist) {
+            message.error("Đã tồn tại");
+            return;
+        }
+        listTemp.push(tempGroup);
+        setDoorModel({ ...curDoorModel, acsGroupCost: listTemp });
+    }
+
+    const handleChangeCostCondidtion = (index: number, e: any) => {
+        let value = e.target.value;
+
+        const regex = /^[0-9wh\*\+\-\/]*$/;
+
+        if (regex.test(value)) {
+
+            const listTemp = curDoorModel.acsGroupCost.map((item, ind) => {
+                if (index === ind) {
+                    return { ...item, condition: value }
+                }
+                return item;
+            });
+
+            setDoorModel({ ...curDoorModel, acsGroupCost: listTemp });
+        } else {
+            console.log('Invalid input');
+        }
+    }
+
     return (
         <div className='bg-gray-800 w-[600px] min-h-[550px] rounded-lg flex flex-col py-4 px-4 maucua-edit'>
             <div className='flex flex-row space-x-2 text-gray-300'>
@@ -193,20 +241,35 @@ export default function MauCuaEditComponent(props:Props) {
                 <form onSubmit={handleSubmit} className='flex flex-col space-y-2'>
                     <div>
                         <label htmlFor="" className='text-sm text-gray-400'>Tên Mẫu Cửa</label>
-                        <input required value={curDoorModel.name} onChange={e => handleChangeDoorModel("name", e)} type="text" placeholder='Nhập tên mẫu cửa....' className='bg-gray-600 w-full pt-2 text-base text-gray-300 px-2 mb-4 border-b outline-none border-gray-400' />
+                        <input required value={curDoorModel.name} onChange={e => handleChangeDoorModel("name", e)} type="text" placeholder='Nhập tên mẫu cửa....' className='bg-gray-600 w-full pt-2 text-base text-gray-300 rounded px-2 mb-4 border-b outline-none border-gray-400' />
                     </div>
+                    <div>
+                        <label htmlFor="" className='text-sm text-gray-400'>Loại cửa (hiển thị trong excel)</label>
+                        <input required value={curDoorModel.showName ? curDoorModel.showName : ""} onChange={e => handleChangeDoorModel("showName", e)} type="text" placeholder='Nhập tên loại cửa....' className='bg-gray-600 w-full pt-2 text-base text-gray-300 rounded px-2 mb-4 border-b outline-none border-gray-400' />
+                    </div>
+
                     <div className='flex flex-row space-x-4 w-full'>
                         <div className='flex flex-col'>
-                            <label htmlFor="" className='text-sm text-gray-400'>Số cánh</label>
-                            <input required value={curDoorModel.numberDoor} onChange={e => handleChangeDoorModel("numberDoor", e)} type="number" className='bg-gray-600 w-20 pt-2 text-base text-gray-300 px-2 mb-4 border-b outline-none border-gray-400' />
+                            <label htmlFor="" className='text-sm text-gray-400'>Tên viết tắt</label>
+                            <input required value={curDoorModel.shortName ?? ''} onChange={e => handleChangeDoorModel("shortName", e)} type="text" placeholder='Nhập tên viết tắt....' className='rounded bg-gray-600 w-64 pt-2 text-base text-gray-300 px-2 mb-4 border-b outline-none border-gray-400' />
                         </div>
                         <div className='flex flex-col'>
-                            <label htmlFor="" className='text-sm text-gray-400'>Tên viết tắt</label>
-                            <input required value={curDoorModel.shortName} onChange={e => handleChangeDoorModel("shortName", e)} type="text" placeholder='Nhập tên viết tắt....' className='bg-gray-600 w-64 pt-2 text-base text-gray-300 px-2 mb-4 border-b outline-none border-gray-400' />
+                            <label htmlFor="" className='text-sm text-gray-400'>Số cánh</label>
+                            <input required value={curDoorModel.numberDoor ?? 1} onChange={e => handleChangeDoorModel("numberDoor", e)} type="number" className='rounded bg-gray-600 w-20 pt-2 text-base text-gray-300 px-2 mb-4 border-b outline-none border-gray-400' />
                         </div>
+
+                        <div className='flex flex-col'>
+                            <label htmlFor="" className='text-sm text-gray-400'>Loại cánh</label>
+                            <select value={curDoorModel.wingType} onChange={e => handleChangeDoorModel("wingType", e)} required name="" id="" className='text-sm text-gray-300  bg-gray-600 rounded p-2'>
+                                <option value="cánh">Cánh</option>
+                                <option value="cánh lệch">Cánh lệch</option>
+                            </select>
+                        </div>
+
+
                     </div>
                     <div className='flex flex-col'>
-                        <label htmlFor="" className='text-sm text-gray-400'>Vật liệu chính</label>
+                        <label htmlFor="" className='text-sm text-gray-400'>Vật liệu chính </label>
                         <select required value={curDoorModel.accessoryMain?.id || ""} onChange={e => handleChangeDoorModel("accessoryMain", e)} name="" id="" className='text-sm text-gray-300  bg-gray-600 rounded p-2'>
                             <option value="" disabled>Chọn vật liệu chính</option>
                             {listMainAcs.map((list: any, index) => (
@@ -222,8 +285,33 @@ export default function MauCuaEditComponent(props:Props) {
                             {curDoorModel.accessoryAndFeature.map((item: AccessoryAndFeature, index) => (
                                 <div key={index} className='flex flex-row justify-center items-center space-x-2 w-full border-t border-gray-500 text-gray-400'>
                                     <span className='w-full'>{item.accessoryGroup.name}</span>
-                                    <input type="number" className='w-16 text-center rounded' value={item.quantity === 0 ? "" : item.quantity} onChange={e => handleChangeQuantity(index, e)} />
-                                    <button type='button' onClick={e => handleDelete(index)} className='hover:bg-gray-700 p-2'><Trash size={18} /></button>
+                                    <div className='flex flex-row items-center space-x-2'>
+                                        <span className='font-thin text-xs text-gray-500'>C.thức:</span>
+                                        <input type="text" className='w-24 text-center rounded' value={item.condition} onChange={e => handleChangeQuantity(index, e, "condition")} />
+                                    </div>
+                                    <div className='flex flex-row items-center space-x-2'>
+                                        <span className='font-thin text-xs text-gray-500'>Slg:</span>
+                                        <input type="number" className='w-16 text-center rounded' value={item.quantity === 0 ? "" : item.quantity} onChange={e => handleChangeQuantity(index, e, "quantity")} />
+                                    </div>
+                                    <button type='button' onClick={e => handleDelete(index, "1")} className='hover:bg-gray-700 p-2'><Trash size={18} /></button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className='flex flex-col'>
+                        <label htmlFor="" className='text-sm text-gray-400'>Nhóm chi phí</label>
+                        <div className='flex flex-col border border-gray-600 space-y-2 px-4 py-2 rounded justify-center items-center'>
+                            <InputSearchAccessoryGroup condition='cost' accessoryGroupData={listAcsGroup} handleSetAcsGroup={handleSetCost} index={0} />
+
+                            {curDoorModel.acsGroupCost.map((item: AccessoryAndFeature, index) => (
+                                <div key={index} className='flex flex-row justify-center items-center space-x-2 w-full border-t border-gray-500 text-gray-400'>
+                                    <span className='w-full'>{item.accessoryGroup.name}</span>
+                                    <div className='flex flex-row  items-center space-x-2'>
+                                        <span className='font-thin text-xs text-gray-500'>C.thức:</span>
+                                        <input type="text" className='w-32 text-center rounded' value={item.condition} onChange={e => handleChangeCostCondidtion(index, e)} />
+                                    </div>
+                                    <button type='button' onClick={e => handleDelete(index, "0")} className='hover:bg-gray-700 p-2'><Trash size={18} /></button>
                                 </div>
                             ))}
                         </div>
@@ -274,7 +362,7 @@ export default function MauCuaEditComponent(props:Props) {
                             :
                             <div className='flex flex-col w-full justify-center items-center'><Check size={40} className=' p-2 bg-green-400 rounded-full text-white' /> <span className='text-gray-500 font-semibold'>success</span></div>
                         }
-                        
+
                     </div>
                 </form>
             </div>

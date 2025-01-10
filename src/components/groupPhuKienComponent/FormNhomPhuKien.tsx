@@ -169,6 +169,7 @@ export default function GanlenhFormAdd(props: Props) {
                         <option value="glass">Kính (glass)</option>
                         <option value="nep">Nẹp kính (nep)</option>
                         <option value="doorsill">DoorSill</option>
+                        <option value="cost">Chi phí</option>
                     </select>
                         :
                         <div className='w-full text-center'>

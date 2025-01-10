@@ -37,14 +37,21 @@ export default function CreateBaoGia(props: Props) {
     const [listReport, setListReport] = useState<DataReport[]>([]);
     const [totalGroupItem, setTotalGroupItem] = useState<TotalGroup[]>(createNewTotalGroupArray());
     const [finalTotalArray, setFinalTotal] = useState<number[]>([0, 0, 0]);
-    const [listAcsExist,setListAcsExist] = useState<Accessories[]>([]);
+    const [listAcsExist, setListAcsExist] = useState<Accessories[]>([]);
+    const listGlassAcs: Accessories[] = props.groupAcsData.find(item => item.type === "glass")?.accessoriesAndType.map(acsAndType => {
+        return acsAndType.accessories
+    }) ?? [];
+    const listNepAcs: Accessories[] = props.groupAcsData.find(item => item.type === "nep")?.accessoriesAndType.map(acsAndType => {
+        return acsAndType.accessories
+    }) ?? [];
+
     /// create total
     useEffect(() => {
-        const getListAcsExist = ()=>{
-            const tempAcsList : Accessories[] = [];
-            listReport.forEach((item:DataReport,index)=>{
-                item.priceReport.accessories.forEach((acs:Accessories,childIndex)=>{
-                    const temp : Accessories|undefined = tempAcsList.find(acsChild=>acsChild.id===acs.id);
+        const getListAcsExist = () => {
+            const tempAcsList: Accessories[] = [];
+            listReport.forEach((item: DataReport, index) => {
+                item.priceReport.accessories.forEach((acs: Accessories, childIndex) => {
+                    const temp: Accessories | undefined = tempAcsList.find(acsChild => acsChild.id === acs.id);
                     if (!temp) {
                         tempAcsList.push(acs);
                     }
@@ -163,7 +170,7 @@ export default function CreateBaoGia(props: Props) {
 
 
             <div className='w-[300px]'>
-                {openFilter && <FilterBaoGia  setDataReport={setListReport} acsData={props.acsData} setOpenFilter={setOpenFilter} openFilter={openFilter} listReport={listReport}/>}
+                {openFilter && <FilterBaoGia setDataReport={setListReport} acsData={props.acsData} setOpenFilter={setOpenFilter} openFilter={openFilter} listReport={listReport} />}
                 <BGreadExcel acsData={props.acsData} doorModelData={props.doorModelData} groupAcsData={props.groupAcsData} handlePushToDataReport={handlePushToDataReport} />
             </div>
             <button className='bg-red-100 fixed top-64 right-4 p-10 bg-opacity-50' onClick={e => console.log(listReport)}>check gia tri</button>
@@ -199,7 +206,7 @@ export default function CreateBaoGia(props: Props) {
             </div >
             {listReport.map((item: DataReport, parentIndex: number) =>
                 <div key={parentIndex}>
-                    <CreateBaoGiaItem doorModelData={props.doorModelData} deleteDataReport={deleteDataReport} updateToParent={updateToParent}
+                    <CreateBaoGiaItem listNepAcs={listNepAcs} listGlassAcs={listGlassAcs} doorModelData={props.doorModelData} deleteDataReport={deleteDataReport} updateToParent={updateToParent}
                         parentIndex={parentIndex} ReportItem={item}
                         groupAcsData={props.groupAcsData} acsData={props.acsData} />
                 </div>

@@ -20,7 +20,6 @@ export default function MauCuaListComponent(props: Prop) {
             const response = await GetPattern(url, {});
             setLoading(false);
             if (response && Array.isArray(response) && response.length > 0 && response[0].name) {
-                console.log(response);
                 setListDoorModel(response);
             }
             else {
