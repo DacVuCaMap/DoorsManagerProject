@@ -129,3 +129,11 @@ export const LoadAccesoryGroupNoAcs = async () => {
     }
     return [];
 }
+export function formatNumberVN(num:number) {
+    num = Math.floor(num * 100) / 100;
+    // Định dạng số theo chuẩn địa phương là "vi-VN" (Việt Nam)
+    let formattedNumber = num.toLocaleString('vi-VN');
+    
+    // Trả về kết quả đã định dạng
+    return formattedNumber;
+}

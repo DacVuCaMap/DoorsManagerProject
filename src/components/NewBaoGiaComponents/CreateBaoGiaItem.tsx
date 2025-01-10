@@ -11,7 +11,7 @@ import { listEI } from '@/data/ListData';
 import CreateBaoGiaMainAcs from './CreateBaoGiaMainAcs';
 import CreateBaoGiaSecondAcs from './CreateBaoGiaSecondAcs';
 import { ScaleLoader } from 'react-spinners';
-import { formatNumberFixed3, formatNumberToDot } from '@/data/FunctionAll';
+import { formatNumberFixed3, formatNumberToDot, formatNumberVN } from '@/data/FunctionAll';
 import { Switch } from 'antd';
 type Props = {
     parentIndex: number;
@@ -49,18 +49,24 @@ export default function CreateBaoGiaItem(props: Props) {
         let tempGlass: Accessories | null = props.ReportItem.priceReport.glassAcs;
         if (tempGlass && props.ReportItem.priceReport.nepAcs) {
             const quan = (tempGlass.width / 1000) * (tempGlass.height / 1000) * props.ReportItem.priceReport.nepAcs.quantity;
-            tempGlass = { ...tempGlass, quantity: quan, totalQuantity: props.ReportItem.priceReport.totalQuantity * quan / 1000 };
+            tempGlass = { ...tempGlass, quantity: quan, totalQuantity: props.ReportItem.priceReport.totalQuantity * quan };
             const newPriceReport: PriceReport = { ...props.ReportItem.priceReport, glassAcs: tempGlass }
             updateWithPriceReport(newPriceReport);
         }
 
-    }, [props.ReportItem.priceReport.glassAcs?.width, props.ReportItem.priceReport.glassAcs?.height, props.ReportItem.priceReport.nepAcs?.quantity, props.ReportItem.priceReport.totalQuantity])
+    }, [props.ReportItem.priceReport.glassAcs?.width, props.ReportItem.priceReport.glassAcs?.height])
 
     useEffect(() => {
         let tempNep: Accessories | null = props.ReportItem.priceReport.nepAcs;
         if (tempNep) {
-            tempNep = { ...tempNep,totalQuantity: tempNep.quantity*props.ReportItem.priceReport.totalQuantity };
-            const newPriceReport: PriceReport = { ...props.ReportItem.priceReport, nepAcs: tempNep }
+            tempNep = { ...tempNep, totalQuantity: tempNep.quantity * props.ReportItem.priceReport.totalQuantity };
+            let tempGlass: Accessories | null = props.ReportItem.priceReport.glassAcs;
+            if (tempGlass && props.ReportItem.priceReport.nepAcs) {
+                const quan = (tempGlass.width / 1000) * (tempGlass.height / 1000) * props.ReportItem.priceReport.nepAcs.quantity;
+                tempGlass = { ...tempGlass, quantity: quan, totalQuantity: props.ReportItem.priceReport.totalQuantity * quan };
+            }
+
+            const newPriceReport: PriceReport = { ...props.ReportItem.priceReport, nepAcs: tempNep,glassAcs:tempGlass };
             updateWithPriceReport(newPriceReport);
         }
     }, [props.ReportItem.priceReport.nepAcs?.quantity, props.ReportItem.priceReport.totalQuantity])
@@ -139,10 +145,16 @@ export default function CreateBaoGiaItem(props: Props) {
         props.ReportItem.priceReport.accessories.map((item: Accessories) => {
             total += item.price * (item.quantity * props.ReportItem.priceReport.totalQuantity);
         })
+        // add main
         if (props.ReportItem.priceReport.mainAcs) {
             total += props.ReportItem.priceReport.mainAcs.totalQuantity * props.ReportItem.priceReport.mainAcs.price;
 
         }
+        //add glass
+        if (onGlass && props.ReportItem.priceReport.glassAcs && props.ReportItem.priceReport.nepAcs) {
+            total+=props.ReportItem.priceReport.glassAcs.totalQuantity*props.ReportItem.priceReport.glassAcs.quantity + props.ReportItem.priceReport.nepAcs.totalQuantity*props.ReportItem.priceReport.nepAcs.quantity;
+        }
+        
         return total;
     }
     const showDetails = (e: any) => {
@@ -171,15 +183,17 @@ export default function CreateBaoGiaItem(props: Props) {
         const checkAcs: Accessories | undefined = props.acsData.find(item => item.id === parseFloat(value));
         if (checkAcs) {
             let tempReport: PriceReport = { ...props.ReportItem.priceReport };
-            const newAcs: Accessories = { ...checkAcs, condition: tempReport[key].condition, price: tempReport[key].price, width: tempReport[key].width, height: tempReport[key].height };
+            const newAcs: Accessories = { ...checkAcs, condition: tempReport[key].condition, price: tempReport[key].price
+                , width: tempReport[key].width, height: tempReport[key].height,quantity:tempReport[key].quantity
+                ,totalQuantity:tempReport[key].totalQuantity };
             tempReport = { ...tempReport, [key]: newAcs };
             updateWithPriceReport(tempReport);
             return;
         }
     }
-    const turnOnGlass = (flag:boolean)=>{
+    const turnOnGlass = (flag: boolean) => {
         setOnGlass(flag);
-        let tempReport: PriceReport = { ...props.ReportItem.priceReport,onGlass:flag };
+        let tempReport: PriceReport = { ...props.ReportItem.priceReport, onGlass: flag };
         updateWithPriceReport(tempReport);
     }
     return (
@@ -231,10 +245,10 @@ export default function CreateBaoGiaItem(props: Props) {
                         </div>
                     </div>
                     <div className='overflow-auto w-1/12 p-2 font-bold text-center border-r border-gray-300'>
-                        <span className='w-full'>{props.ReportItem.priceReport.totalQuantity === 0 ? 0 : formatNumberToDot(handleCalTotalPrice() / props.ReportItem.priceReport.totalQuantity)}</span>
+                        <span className='w-full'>{props.ReportItem.priceReport.totalQuantity === 0 ? 0 : formatNumberVN((handleCalTotalPrice() / props.ReportItem.priceReport.totalQuantity))}</span>
                     </div>
                     <div className='overflow-auto w-1/12 p-2 text-center font-bold '>
-                        <span className='w-full'>{formatNumberToDot(handleCalTotalPrice())}</span>
+                        <span className='w-full'>{formatNumberVN(handleCalTotalPrice())}</span>
                     </div>
                     <div className='w-1/12 flex flex-row justify-center space-x-2 items-center'>
                         <div className=''>

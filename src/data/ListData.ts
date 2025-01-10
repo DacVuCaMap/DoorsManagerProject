@@ -44,3 +44,4 @@ export const listColor = [
 
 export const listEI = ["15","30","45","60","70","90"]
 export const listTypeTotal=[{value:0,des:"cannot change"},{value:1,des:"can change"}]
+export const listBgUnit =["bộ","chuyến","gói","m²"] 
