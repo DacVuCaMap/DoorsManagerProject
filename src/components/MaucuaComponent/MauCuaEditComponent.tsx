@@ -287,11 +287,7 @@ export default function MauCuaEditComponent(props: Props) {
                                     <span className='w-full'>{item.accessoryGroup.name}</span>
                                     <div className='flex flex-row items-center space-x-2'>
                                         <span className='font-thin text-xs text-gray-500'>C.thức:</span>
-                                        <input type="text" className='w-24 text-center rounded' value={item.condition} onChange={e => handleChangeQuantity(index, e, "condition")} />
-                                    </div>
-                                    <div className='flex flex-row items-center space-x-2'>
-                                        <span className='font-thin text-xs text-gray-500'>Slg:</span>
-                                        <input type="number" className='w-16 text-center rounded' value={item.quantity === 0 ? "" : item.quantity} onChange={e => handleChangeQuantity(index, e, "quantity")} />
+                                        <input type="text" className='w-32 text-center rounded' value={item.condition} onChange={e => handleChangeQuantity(index, e, "condition")} />
                                     </div>
                                     <button type='button' onClick={e => handleDelete(index, "1")} className='hover:bg-gray-700 p-2'><Trash size={18} /></button>
                                 </div>

@@ -47,7 +47,7 @@ export default function MauCuaComponent(props: Props) {
       , acsMain, acsGlass, acsNep, doorItem.fireTestCondition, doorItem.fireTestValue, doorItem.numberDoor,acsGroupCost,doorItem.wingType ?? 'cánh'));
   }
   return (
-    <div className='text-white flex flex-row justify-center items-center space-x-4'>
+    <div className='text-white flex flex-row justify-center space-x-4'>
       <MauCuaEditComponent curDoorModel={curDoorModel} acsGlass={props.acsGlass} acsGroup={props.acsGroup} />
       <MauCuaListComponent handleClick={handleClick} />
     </div>
