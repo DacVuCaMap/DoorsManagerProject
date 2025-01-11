@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import MauCuaEditComponent from './MauCuaEditComponent'
 import MauCuaListComponent from './MauCuaListComponent'
 import DoorModel, { newDoorModel } from '@/Model/DoorModel';
@@ -16,6 +16,12 @@ export default function MauCuaComponent(props: Props) {
   const [curDoorModel, setCurDoorModel] = useState<DoorModel>(newDoorModel());
   const listAcsGroup = props.acsGroup;
   console.log(props.acsGroup);
+  useEffect(()=>{
+    
+  },[])
+
+
+
   const handleClick = (doorItem: any) => {
     console.log(doorItem);
     const acsGroupAndFeatures: AccessoryAndFeature[] = [];
