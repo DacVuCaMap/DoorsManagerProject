@@ -22,9 +22,6 @@ export default function MauCuaListComponent(props: Prop) {
             if (response && Array.isArray(response) && response.length > 0 && response[0].name) {
                 setListDoorModel(response);
             }
-            else {
-                message.error("loading list fail")
-            }
         }
         fetchData();
     }, [refresh])
