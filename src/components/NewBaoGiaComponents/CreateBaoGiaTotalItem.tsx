@@ -230,11 +230,11 @@ export default function CreateBaoGiaTotalItem(props: Props) {
                         <div className='w-3/12 p-2 text-center font-bold flex flex-row create-bg  '>
                             {item.typeTotal != 0 && <div className='flex flex-row w-full space-x-2 items-center'>
                                 <span>Kiểu:</span>
-                                <select value={item.typeQuantity} onChange={e => handleSelectTypeQuan(e, index)} name="" id="" className='h-7'>
+                                <select value={item.typeQuantity} onChange={e => handleSelectTypeQuan(e, index)} name="" id="" className='h-7 w-full'>
                                     <option value="">tắt</option>
                                     <option value={-1}>kiểm định</option>
                                     {props.listAcsExist.map((acs: Accessories, index) => (
-                                        <option value={acs.id} key={index}>Đếm: {acs.name}</option>
+                                        <option value={acs.id} key={index}>{acs.name}</option>
                                     ))}
                                 </select>
                             </div>}
