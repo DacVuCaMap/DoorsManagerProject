@@ -22,6 +22,7 @@ import BGreadExcel from '../handleExcelComponent/BGreadExcel';
 import { set } from 'lodash';
 import FilterBaoGia from './FilterBaoGia';
 import { motion } from 'framer-motion';
+import axios from 'axios';
 
 type Props = {
     groupAcsData: GroupAccessory[],
@@ -156,8 +157,30 @@ export default function CreateBaoGia(props: Props) {
         }
         console.log(postData);
         const url = process.env.NEXT_PUBLIC_API_URL + "/api/excel/export";
-        const response = await PostPattern(url, postData, {});
-        console.log(response);
+        const response = await axios.post(url, postData, {
+            responseType: 'blob'  // Quan trọng: yêu cầu trả về Blob
+        });
+
+        if (response && response.data) {
+            const blob = response.data;  // response.data chứa Blob
+
+            // Tạo URL cho file Blob
+            const fileURL = window.URL.createObjectURL(blob);
+
+            // Tạo một thẻ <a> để kích hoạt download
+            const a = document.createElement("a");
+            a.href = fileURL;
+            a.download = "example_output.xlsx";  // Đặt tên file muốn tải về
+            document.body.appendChild(a);
+            a.click();  // Kích hoạt tải về
+
+            // Xoá thẻ <a> sau khi tải về
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(fileURL);  // Giải phóng URL tạm thời
+        } else {
+            console.error("Error: No file data found in the response");
+            message.error("Lỗi xuất excel");
+        }
     }
     const handlePushToDataReport = (newDataReport: DataReport[]) => {
         const tempReport = [...listReport];
@@ -173,7 +196,7 @@ export default function CreateBaoGia(props: Props) {
                 {openFilter && <FilterBaoGia setDataReport={setListReport} acsData={props.acsData} setOpenFilter={setOpenFilter} openFilter={openFilter} listReport={listReport} />}
                 <BGreadExcel acsData={props.acsData} doorModelData={props.doorModelData} groupAcsData={props.groupAcsData} handlePushToDataReport={handlePushToDataReport} />
             </div>
-            <button className='bg-red-100 fixed top-64 right-4 p-10 bg-opacity-50' onClick={e => {console.log(listReport);console.log(totalGroupItem)}}>check gia tri</button>
+            <button className='bg-red-100 fixed top-64 right-4 p-10 bg-opacity-50' onClick={e => { console.log(listReport); console.log(totalGroupItem) }}>check gia tri</button>
             <div className='flex flex-row bg-slate-950 border-b px-2 border-gray-500 shadow-xl text-white sticky z-20 top-0'>
                 <div className='w-1/12 p-2 text-center font-bold'>STT</div>
                 <div className='w-11/12 flex flex-row'>

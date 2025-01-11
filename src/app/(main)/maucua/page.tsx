@@ -18,7 +18,7 @@ export default async function page() {
   const result: GroupAccessory[] = await LoadAccesoryGroupNoAcs();
   acsGroup = result;
   const acsData: Accessories[] = await LoadAccessoriesDataOffline();
-  return (
+  return (  
     <MauCuaComponent acsGlass={acsGlass} acsGroup={acsGroup} acsData={acsData} />
   )
 }
