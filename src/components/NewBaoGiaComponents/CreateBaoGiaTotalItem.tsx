@@ -27,6 +27,7 @@ type FireTestCount = {
 export default function CreateBaoGiaTotalItem(props: Props) {
     const [refreshSelect, setRefreshSelect] = useState(1);
     useEffect(() => {
+        console.log("dd")
         const updateTotalQuanity = () => {
             let tempTotalGroup: TotalGroup = { ...props.totalGroup };
             /// SUM mainAcs
@@ -82,6 +83,7 @@ export default function CreateBaoGiaTotalItem(props: Props) {
                     /// done get countDoorModel
 
                     let orgPriceFireTest = 0;
+                    console.log(countDoorModel);
                     countDoorModel.forEach((item: FireTestCount) => {
                         const fireTestConditionArr = item.fireTestCondition.split("./");
                         const fireTestValueArr = item.fireTestValue.split("./");
@@ -92,7 +94,7 @@ export default function CreateBaoGiaTotalItem(props: Props) {
                             i++;
                         }
                         if (flag == true) {
-                            orgPriceFireTest += parseFloat(fireTestValueArr[i - 1]);
+                            orgPriceFireTest += (parseFloat(fireTestValueArr[i - 1])*item.count);
                         }
                     })
 
@@ -201,7 +203,7 @@ export default function CreateBaoGiaTotalItem(props: Props) {
                                     <span className='text-gray-400'>Giá gốc</span>
                                     <input
                                         type="text"
-                                        className='outline-none  px-2 py-1 w-20 bg-transparent border-b border-gray-300'
+                                        className='outline-none  px-2 py-1 w-32 bg-transparent border-b border-gray-300'
                                         value={formatNumberToDot(item.orgPrice)}
                                         onChange={e => handleUpdate(e, "orgPrice", index)}
                                     />

@@ -92,7 +92,7 @@ export default function BGreadExcel(props: Props) {
         const glassItem: Accessories | null = props.acsData.find(item => item.id === doorModelItem.accessoryGlassId) ?? null;
         //find nep
         const nepItem: Accessories | null = props.acsData.find(item => item.id === doorModelItem.glassBracketId) ?? null;
-
+        const onGlass : boolean = (w && h) ? true : false; 
         newPriceReport = {
             ...newPriceReport,
             doorModel: doorModelItem,
@@ -102,6 +102,7 @@ export default function BGreadExcel(props: Props) {
             mainAcs: mainAcs,
             glassAcs:glassItem ? {...glassItem,width:w*1000,height:h*1000,quantity:w*h*quanNep,totalQuantity:w*h*quanNep*totalQuanItem} : null,
             nepAcs:nepItem ? {...nepItem,quantity:quanNep,totalQuantity:quanNep*totalQuanItem} : null,
+            onGlass: onGlass
         };
         return newPriceReport;
     }

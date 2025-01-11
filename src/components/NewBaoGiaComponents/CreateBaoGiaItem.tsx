@@ -26,7 +26,7 @@ type Props = {
 }
 export default function CreateBaoGiaItem(props: Props) {
     const [loading, setLoading] = useState(0);
-    const [onGlass, setOnGlass] = useState(true);
+    const [onGlass, setOnGlass] = useState(props.ReportItem.priceReport.onGlass);
 
     useEffect(() => {
         const updateMainAcsItemTotalQuantity = () => {
@@ -148,7 +148,6 @@ export default function CreateBaoGiaItem(props: Props) {
         // add main
         if (props.ReportItem.priceReport.mainAcs) {
             total += props.ReportItem.priceReport.mainAcs.totalQuantity * props.ReportItem.priceReport.mainAcs.price;
-
         }
         //add glass
         if (onGlass && props.ReportItem.priceReport.glassAcs && props.ReportItem.priceReport.nepAcs) {
@@ -294,7 +293,7 @@ export default function CreateBaoGiaItem(props: Props) {
                     )}
                     {props.ReportItem.priceReport.glassAcs &&
                         <div className='flex flex-row px-2'>
-                            <div className='w-1/12 p-2 text-center font-bold'><Switch defaultChecked onChange={turnOnGlass} /></div>
+                            <div className='w-1/12 p-2 text-center font-bold'><Switch value={props.ReportItem.priceReport.onGlass} onChange={turnOnGlass} /></div>
                             <div className='w-11/12 flex flex-row items-center py-1 h-10 bg-gray-600'></div>
                         </div>
 
