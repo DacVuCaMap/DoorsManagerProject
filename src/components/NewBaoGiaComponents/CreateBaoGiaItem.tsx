@@ -102,7 +102,6 @@ export default function CreateBaoGiaItem(props: Props) {
             glassAcs: glassItem,
             nepAcs: nepItem
         };
-        console.log(newPriceReport);
         updateWithPriceReport(newPriceReport);
     }
 
@@ -169,7 +168,7 @@ export default function CreateBaoGiaItem(props: Props) {
         }
         //add glass
         if (onGlass && props.ReportItem.priceReport.glassAcs && props.ReportItem.priceReport.nepAcs) {
-            total+=props.ReportItem.priceReport.glassAcs.totalQuantity*props.ReportItem.priceReport.glassAcs.quantity + props.ReportItem.priceReport.nepAcs.totalQuantity*props.ReportItem.priceReport.nepAcs.quantity;
+            total+=props.ReportItem.priceReport.glassAcs.totalQuantity*props.ReportItem.priceReport.glassAcs.price + props.ReportItem.priceReport.nepAcs.totalQuantity*props.ReportItem.priceReport.nepAcs.price;
         }
         
         return total;
@@ -190,7 +189,9 @@ export default function CreateBaoGiaItem(props: Props) {
         let value = e.target.value;
         /// update value
         if (childKey) {
+            value = value.replace(/\./g, '');
             value = value ? value : 0;
+            
             let tempReport: PriceReport = { ...props.ReportItem.priceReport };
             const newAcs: Accessories = { ...tempReport[key], [childKey]: parseFloat(value) };
             tempReport = { ...tempReport, [key]: newAcs };

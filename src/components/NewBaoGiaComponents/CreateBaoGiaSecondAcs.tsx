@@ -17,11 +17,17 @@ export default function CreateBaoGiaSecondAcs(props: Props) {
     const handleUpdateToParent = (acs: Accessories) => {
         props.handleChangeAcsList(acs, props.acsIndex);
     }
+    const handleUpdateToParentSearchKey = (acs:Accessories)=>{
+        const newAcs : Accessories = {...acs,type:curAcs.type,quantity:curAcs.quantity,totalQuantity:curAcs.totalQuantity,condition:curAcs.condition,price:curAcs.price}
+    
+        props.handleChangeAcsList(newAcs, props.acsIndex);
+    }
     const handleChangeInput = (value: any, key: string) => {
         value = value === "" ? 0 : value;
         if (key === "price" && value != 0) {
             value = value.replace(/\./g, '');
         }
+        console.log(value);
         let newAcs: Accessories = { ...curAcs, [key]: parseFloat(value) }
         setCurAcs(newAcs);
         handleUpdateToParent(newAcs);
@@ -58,7 +64,7 @@ export default function CreateBaoGiaSecondAcs(props: Props) {
     return (
         <div className='w-11/12 flex flex-row items-center py-1 bg-gray-600'>
             <div className='w-4/12 p-2 text-center flex flex-row justify-center space-x-4'>
-                <InputSearchAcs curAcs={curAcs} handleSelectAcs={handleUpdateToParent} acsData={props.acsData} />
+                <InputSearchAcs curAcs={curAcs} handleSelectAcs={handleUpdateToParentSearchKey} acsData={props.acsData} />
             </div>
             <div className='w-1/12 p-2 text-center'>
                 <span>{curAcs.code}</span>
