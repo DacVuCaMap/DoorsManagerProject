@@ -142,9 +142,14 @@ export default function CreateBaoGia(props: Props) {
         const priceReports: any[] = [];
         const reportTotals: any[] = [];
         listReport.map((item: DataReport) => {
+            const newAcs : Accessories[] ={...item.priceReport}.accessories.filter(acs=>acs.type!="cost")
+            if (item.priceReport.onGlass && item.priceReport.glassAcs && item.priceReport.nepAcs) {
+                newAcs.push(item.priceReport.glassAcs,item.priceReport.nepAcs);
+            }
+            const tempPriceReport : PriceReport = {...item.priceReport,accessories:newAcs};
             const acsId = item.priceReport.accessories.map((childItem: Accessories) => childItem.id);
             const temp = {
-                ...item.priceReport
+                ...tempPriceReport
                 , doorModelId: item.priceReport.doorModel.id
                 , mainAcsId: item.priceReport.mainAcs?.id
                 , accessoriesId: acsId

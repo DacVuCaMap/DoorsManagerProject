@@ -86,7 +86,7 @@ export default function BGreadExcel(props: Props) {
                 const acsExisted: GroupAccessory | null = props.groupAcsData.find((acsGroup: GroupAccessory) => acsGroup.id === item.accessoryGroupId) ?? null;
                 if (acsExisted && acsExisted.accessoriesAndType.length > 0) {
                     const quan = readConditionAndCal(item.condition,widthItem,heighItem);
-                    console.log(quan,"bg",item.condition,widthItem,heighItem,totalQuanItem)
+                    // console.log(quan,"bg",item.condition,widthItem,heighItem,totalQuanItem)
                     acsList.push({ ...acsExisted.accessoriesAndType[0].accessories, quantity:quan, condition: item.condition,totalQuantity:quan*totalQuanItem });
                 }
             })

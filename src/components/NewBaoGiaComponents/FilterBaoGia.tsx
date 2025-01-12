@@ -42,7 +42,7 @@ export default function FilterBaoGia(props: Props) {
                 /// glass and nep acs
                 if (item.priceReport.onGlass && item.priceReport.glassAcs && item.priceReport.nepAcs) {
                     const check = temp.find(itemSelect => itemSelect.acs.id === item.priceReport.glassAcs);
-                    const totalQuantity = item.priceReport.glassAcs.quantity * item.priceReport.glassAcs.totalQuantity
+                    const totalQuantity = item.priceReport.glassAcs.totalQuantity
                     if (check) {
                         check.numberIndex.push(index);
                         check.acs.totalQuantity += totalQuantity;
@@ -52,7 +52,7 @@ export default function FilterBaoGia(props: Props) {
                     }
 
                     const check2 = temp.find(itemSelect => itemSelect.acs.id === item.priceReport.glassAcs);
-                    const totalQuantityNep = item.priceReport.nepAcs.quantity * item.priceReport.nepAcs.totalQuantity
+                    const totalQuantityNep = item.priceReport.nepAcs.totalQuantity
                     if (check2) {
                         check2.numberIndex.push(index);
                         check2.acs.totalQuantity += totalQuantityNep;
@@ -109,9 +109,7 @@ export default function FilterBaoGia(props: Props) {
 
     }
     const handleUpdatePrice = (itemSelect: ListSelect, e: any) => {
-        let value = e.target.value;
-
-
+        let value = e.target.value;;
         value = parseFloat(value.replace(/\./g, ''));
         value = !value ? 0 : value;
         const tempReport: DataReport[] = [...props.listReport].map((report: DataReport, index) => {
@@ -120,19 +118,6 @@ export default function FilterBaoGia(props: Props) {
                 if (tempChildReport.mainAcs && itemSelect.acs.id === tempChildReport.mainAcs.id) {
                     let mainAcs: Accessories = { ...tempChildReport.mainAcs, price: value };
                     tempChildReport = { ...tempChildReport, mainAcs: mainAcs };
-                }
-                if (tempChildReport.onGlass && tempChildReport.glassAcs && tempChildReport.nepAcs) {
-
-                    if (itemSelect.acs.id === tempChildReport.glassAcs.id) {
-                        let newGlassAcs: Accessories = { ...tempChildReport.glassAcs, price: value }
-                        tempChildReport = { ...tempChildReport, glassAcs: newGlassAcs };
-                    }
-
-                    if (tempChildReport.nepAcs && itemSelect.acs.id === tempChildReport.nepAcs.id) {
-                        let newNepAcs: Accessories = { ...tempChildReport.nepAcs, price: value };
-                        tempChildReport = { ...tempChildReport, nepAcs: newNepAcs };
-                    }
-
                 }
                 else {
                     const tempAcsList: Accessories[] = tempChildReport.accessories.map((acs: Accessories, childInd) => {
@@ -144,6 +129,20 @@ export default function FilterBaoGia(props: Props) {
                     })
                     console.log(tempAcsList);
                     tempChildReport = { ...tempChildReport, accessories: tempAcsList };
+                }
+
+                //glass
+                if (tempChildReport.onGlass && tempChildReport.glassAcs && tempChildReport.nepAcs) {
+                    if (itemSelect.acs.id === tempChildReport.glassAcs.id) {
+                        let newGlassAcs: Accessories = { ...tempChildReport.glassAcs, price: value }
+                        tempChildReport = { ...tempChildReport, glassAcs: newGlassAcs };
+                    }
+
+                    if (tempChildReport.nepAcs && itemSelect.acs.id === tempChildReport.nepAcs.id) {
+                        let newNepAcs: Accessories = { ...tempChildReport.nepAcs, price: value };
+                        tempChildReport = { ...tempChildReport, nepAcs: newNepAcs };
+                    }
+
                 }
                 return { ...report, priceReport: tempChildReport };
 
@@ -178,7 +177,7 @@ export default function FilterBaoGia(props: Props) {
                             transition={{ type: 'tween', duration: 0.2, ease: 'easeOut' }}
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <div className='overflow-auto'>
+                            <div className='overflow-auto max-h-[500px]'>
                                 <table className='text-white w-full table-auto'>
                                     <thead>
                                         <tr>

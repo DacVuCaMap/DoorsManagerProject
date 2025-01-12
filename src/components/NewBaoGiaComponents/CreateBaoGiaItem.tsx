@@ -149,7 +149,7 @@ export default function CreateBaoGiaItem(props: Props) {
         else {
             let newAcsList: Accessories[] = [...props.ReportItem.priceReport.accessories].map((item,index)=>{
                 if (index===acsIndex) {
-                    console.log(acs.quantity,"xoa")
+                    // console.log(acs.quantity,"xoa")
                     return acs
                 }
                 return item;
