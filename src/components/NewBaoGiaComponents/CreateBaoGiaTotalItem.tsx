@@ -27,7 +27,6 @@ type FireTestCount = {
 export default function CreateBaoGiaTotalItem(props: Props) {
     const [refreshSelect, setRefreshSelect] = useState(1);
     useEffect(() => {
-        console.log("dd")
         const updateTotalQuanity = () => {
             let tempTotalGroup: TotalGroup = { ...props.totalGroup };
             /// SUM mainAcs
@@ -94,11 +93,11 @@ export default function CreateBaoGiaTotalItem(props: Props) {
                             i++;
                         }
                         if (flag == true) {
-                            orgPriceFireTest += (parseFloat(fireTestValueArr[i - 1])*item.count);
+                            orgPriceFireTest += (parseFloat(fireTestValueArr[i - 1]) * item.count);
                         }
                     })
 
-                    return { ...totalItem, orgPrice: orgPriceFireTest };
+                    return { ...totalItem, orgPrice: orgPriceFireTest, totalQuantity: 1 };
                 }
                 else {
                     return totalItem;
@@ -113,7 +112,7 @@ export default function CreateBaoGiaTotalItem(props: Props) {
 
     const handleUpdate = (e: any, key: string, index: number) => {
         let value = e.target.value;
-        if (key === "price" || key === "orgPrice") {
+        if (key === "price" || key === "orgPrice" || key==="pricePercent") {
             value = value.replace(/\./g, "");
             value = parseFloat(value);
             if (value >= 1000000000) {
@@ -126,9 +125,9 @@ export default function CreateBaoGiaTotalItem(props: Props) {
             let tempTotalItemm: TotalItem[] = tempTotalGroup.totalItem.map((item: TotalItem, ind) => {
                 if (index === ind) {
                     const acsCostExist: Accessories | null = props.listAcsExist.find(acs => (acs.code === value && acs.type === "cost")) ?? null;
-                    console.log(acsCostExist,value);
+                    console.log(acsCostExist, value);
                     if (acsCostExist) {
-                        return { ...item, orgPrice: acsCostExist.orgPrice,[key]:value };
+                        return { ...item, orgPrice: acsCostExist.orgPrice,pricePercent:acsCostExist.lowestPricePercent*100, [key]: value };
                     } else {
                         return { ...item, [key]: value };
                     }
@@ -136,6 +135,7 @@ export default function CreateBaoGiaTotalItem(props: Props) {
                 }
                 return item;
             });
+            
             tempTotalGroup = { ...tempTotalGroup, totalItem: tempTotalItemm };
             props.handleUpdateTotalList(tempTotalGroup, props.totalGroupIndex);
             return;
@@ -203,13 +203,22 @@ export default function CreateBaoGiaTotalItem(props: Props) {
                                     <span className='text-gray-400'>Giá gốc</span>
                                     <input
                                         type="text"
-                                        className='outline-none  px-2 py-1 w-32 bg-transparent border-b border-gray-300'
+                                        className='outline-none  px-2 py-1 w-28 bg-transparent border-b border-gray-300'
                                         value={formatNumberToDot(item.orgPrice)}
                                         onChange={e => handleUpdate(e, "orgPrice", index)}
                                     />
                                 </div>
+                                <div className='flex flex-row space-x-2'>
+                                    <span className='text-gray-400'>H.số (%)</span>
+                                    <input
+                                        type="text"
+                                        className='outline-none  px-2 py-1 w-14 bg-transparent border-b border-gray-300'
+                                        value={formatNumberToDot(item.pricePercent)}
+                                        onChange={e => handleUpdate(e, "pricePercent", index)}
+                                    />
+                                </div>
                                 <div className='flex flex-row space-x-2 create-bg'>
-                                    <select value={item.unit} onChange={e => handleUpdate(e, "unit", index)} name="" id="" className='h-7 w-64'>
+                                    <select value={item.unit} onChange={e => handleUpdate(e, "unit", index)} name="" id="" className='h-7 w-32'>
                                         {listBgUnit.map((str: string, index) => (
                                             <option value={str} key={index}>{str}</option>
                                         ))}

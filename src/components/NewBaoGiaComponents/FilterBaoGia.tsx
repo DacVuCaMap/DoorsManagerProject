@@ -7,6 +7,7 @@ import InputSearchAcs from '../SearchingComponents/InputSearchAcs';
 import PriceReport from '@/Model/PriceReport';
 import "./CreateBaoGiaItem.css"
 import { Trash2 } from 'lucide-react';
+import { formatNumberVN } from '@/data/FunctionAll';
 type Props = {
     setOpenFilter(flag: boolean): any;
     openFilter: boolean;
@@ -156,7 +157,7 @@ export default function FilterBaoGia(props: Props) {
                                                 <td className='py-4 text-center'>{index + 1}</td>
                                                 <td className='text-gray-700'><InputSearchAcs itemSelect={item} curAcs={item.acs} handleSelectAcs={handleUpdateToParent} acsData={props.acsData} /></td>
                                                 <td className='text-center'>{item.acs.code}</td>
-                                                <td className='text-center'>{item.acs.totalQuantity}</td>
+                                                <td className='text-center'>{formatNumberVN(item.acs.totalQuantity)}</td>
                                                 <td className='text-gray-700 px-10'>
                                                     <input onChange={e => handleUpdatePrice(item, e)} value={item.acs.price} type="text" className='rounded px-2 py-1 w-full' />
                                                 </td>

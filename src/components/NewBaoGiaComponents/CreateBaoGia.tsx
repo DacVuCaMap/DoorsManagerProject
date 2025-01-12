@@ -23,6 +23,7 @@ import { set } from 'lodash';
 import FilterBaoGia from './FilterBaoGia';
 import { motion } from 'framer-motion';
 import axios from 'axios';
+import { ScaleLoader } from 'react-spinners';
 
 type Props = {
     groupAcsData: GroupAccessory[],
@@ -39,6 +40,7 @@ export default function CreateBaoGia(props: Props) {
     const [totalGroupItem, setTotalGroupItem] = useState<TotalGroup[]>(createNewTotalGroupArray());
     const [finalTotalArray, setFinalTotal] = useState<number[]>([0, 0, 0]);
     const [listAcsExist, setListAcsExist] = useState<Accessories[]>([]);
+    const [loadingExportExcel, setLoadingExportExcel] = useState(false);
     const listGlassAcs: Accessories[] = props.groupAcsData.find(item => item.type === "glass")?.accessoriesAndType.map(acsAndType => {
         return acsAndType.accessories
     }) ?? [];
@@ -131,8 +133,10 @@ export default function CreateBaoGia(props: Props) {
         return total + total * 0.1;
     }
     const handleSaveReport = async () => {
+        setLoadingExportExcel(true);
         if (listReport.length === 0) {
             message.error("Chưa có dữ liệu để lưu");
+            setLoadingExportExcel(false);
             return
         }
         const priceReports: any[] = [];
@@ -160,7 +164,7 @@ export default function CreateBaoGia(props: Props) {
         const response = await axios.post(url, postData, {
             responseType: 'blob'  // Quan trọng: yêu cầu trả về Blob
         });
-
+        setLoadingExportExcel(false);
         if (response && response.data) {
             const blob = response.data;  // response.data chứa Blob
 
@@ -189,14 +193,20 @@ export default function CreateBaoGia(props: Props) {
     }
     return (
         <div className='flex flex-col space-y-4 py-2'>
-
+            {loadingExportExcel &&
+                <div className='fixed h-screen w-screen bg-black bg-opacity-50 z-50 top-0 flex justify-center items-center flex-col'>
+                    <ScaleLoader color='white' width={20} />
+                    <span className='text-white font-mono'>Export Excel Loading...</span>
+                </div>
+            }
 
 
             <div className='w-[300px]'>
                 {openFilter && <FilterBaoGia setDataReport={setListReport} acsData={props.acsData} setOpenFilter={setOpenFilter} openFilter={openFilter} listReport={listReport} />}
                 <BGreadExcel acsData={props.acsData} doorModelData={props.doorModelData} groupAcsData={props.groupAcsData} handlePushToDataReport={handlePushToDataReport} />
             </div>
-            <button className='bg-red-100 fixed top-64 right-4 p-10 bg-opacity-50' onClick={e => { console.log(listReport); console.log(totalGroupItem) }}>check gia tri</button>
+            {/* <button className='bg-red-100 fixed top-64 right-4 p-10 bg-opacity-50' onClick={e => { console.log(listReport); console.log(totalGroupItem) }}>
+                check gia tri</button> */}
             <div className='flex flex-row bg-slate-950 border-b px-2 border-gray-500 shadow-xl text-white sticky z-20 top-0'>
                 <div className='w-1/12 p-2 text-center font-bold'>STT</div>
                 <div className='w-11/12 flex flex-row'>

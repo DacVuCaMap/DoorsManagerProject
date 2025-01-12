@@ -10,7 +10,8 @@ class TotalItem {
     typeQuantity:any;
     orgPrice:number;
     unit:string;
-    constructor(quantity: number, totalQuantity: number, typeTotal: any, name: string, price: number, code: string,orgPrice:number,unit:string,typeQuantity?:any) {
+    pricePercent:number;
+    constructor(quantity: number, totalQuantity: number, typeTotal: any, name: string, price: number, code: string,orgPrice:number,unit:string,typeQuantity?:any,pricePercent?:number) {
         this.quantity = quantity;
         this.totalQuantity = totalQuantity;
         this.typeTotal = typeTotal;
@@ -20,6 +21,7 @@ class TotalItem {
         this.typeQuantity = typeQuantity;
         this.orgPrice=orgPrice
         this.unit = unit;
+        this.pricePercent = pricePercent ?? 0;
     }
     
    
