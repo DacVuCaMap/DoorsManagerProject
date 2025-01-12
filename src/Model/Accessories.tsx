@@ -20,6 +20,7 @@ class Accessories {
     condition?:string;
     constructor(
         id: any,
+        type:any,
         code: string,
         name: string,
         supplier: string,
@@ -36,6 +37,7 @@ class Accessories {
         supplierShow?:string
     ) {
         this.id = id;
+        this.type=type ?? "normal";
         this.code = code;
         this.name = name;
         this.supplier = supplier;
@@ -56,7 +58,7 @@ class Accessories {
 export default Accessories;
 
 export const getNewAcs = (): Accessories => {
-    return new Accessories("", "", "", "", 0, 0, 0, 0, 0, 0, 0, "", false, false,"");
+    return new Accessories("","normal","", "", "", 0, 0, 0, 0, 0, 0, 0, "", false, false,"");
 }
 export const TransRequestToAcs = (item: any): Accessories => {
     return {

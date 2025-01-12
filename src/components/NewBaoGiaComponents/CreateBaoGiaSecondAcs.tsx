@@ -17,9 +17,9 @@ export default function CreateBaoGiaSecondAcs(props: Props) {
     const handleUpdateToParent = (acs: Accessories) => {
         props.handleChangeAcsList(acs, props.acsIndex);
     }
-    const handleUpdateToParentSearchKey = (acs:Accessories)=>{
-        const newAcs : Accessories = {...acs,type:curAcs.type,quantity:curAcs.quantity,totalQuantity:curAcs.totalQuantity,condition:curAcs.condition,price:curAcs.price}
-    
+    const handleUpdateToParentSearchKey = (acs: Accessories) => {
+        const newAcs: Accessories = { ...acs, type: curAcs.type, quantity: curAcs.quantity, totalQuantity: curAcs.totalQuantity, condition: curAcs.condition, price: curAcs.price }
+
         props.handleChangeAcsList(newAcs, props.acsIndex);
     }
     const handleChangeInput = (value: any, key: string) => {
@@ -27,8 +27,11 @@ export default function CreateBaoGiaSecondAcs(props: Props) {
         if (key === "price" && value != 0) {
             value = value.replace(/\./g, '');
         }
-        console.log(value);
         let newAcs: Accessories = { ...curAcs, [key]: parseFloat(value) }
+        if (key === "quantity") {
+            newAcs = { ...curAcs, quantity: parseFloat(value) }
+        }
+
         setCurAcs(newAcs);
         handleUpdateToParent(newAcs);
     }
@@ -43,24 +46,27 @@ export default function CreateBaoGiaSecondAcs(props: Props) {
 
     //update totalQuan
     useEffect(() => {
-        if (curAcs.type!="glass" && curAcs.type!="nep" && curAcs.condition) {
-            
-            const quan = readConditionAndCal(curAcs.condition,props.ReportItem.priceReport.width/1000,props.ReportItem.priceReport.height/1000);
-            const totalQuan = quan * props.ReportItem.priceReport.totalQuantity;
-            const newAcs : Accessories ={...curAcs,totalQuantity:totalQuan,quantity:quan}; 
-            handleUpdateToParent(newAcs);
+
+        if (curAcs.type != "glass" && curAcs.type != "nep" && curAcs.condition) {
+
+            const quan = readConditionAndCal(curAcs.condition, props.ReportItem.priceReport.width / 1000, props.ReportItem.priceReport.height / 1000);
+            if (curAcs.quantity==quan) {
+                const totalQuan = quan * props.ReportItem.priceReport.totalQuantity;
+                const newAcs: Accessories = { ...curAcs, totalQuantity: totalQuan, quantity: quan };
+                handleUpdateToParent(newAcs);
+            }
         }
-        else{
+        else {
             handleChangeInput(props.ReportItem.priceReport.totalQuantity * curAcs.quantity, "totalQuantity");
         }
-    }, [props.ReportItem.priceReport.totalQuantity, curAcs.quantity,props.ReportItem.priceReport.width,props.ReportItem.priceReport.height])
+    }, [props.ReportItem.priceReport.totalQuantity, curAcs.quantity, props.ReportItem.priceReport.width, props.ReportItem.priceReport.height])
     //update quantity with doorsill
     useEffect(() => {
         if (curAcs.condition) {
-            const quan = readConditionAndCal(curAcs.condition,props.ReportItem.priceReport.width/1000,props.ReportItem.priceReport.height/1000);
-            handleChangeInput(quan,"quantity")
+            const quan = readConditionAndCal(curAcs.condition, props.ReportItem.priceReport.width / 1000, props.ReportItem.priceReport.height / 1000);
+            handleChangeInput(quan, "quantity")
         }
-    }, [props.ReportItem.priceReport.width,props.ReportItem.priceReport.height])
+    }, [props.ReportItem.priceReport.width, props.ReportItem.priceReport.height])
     return (
         <div className='w-11/12 flex flex-row items-center py-1 bg-gray-600'>
             <div className='w-4/12 p-2 text-center flex flex-row justify-center space-x-4'>

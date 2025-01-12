@@ -149,6 +149,7 @@ export default function CreateBaoGiaItem(props: Props) {
         else {
             let newAcsList: Accessories[] = [...props.ReportItem.priceReport.accessories].map((item,index)=>{
                 if (index===acsIndex) {
+                    console.log(acs.quantity,"xoa")
                     return acs
                 }
                 return item;
@@ -356,7 +357,7 @@ export default function CreateBaoGiaItem(props: Props) {
                                     <input value={formatNumberToDot(props.ReportItem.priceReport.glassAcs?.price)} onChange={e => handleSelectGlass(e, "glassAcs", "price")} type="text" className='rounded px-2 py-1 w-full' />
                                 </div>
                                 <div className='overflow-auto w-1/12 pl-4 text-center '>
-                                    <span className='w-full'>{props.ReportItem.priceReport.glassAcs && formatNumberToDot(props.ReportItem.priceReport.glassAcs.totalQuantity * props.ReportItem.priceReport.glassAcs.price)}</span>
+                                    <span className='w-full'>{props.ReportItem.priceReport.glassAcs && formatNumberVN(props.ReportItem.priceReport.glassAcs.totalQuantity * props.ReportItem.priceReport.glassAcs.price)}</span>
                                 </div>
                                 <div className='w-1/12 p-2 flex flex-row justify-center space-x-2 '>
                                     {/* <div className='cursor-pointer'> <Trash2 /> </div> */}
@@ -395,7 +396,7 @@ export default function CreateBaoGiaItem(props: Props) {
                                     <input value={formatNumberToDot(props.ReportItem.priceReport.nepAcs?.price)} onChange={e => handleSelectGlass(e, "nepAcs", "price")} type="text" className='rounded px-2 py-1 w-full' />
                                 </div>
                                 <div className='overflow-auto w-1/12 pl-4 text-center '>
-                                    <span className='w-full'>{props.ReportItem.priceReport.nepAcs && formatNumberToDot(props.ReportItem.priceReport.nepAcs.totalQuantity * props.ReportItem.priceReport.nepAcs.price)}</span>
+                                    <span className='w-full'>{props.ReportItem.priceReport.nepAcs && formatNumberVN(props.ReportItem.priceReport.nepAcs.totalQuantity * props.ReportItem.priceReport.nepAcs.price)}</span>
                                 </div>
                                 <div className='w-1/12 p-2 flex flex-row justify-center space-x-2 '>
                                     {/* <div className='cursor-pointer'> <Trash2 /> </div> */}

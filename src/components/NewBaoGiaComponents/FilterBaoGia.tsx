@@ -39,8 +39,30 @@ export default function FilterBaoGia(props: Props) {
                         temp.push({ numberIndex: [index], acs: { ...item.priceReport.mainAcs, totalQuantity: quantity } });
                     }
                 }
+                /// glass and nep acs
+                if (item.priceReport.onGlass && item.priceReport.glassAcs && item.priceReport.nepAcs) {
+                    const check = temp.find(itemSelect => itemSelect.acs.id === item.priceReport.glassAcs);
+                    const totalQuantity = item.priceReport.glassAcs.quantity * item.priceReport.glassAcs.totalQuantity
+                    if (check) {
+                        check.numberIndex.push(index);
+                        check.acs.totalQuantity += totalQuantity;
+                    }
+                    else {
+                        temp.push({ numberIndex: [index], acs: { ...item.priceReport.glassAcs, totalQuantity: totalQuantity } });
+                    }
+
+                    const check2 = temp.find(itemSelect => itemSelect.acs.id === item.priceReport.glassAcs);
+                    const totalQuantityNep = item.priceReport.nepAcs.quantity * item.priceReport.nepAcs.totalQuantity
+                    if (check2) {
+                        check2.numberIndex.push(index);
+                        check2.acs.totalQuantity += totalQuantityNep;
+                    }
+                    else {
+                        temp.push({ numberIndex: [index], acs: { ...item.priceReport.nepAcs, totalQuantity: totalQuantityNep } });
+                    }
+                }
                 item.priceReport.accessories.forEach((acs: Accessories) => {
-                    if (acs.type!="cost") {
+                    if (acs.type != "cost") {
                         const check = temp.find(itemSelect => itemSelect.acs.id === acs.id);
                         const quantity = acs.quantity * item.priceReport.totalQuantity
                         if (check) {
@@ -51,7 +73,7 @@ export default function FilterBaoGia(props: Props) {
                             temp.push({ numberIndex: [index], acs: { ...acs, totalQuantity: quantity } });
                         }
                     }
-                    
+
                 });
             });
             setListSelect(temp);
@@ -98,6 +120,19 @@ export default function FilterBaoGia(props: Props) {
                 if (tempChildReport.mainAcs && itemSelect.acs.id === tempChildReport.mainAcs.id) {
                     let mainAcs: Accessories = { ...tempChildReport.mainAcs, price: value };
                     tempChildReport = { ...tempChildReport, mainAcs: mainAcs };
+                }
+                if (tempChildReport.onGlass && tempChildReport.glassAcs && tempChildReport.nepAcs) {
+
+                    if (itemSelect.acs.id === tempChildReport.glassAcs.id) {
+                        let newGlassAcs: Accessories = { ...tempChildReport.glassAcs, price: value }
+                        tempChildReport = { ...tempChildReport, glassAcs: newGlassAcs };
+                    }
+
+                    if (tempChildReport.nepAcs && itemSelect.acs.id === tempChildReport.nepAcs.id) {
+                        let newNepAcs: Accessories = { ...tempChildReport.nepAcs, price: value };
+                        tempChildReport = { ...tempChildReport, nepAcs: newNepAcs };
+                    }
+
                 }
                 else {
                     const tempAcsList: Accessories[] = tempChildReport.accessories.map((acs: Accessories, childInd) => {
@@ -152,6 +187,7 @@ export default function FilterBaoGia(props: Props) {
                                             <th className='w-2/12'>Mã</th>
                                             <th className='w-1/12'>Tổng KL</th>
                                             <th className='w-3/12'>Giá</th>
+
                                         </tr>
                                     </thead>
                                     <tbody>
