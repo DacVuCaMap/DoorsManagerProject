@@ -162,7 +162,7 @@ export default function CreateBaoGia(props: Props) {
         console.log(postData);
         const url = process.env.NEXT_PUBLIC_API_URL + "/api/excel/export";
         const response = await axios.post(url, postData, {
-            responseType: 'blob'  // Quan trọng: yêu cầu trả về Blob
+            responseType: 'blob' 
         });
         setLoadingExportExcel(false);
         if (response && response.data) {
@@ -196,7 +196,7 @@ export default function CreateBaoGia(props: Props) {
             {loadingExportExcel &&
                 <div className='fixed h-screen w-screen bg-black bg-opacity-50 z-50 top-0 flex justify-center items-center flex-col'>
                     <ScaleLoader color='white' width={20} />
-                    <span className='text-white font-mono'>Export Excel Loading...</span>
+                    <span className='text-white font-mono'>Đang xuất excel...</span>
                 </div>
             }
 
@@ -205,8 +205,8 @@ export default function CreateBaoGia(props: Props) {
                 {openFilter && <FilterBaoGia setDataReport={setListReport} acsData={props.acsData} setOpenFilter={setOpenFilter} openFilter={openFilter} listReport={listReport} />}
                 <BGreadExcel acsData={props.acsData} doorModelData={props.doorModelData} groupAcsData={props.groupAcsData} handlePushToDataReport={handlePushToDataReport} />
             </div>
-            {/* <button className='bg-red-100 fixed top-64 right-4 p-10 bg-opacity-50' onClick={e => { console.log(listReport); console.log(totalGroupItem) }}>
-                check gia tri</button> */}
+            <button className='bg-red-100 fixed top-64 right-4 p-10 bg-opacity-50' onClick={e => { console.log(listReport); console.log(totalGroupItem) }}>
+                check gia tri</button>
             <div className='flex flex-row bg-slate-950 border-b px-2 border-gray-500 shadow-xl text-white sticky z-20 top-0'>
                 <div className='w-1/12 p-2 text-center font-bold'>STT</div>
                 <div className='w-11/12 flex flex-row'>

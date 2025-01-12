@@ -101,10 +101,12 @@ export default function FilterBaoGia(props: Props) {
                 else {
                     const tempAcsList: Accessories[] = tempChildReport.accessories.map((acs: Accessories, childInd) => {
                         if (acs.id === itemSelect.acs.id) {
+                            console.log(acs);
                             return { ...acs, price: value }
                         }
                         return acs;
                     })
+                    console.log(tempAcsList);
                     tempChildReport = { ...tempChildReport, accessories: tempAcsList };
                 }
                 return { ...report, priceReport: tempChildReport };

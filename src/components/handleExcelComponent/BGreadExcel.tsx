@@ -3,6 +3,7 @@ import Accessories from '@/Model/Accessories';
 import DataReport from '@/Model/DataReport';
 import GroupAccessory from '@/Model/GroupAccessory';
 import PriceReport, { createNewPriceReport } from '@/Model/PriceReport';
+import { readConditionAndCal } from '@/utils/bgFunction';
 import { message } from 'antd';
 import { Upload } from 'lucide-react';
 import Image from 'next/image';
@@ -56,12 +57,14 @@ export default function BGreadExcel(props: Props) {
                 const doorModelItem = props.doorModelData.find((item: any) => item.shortName === jsonData[i][7]) ?? null;
                 // console.log(jsonData[i][1],jsonData[i][3]);
                 if (doorModelItem) {
-                    const h = jsonData[i][10] ? parseFloat(jsonData[i][10]) : 0;
-                    const w = jsonData[i][11] ? parseFloat(jsonData[i][11]) : 0;
+                    const heightGlass = jsonData[i][10] ? parseFloat(jsonData[i][10]) : 0;
+                    const widthGlass = jsonData[i][11] ? parseFloat(jsonData[i][11]) : 0;
+                    const widthItem = jsonData[i][4] ? parseFloat(jsonData[i][4]) : 0;
+                    const heighItem = jsonData[i][5] ? parseFloat(jsonData[i][5]) : 0;
                     const quanNep = jsonData[i][12] ? parseFloat(jsonData[i][12]) : 0;
                     const totalQuanItem = jsonData[i][6] ? parseFloat(jsonData[i][6]) : 0;
-                    tempReport = updatePriceReport(doorModelItem, tempReport,w,h,quanNep,totalQuanItem);
-                    tempReport = { ...tempReport, code: jsonData[i][2], width: parseFloat(jsonData[i][4]) * 1000, height: parseFloat(jsonData[i][5]) * 1000, totalQuantity: jsonData[i][6], EI: jsonData[i][8] };
+                    tempReport = updatePriceReport(doorModelItem, tempReport,widthGlass,heightGlass,quanNep,totalQuanItem,widthItem,heighItem);
+                    tempReport = { ...tempReport, code: jsonData[i][2], width: parseFloat(jsonData[i][4]) * 1000, height: parseFloat(jsonData[i][5]) * 1000, totalQuantity: jsonData[i][6], EI: jsonData[i][8] ? "EI"+jsonData[i][8] : "" };
 
                     let mainAcs = tempReport.mainAcs ? { ...tempReport.mainAcs, totalQuantity: ((tempReport.height / 1000) * (tempReport.width / 1000) * tempReport.totalQuantity) } : null;
                     tempReport = { ...tempReport, mainAcs: mainAcs }
@@ -74,7 +77,7 @@ export default function BGreadExcel(props: Props) {
             props.handlePushToDataReport(dataReport);
         }
     }
-    const updatePriceReport = (doorModelItem: any, newPriceReport: PriceReport,w:number,h:number,quanNep:number,totalQuanItem:number): PriceReport => {
+    const updatePriceReport = (doorModelItem: any, newPriceReport: PriceReport,widthGlass:number,heightGlass:number,quanNep:number,totalQuanItem:number,widthItem:number,heighItem:number): PriceReport => {
         const acsList: Accessories[] = [];
         /// get list acs
         // console.log(doorModelItem);
@@ -82,7 +85,9 @@ export default function BGreadExcel(props: Props) {
             doorModelItem.accessoryAndFeatures.map((item: any) => {
                 const acsExisted: GroupAccessory | null = props.groupAcsData.find((acsGroup: GroupAccessory) => acsGroup.id === item.accessoryGroupId) ?? null;
                 if (acsExisted && acsExisted.accessoriesAndType.length > 0) {
-                    acsList.push({ ...acsExisted.accessoriesAndType[0].accessories, quantity: item.quantity, condition: item.condition });
+                    const quan = readConditionAndCal(item.condition,widthItem,heighItem);
+                    console.log(quan,"bg",item.condition,widthItem,heighItem,totalQuanItem)
+                    acsList.push({ ...acsExisted.accessoriesAndType[0].accessories, quantity:quan, condition: item.condition,totalQuantity:quan*totalQuanItem });
                 }
             })
         }
@@ -92,7 +97,7 @@ export default function BGreadExcel(props: Props) {
         const glassItem: Accessories | null = props.acsData.find(item => item.id === doorModelItem.accessoryGlassId) ?? null;
         //find nep
         const nepItem: Accessories | null = props.acsData.find(item => item.id === doorModelItem.glassBracketId) ?? null;
-        const onGlass : boolean = (w && h) ? true : false; 
+        const onGlass : boolean = (widthGlass && heightGlass) ? true : false; 
         newPriceReport = {
             ...newPriceReport,
             doorModel: doorModelItem,
@@ -100,7 +105,7 @@ export default function BGreadExcel(props: Props) {
             name: doorModelItem.name ? doorModelItem.name : newPriceReport.name,
             accessories: acsList,
             mainAcs: mainAcs,
-            glassAcs:glassItem ? {...glassItem,width:w*1000,height:h*1000,quantity:w*h*quanNep,totalQuantity:w*h*quanNep*totalQuanItem} : null,
+            glassAcs:glassItem ? {...glassItem,width:widthGlass*1000,height:heightGlass*1000,quantity:widthGlass*heightGlass*quanNep,totalQuantity:widthGlass*heightGlass*quanNep*totalQuanItem} : null,
             nepAcs:nepItem ? {...nepItem,quantity:quanNep,totalQuantity:quanNep*totalQuanItem} : null,
             onGlass: onGlass
         };

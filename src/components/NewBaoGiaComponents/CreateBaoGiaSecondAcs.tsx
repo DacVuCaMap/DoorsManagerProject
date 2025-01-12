@@ -37,11 +37,12 @@ export default function CreateBaoGiaSecondAcs(props: Props) {
 
     //update totalQuan
     useEffect(() => {
-
-        if (curAcs.type!="glass" && curAcs.type!="nep" && curAcs.condition && curAcs.condition==="1") {
+        if (curAcs.type!="glass" && curAcs.type!="nep" && curAcs.condition) {
+            
             const quan = readConditionAndCal(curAcs.condition,props.ReportItem.priceReport.width/1000,props.ReportItem.priceReport.height/1000);
-            const totalQuan = quan * props.ReportItem.priceReport.totalQuantity*curAcs.quantity;
-            handleChangeInput(totalQuan,"totalQuantity");
+            const totalQuan = quan * props.ReportItem.priceReport.totalQuantity;
+            const newAcs : Accessories ={...curAcs,totalQuantity:totalQuan,quantity:quan}; 
+            handleUpdateToParent(newAcs);
         }
         else{
             handleChangeInput(props.ReportItem.priceReport.totalQuantity * curAcs.quantity, "totalQuantity");
@@ -49,7 +50,7 @@ export default function CreateBaoGiaSecondAcs(props: Props) {
     }, [props.ReportItem.priceReport.totalQuantity, curAcs.quantity,props.ReportItem.priceReport.width,props.ReportItem.priceReport.height])
     //update quantity with doorsill
     useEffect(() => {
-        if (curAcs.type==="doorsill" && curAcs.condition) {
+        if (curAcs.condition) {
             const quan = readConditionAndCal(curAcs.condition,props.ReportItem.priceReport.width/1000,props.ReportItem.priceReport.height/1000);
             handleChangeInput(quan,"quantity")
         }
