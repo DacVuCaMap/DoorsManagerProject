@@ -51,6 +51,7 @@ export default function FilterBaoGia(props: Props) {
                             temp.push({ numberIndex: [index], acs: { ...acs, totalQuantity: quantity } });
                         }
                     }
+                    
                 });
             });
             setListSelect(temp);

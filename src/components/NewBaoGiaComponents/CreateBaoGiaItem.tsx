@@ -345,10 +345,10 @@ export default function CreateBaoGiaItem(props: Props) {
                                 <div className='w-2/12 p-2 text-center flex flex-col '>
                                     <div className='flex flex-row space-x-2'>
                                         <div className='w-1/2'>
-                                            {props.ReportItem.priceReport.glassAcs?.quantity}
+                                            {formatNumberVN(props.ReportItem.priceReport.glassAcs?.quantity)}
                                         </div>
                                         <div className='w-1/2'>
-                                            <span>{formatNumberFixed3(props.ReportItem.priceReport.glassAcs?.totalQuantity)}</span>
+                                            <span>{formatNumberVN(props.ReportItem.priceReport.glassAcs?.totalQuantity)}</span>
                                         </div>
                                     </div>
                                 </div>
