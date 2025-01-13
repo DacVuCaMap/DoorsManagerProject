@@ -6,8 +6,8 @@ import React, { useEffect, useState } from 'react'
 import InputSearchAcs from '../SearchingComponents/InputSearchAcs';
 import PriceReport from '@/Model/PriceReport';
 import "./CreateBaoGiaItem.css"
-import { Trash2 } from 'lucide-react';
-import { formatNumberVN } from '@/data/FunctionAll';
+import { RefreshCw, Trash2 } from 'lucide-react';
+import { changePriceAndTempPrice, formatNumberToDot, formatNumberVN, parseVnToNumber } from '@/data/FunctionAll';
 type Props = {
     setOpenFilter(flag: boolean): any;
     openFilter: boolean;
@@ -22,6 +22,7 @@ type ListSelect = {
 }
 export default function FilterBaoGia(props: Props) {
     const [listSelect, setListSelect] = useState<ListSelect[]>([]);
+
 
     useEffect(() => {
         const filterListReport = () => {
@@ -41,7 +42,7 @@ export default function FilterBaoGia(props: Props) {
                 }
                 /// glass and nep acs
                 if (item.priceReport.onGlass && item.priceReport.glassAcs && item.priceReport.nepAcs) {
-                    const check = temp.find(itemSelect => itemSelect.acs.id === item.priceReport.glassAcs);
+                    const check = temp.find(itemSelect => itemSelect.acs.id === item.priceReport.glassAcs?.id);
                     const totalQuantity = item.priceReport.glassAcs.totalQuantity
                     if (check) {
                         check.numberIndex.push(index);
@@ -51,7 +52,7 @@ export default function FilterBaoGia(props: Props) {
                         temp.push({ numberIndex: [index], acs: { ...item.priceReport.glassAcs, totalQuantity: totalQuantity } });
                     }
 
-                    const check2 = temp.find(itemSelect => itemSelect.acs.id === item.priceReport.glassAcs);
+                    const check2 = temp.find(itemSelect => itemSelect.acs.id === item.priceReport.nepAcs?.id);
                     const totalQuantityNep = item.priceReport.nepAcs.totalQuantity
                     if (check2) {
                         check2.numberIndex.push(index);
@@ -108,38 +109,48 @@ export default function FilterBaoGia(props: Props) {
         props.setDataReport(tempReport);
 
     }
-    const handleUpdatePrice = (itemSelect: ListSelect, e: any) => {
-        let value = e.target.value;;
-        value = parseFloat(value.replace(/\./g, ''));
-        value = !value ? 0 : value;
+    const handleUpdatePrice = (itemSelect: ListSelect, e: any, indexSelect: number) => {
+        let value = e.target.value;
+
+        const newListSelect: ListSelect[] = [...listSelect].map((item, index) => {
+            if (index === indexSelect) {
+                let newAcs: Accessories = { ...item.acs, tempPrice: value };
+                if (value && !value.endsWith(",")) {
+                    newAcs = { ...newAcs, price: parseVnToNumber(value) };
+                }
+                return { ...item, acs: newAcs };
+            }
+            return item;
+        })
+        setListSelect(newListSelect);
+
         const tempReport: DataReport[] = [...props.listReport].map((report: DataReport, index) => {
             if (itemSelect.numberIndex.includes(index)) {
                 let tempChildReport: PriceReport = report.priceReport;
                 if (tempChildReport.mainAcs && itemSelect.acs.id === tempChildReport.mainAcs.id) {
-                    let mainAcs: Accessories = { ...tempChildReport.mainAcs, price: value };
+                    // let mainAcs: Accessories = { ...tempChildReport.mainAcs, price: value };
+                    let mainAcs: Accessories = changePriceAndTempPrice({ ...tempChildReport.mainAcs }, value);
                     tempChildReport = { ...tempChildReport, mainAcs: mainAcs };
                 }
                 else {
                     const tempAcsList: Accessories[] = tempChildReport.accessories.map((acs: Accessories, childInd) => {
                         if (acs.id === itemSelect.acs.id) {
-                            console.log(acs);
-                            return { ...acs, price: value }
+                            return changePriceAndTempPrice({ ...acs }, value);
                         }
                         return acs;
                     })
-                    console.log(tempAcsList);
                     tempChildReport = { ...tempChildReport, accessories: tempAcsList };
                 }
 
                 //glass
                 if (tempChildReport.onGlass && tempChildReport.glassAcs && tempChildReport.nepAcs) {
                     if (itemSelect.acs.id === tempChildReport.glassAcs.id) {
-                        let newGlassAcs: Accessories = { ...tempChildReport.glassAcs, price: value }
+                        let newGlassAcs: Accessories = changePriceAndTempPrice({ ...tempChildReport.glassAcs }, value);
                         tempChildReport = { ...tempChildReport, glassAcs: newGlassAcs };
                     }
 
                     if (tempChildReport.nepAcs && itemSelect.acs.id === tempChildReport.nepAcs.id) {
-                        let newNepAcs: Accessories = { ...tempChildReport.nepAcs, price: value };
+                        let newNepAcs: Accessories = changePriceAndTempPrice({ ...tempChildReport.nepAcs }, value);
                         tempChildReport = { ...tempChildReport, nepAcs: newNepAcs };
                     }
 
@@ -164,11 +175,53 @@ export default function FilterBaoGia(props: Props) {
         })
         props.setDataReport(tempReport);
     }
+    const updateAllPrice = () => {
+        const tempReport: DataReport[] = [...props.listReport].map((report: DataReport, index) => {
+            let tempChildReport: PriceReport = report.priceReport;
+            /// search main
+            const mainSelect: ListSelect | undefined = listSelect.find(itemSelect => itemSelect.acs.id === tempChildReport.mainAcs?.id);
+            if (mainSelect && tempChildReport.mainAcs && mainSelect.acs.id === tempChildReport.mainAcs.id) {
+                let mainAcs: Accessories = changePriceAndTempPrice({ ...tempChildReport.mainAcs }, mainSelect.acs.price.toString());
+                tempChildReport = { ...tempChildReport, mainAcs: mainAcs };
+            }
+
+            const tempAcsList: Accessories[] = tempChildReport.accessories.map((acs: Accessories, childInd) => {
+                const itemSelect: ListSelect | undefined = listSelect.find(item => item.acs.id === acs.id);
+                if (itemSelect && acs.id === itemSelect.acs.id) {
+                    return changePriceAndTempPrice({ ...acs }, itemSelect.acs.price.toString())
+                }
+                return acs;
+            })
+            tempChildReport = { ...tempChildReport, accessories: tempAcsList };
+
+            //glass
+            if (tempChildReport.onGlass && tempChildReport.glassAcs && tempChildReport.nepAcs) {
+                const glassSelect: ListSelect | undefined = listSelect.find(itemSelect => itemSelect.acs.id === tempChildReport.glassAcs?.id);
+                if (glassSelect && glassSelect.acs.id === tempChildReport.glassAcs.id) {
+                    let newGlassAcs: Accessories = changePriceAndTempPrice({ ...tempChildReport.glassAcs }, glassSelect.acs.price.toString())
+                    tempChildReport = { ...tempChildReport, glassAcs: newGlassAcs };
+                }
+                const nepSelect: ListSelect | undefined = listSelect.find(itemSelect => itemSelect.acs.id === tempChildReport.nepAcs?.id);
+                if (nepSelect && tempChildReport.nepAcs && nepSelect.acs.id === tempChildReport.nepAcs.id) {
+                    let newNepAcs: Accessories = changePriceAndTempPrice({ ...tempChildReport.nepAcs }, nepSelect.acs.price.toString());
+                    tempChildReport = { ...tempChildReport, nepAcs: newNepAcs };
+                }
+
+            }
+            return { ...report, priceReport: tempChildReport };
+        })
+        props.setDataReport(tempReport);
+    }
+    const handleClostFilter = () => {
+        document.body.style.overflow = 'auto';
+        props.setOpenFilter(false)
+    }
+
     return (
         <div >
             <AnimatePresence>
                 {props.openFilter && (
-                    <div onClick={e => props.setOpenFilter(false)} className='fixed top-0 left-0 bg-black bg-opacity-50 w-full h-full z-50'>
+                    <div onClick={handleClostFilter} className='fixed top-0 left-0 bg-black bg-opacity-50 w-full h-full z-50'>
                         <motion.div
                             className="h-screen w-[800px] z-50 bg-gray-800 fixed top-0 right-0 p-10"
                             initial={{ x: '50%' }}
@@ -177,7 +230,15 @@ export default function FilterBaoGia(props: Props) {
                             transition={{ type: 'tween', duration: 0.2, ease: 'easeOut' }}
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <div className='overflow-auto max-h-[500px]'>
+                            {listSelect.length > 0 &&
+                                <div>
+                                    <button onClick={updateAllPrice} className='border border-gray-400 text-white rounded-full flex flex-row space-x-2 font-mono py-2 px-4 hover:bg-gray-700'>
+                                        <RefreshCw /><span>Cập nhập giá trị</span>
+                                    </button>
+                                </div>
+                            }
+                            <div className='overflow-auto max-h-[500px] border-b-2'>
+
                                 <table className='text-white w-full table-auto'>
                                     <thead>
                                         <tr>
@@ -197,7 +258,13 @@ export default function FilterBaoGia(props: Props) {
                                                 <td className='text-center'>{item.acs.code}</td>
                                                 <td className='text-center'>{formatNumberVN(item.acs.totalQuantity)}</td>
                                                 <td className='text-gray-700 px-10'>
-                                                    <input onChange={e => handleUpdatePrice(item, e)} value={item.acs.price} type="text" className='rounded px-2 py-1 w-full' />
+                                                    <input
+                                                        tabIndex={1}
+                                                        onChange={e => handleUpdatePrice(item, e, index)}
+                                                        value={item.acs.tempPrice ?? 0}
+                                                        type="text"
+                                                        className='rounded px-2 py-1 w-full'
+                                                    />
                                                 </td>
                                                 <td>
                                                     <button onClick={e => handleDeleteFilter(item)} className='hover:bg-gray-700 p-2'><Trash2 /></button>
@@ -207,12 +274,6 @@ export default function FilterBaoGia(props: Props) {
                                     </tbody>
                                 </table>
                             </div>
-
-
-
-
-
-
                         </motion.div>
                     </div>
                 )}

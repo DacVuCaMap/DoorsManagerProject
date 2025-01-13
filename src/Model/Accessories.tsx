@@ -18,6 +18,8 @@ class Accessories {
     accessoryGroup?:any;
     supplierShow?:string;
     condition?:string;
+    tempPrice?:any;
+    acsDes:string;
     constructor(
         id: any,
         type:any,
@@ -34,7 +36,8 @@ class Accessories {
         unit: string,
         status: boolean,
         isCommand?: boolean,
-        supplierShow?:string
+        supplierShow?:string,
+        acsDes?:string
     ) {
         this.id = id;
         this.type=type ?? "normal";
@@ -53,6 +56,7 @@ class Accessories {
         this.status = status;
         this.isCommand = isCommand ?? false
         this.supplierShow = supplierShow;
+        this.acsDes=acsDes ?? "";
     }
 }
 export default Accessories;
@@ -77,7 +81,8 @@ export const TransRequestToAcs = (item: any): Accessories => {
         unit: item?.unit,
         status: false,
         type: item?.type,
-        isCommand: true
+        isCommand: true,
+        acsDes:""
     }
 }
 export const getNewAcsWithName = (str:string): Accessories => {
@@ -97,7 +102,8 @@ export const getNewAcsWithName = (str:string): Accessories => {
         unit: "",
         status: false,
         type: "",
-        isCommand: false
+        isCommand: false,
+        acsDes:""
     }
 
 }

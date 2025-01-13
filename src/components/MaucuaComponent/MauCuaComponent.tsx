@@ -16,11 +16,6 @@ export default function MauCuaComponent(props: Props) {
   const [curDoorModel, setCurDoorModel] = useState<DoorModel>(newDoorModel());
   const listAcsGroup = props.acsGroup;
   console.log(props.acsGroup);
-  useEffect(()=>{
-    
-  },[])
-
-
 
   const handleClick = (doorItem: any) => {
     console.log(doorItem);

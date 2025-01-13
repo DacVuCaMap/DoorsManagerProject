@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import BaoGiaSearchPhuKien from '../baogiaComponents/BaoGiaSearchPhuKien'
 import Accessories from '@/Model/Accessories'
 import InputSearchAcs from '../SearchingComponents/InputSearchAcs'
-import { formatNumberFixed3, formatNumberFixed4, formatNumberToDot } from '@/data/FunctionAll'
+import { changePriceAndTempPrice, formatNumberFixed3, formatNumberFixed4, formatNumberToDot, formatNumberVN } from '@/data/FunctionAll'
 import DataReport from '@/Model/DataReport'
 import { readConditionAndCal } from '@/utils/bgFunction'
 type Props = {
@@ -14,6 +14,15 @@ type Props = {
 }
 export default function CreateBaoGiaSecondAcs(props: Props) {
     const [curAcs, setCurAcs] = useState(props.ReportItem.priceReport.accessories[props.acsIndex]);
+    const [isFocused, setIsFocused] = useState(false);
+
+    const handleFocus = () => {
+        setIsFocused(true);
+    };
+
+    const handleBlur = () => {
+        setIsFocused(false);
+    };
     const handleUpdateToParent = (acs: Accessories) => {
         props.handleChangeAcsList(acs, props.acsIndex);
     }
@@ -23,15 +32,26 @@ export default function CreateBaoGiaSecondAcs(props: Props) {
         props.handleChangeAcsList(newAcs, props.acsIndex);
     }
     const handleChangeInput = (value: any, key: string) => {
-        value = value === "" ? 0 : value;
-        if (key === "price" && value != 0) {
-            value = value.replace(/\./g, '');
-        }
-        let newAcs: Accessories = { ...curAcs, [key]: parseFloat(value) }
         if (key === "quantity") {
-            newAcs = { ...curAcs, quantity: parseFloat(value) }
+            /// check condition
+            console.log(value);
+            const quantity = readConditionAndCal(value.toString(),props.ReportItem.priceReport.width,props.ReportItem.priceReport.height);
+            console.log(quantity)
+            let condition = value;
+            if (quantity===-411) {
+                condition="";
+            }
+            let newAcs : Accessories = {...curAcs,condition:condition,quantity:condition==="" ? 0 : quantity }
+            setCurAcs(newAcs);
+            handleUpdateToParent(newAcs);
+            return;
         }
 
+        value = value === "" ? 0 : value;
+        let newAcs: Accessories = { ...curAcs, [key]: parseFloat(value) }
+        if (key === "price") {
+            newAcs = changePriceAndTempPrice({ ...curAcs }, value);
+        }
         setCurAcs(newAcs);
         handleUpdateToParent(newAcs);
     }
@@ -50,7 +70,7 @@ export default function CreateBaoGiaSecondAcs(props: Props) {
         if (curAcs.type != "glass" && curAcs.type != "nep" && curAcs.condition) {
 
             const quan = readConditionAndCal(curAcs.condition, props.ReportItem.priceReport.width / 1000, props.ReportItem.priceReport.height / 1000);
-            if (curAcs.quantity==quan) {
+            if (curAcs.quantity == quan) {
                 const totalQuan = quan * props.ReportItem.priceReport.totalQuantity;
                 const newAcs: Accessories = { ...curAcs, totalQuantity: totalQuan, quantity: quan };
                 handleUpdateToParent(newAcs);
@@ -81,7 +101,14 @@ export default function CreateBaoGiaSecondAcs(props: Props) {
                 <div className='flex flex-row space-x-2'>
                     <div className='w-1/2'>
                         {curAcs.type === "normal" &&
-                            <input onChange={e => handleChangeInput(e.target.value, "quantity")} value={curAcs.quantity} type="text" className='text-center rounded px-2 py-1 w-full' />
+                            <input
+                                onChange={e => handleChangeInput(e.target.value, "quantity")}
+                                value={isFocused ? curAcs.condition : curAcs.quantity}
+                                type="text"
+                                className='text-center rounded px-2 py-1 w-full'
+                                onFocus={handleFocus}
+                                onBlur={handleBlur}
+                            />
                         }
                         {curAcs.type === "doorsill" &&
                             <span>{curAcs.quantity}</span>
@@ -93,10 +120,10 @@ export default function CreateBaoGiaSecondAcs(props: Props) {
                 </div>
             </div>
             <div className='overflow-auto w-1/12 p-2 text-center'>
-                <input onChange={e => handleChangeInput(e.target.value, "price")} value={formatNumberToDot(curAcs.price)} type="text" className='rounded px-2 py-1 w-full' />
+                <input onChange={e => handleChangeInput(e.target.value, "price")} value={curAcs.tempPrice ?? 0} type="text" className='rounded px-2 py-1 w-full' />
             </div>
             <div className='overflow-auto w-1/12 pl-4 text-center '>
-                <span className='w-full'>{formatNumberToDot(curAcs.totalQuantity * curAcs.price)}</span>
+                <span className='w-full'>{formatNumberVN(curAcs.totalQuantity * curAcs.price)}</span>
             </div>
             <div className='w-1/12 p-2 flex flex-row justify-center space-x-2 '>
                 <div onClick={e => handleDelete()} className='cursor-pointer'> <Trash2 /> </div>

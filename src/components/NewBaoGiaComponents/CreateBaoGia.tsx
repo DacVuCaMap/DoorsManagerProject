@@ -235,7 +235,7 @@ export default function CreateBaoGia(props: Props) {
                     <div className='w-1/12 p-2 text-center font-bold'>Tổng giá</div>
                     <div className='w-1/12 p-2 text-center font-bold'>
                         <button className='py-2 font-semibold bg-blue-600 text-white rounded-xl w-full hover:bg-blue-900 flex flex-row space-x-2 justify-center items-center'
-                            onClick={e => setOpenFilter(true)}>
+                            onClick={e => {setOpenFilter(true);document.body.style.overflow = 'hidden';}}>
                             <Filter />
                             <span>T.Quát</span>
                         </button>

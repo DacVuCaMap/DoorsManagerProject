@@ -1,5 +1,5 @@
 import GetPattern from '@/ApiPattern/GetPattern';
-import { formatNumberFixed3, formatNumberToDot } from '@/data/FunctionAll';
+import { changePriceAndTempPrice, formatNumberFixed3, formatNumberToDot, formatNumberVN } from '@/data/FunctionAll';
 import Accessories from '@/Model/Accessories'
 import DataReport from '@/Model/DataReport';
 import GroupAccessory from '@/Model/GroupAccessory';
@@ -46,7 +46,8 @@ export default function CreateBaoGiaMainAcs(props: Props) {
                         unit: item.unit,
                         status: false,
                         type: item.type,
-                        isCommand: false
+                        isCommand: false,
+                        acsDes:""
                     }
                 });
                 setCurrentSelectItem(temp);
@@ -74,10 +75,14 @@ export default function CreateBaoGiaMainAcs(props: Props) {
     }
     const handleChangeInput = (e: any, key: string) => {
         let value = e.target.value;
-        value = value === "" ? 0 : value;
-        if (key === "price" && value != 0) {
-            value = value.replace(/\./g, '');
+
+        if (key === "price" && props.ReportItem.priceReport.mainAcs) {
+            console.log(value);
+            let newMainAcs : Accessories = changePriceAndTempPrice({...props.ReportItem.priceReport.mainAcs},value);
+            props.handleChangeReport(newMainAcs,"mainAcs");
+            return;
         }
+        value = value === "" ? 0 : value;
         if (props.ReportItem.priceReport.mainAcs) {
             let newMainAcs: Accessories = { ...props.ReportItem.priceReport.mainAcs, [key]: parseFloat(value) };
             props.handleChangeReport(newMainAcs, "mainAcs");
@@ -135,11 +140,11 @@ export default function CreateBaoGiaMainAcs(props: Props) {
                     </div>
                 </div>
                 <div className='overflow-auto w-1/12 p-2 text-center'>
-                    <input onChange={e => handleChangeInput(e, "price")} value={formatNumberToDot(props.ReportItem.priceReport.mainAcs?.price)} type="text" className='rounded px-2 py-1 w-full' />
+                    <input onChange={e => handleChangeInput(e, "price")} value={props.ReportItem.priceReport.mainAcs?.tempPrice ?? 0} type="text" className='rounded px-2 py-1 w-full' />
                 </div>
                 <div className='overflow-auto w-1/12 pl-4 text-center '>
                     {props.ReportItem.priceReport.mainAcs ?
-                        <span className='w-full'>{formatNumberToDot(props.ReportItem.priceReport.mainAcs.price * props.ReportItem.priceReport.mainAcs.totalQuantity)}</span>
+                        <span className='w-full'>{formatNumberVN(props.ReportItem.priceReport.mainAcs.price * props.ReportItem.priceReport.mainAcs.totalQuantity)}</span>
                         :
                         <span className='w-full'>0</span>
                     }

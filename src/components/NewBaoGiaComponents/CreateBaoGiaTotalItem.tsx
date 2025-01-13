@@ -1,6 +1,6 @@
 
 import { totalGroup } from '@/data/AddData';
-import { formatDotToNumber, formatNumberFixed3, formatNumberToDot, formatNumberVN } from '@/data/FunctionAll';
+import { changeObjectPriceAndTempPrice, formatDotToNumber, formatNumberFixed3, formatNumberToDot, formatNumberVN } from '@/data/FunctionAll';
 import { listBgUnit } from '@/data/ListData';
 import Accessories, { getNewAcs } from '@/Model/Accessories';
 import DataReport from '@/Model/DataReport';
@@ -111,18 +111,28 @@ export default function CreateBaoGiaTotalItem(props: Props) {
 
     const handleUpdate = (e: any, key: string, index: number) => {
         let value = e.target.value;
-        if (key === "price" || key === "orgPrice" ) {
+        if (key === "price" || key === "orgPrice") {
             value = value ?? 0
             value = value.replace(/\./g, "");
             value = parseFloat(value);
             if (value >= 1000000000) {
                 return;
             }
-            
+
         }
-        if (key === "pricePercent" && parseFloat(value)>0) {
-            value = value.replace(/\./g, "");
-            value = parseInt(value);
+        if (key === "pricePercent" && parseFloat(value) > 0) {
+
+            let tempTotalGroup: TotalGroup = { ...props.totalGroup };
+            let tempTotalItemm: TotalItem[] = tempTotalGroup.totalItem.map((item: TotalItem, ind) => {
+                if (index === ind) {
+                    return changeObjectPriceAndTempPrice(item, value, "pricePercent", "pricePercentTemp");
+                }
+                return item;
+            });
+            tempTotalGroup = { ...tempTotalGroup, totalItem: tempTotalItemm };
+            props.handleUpdateTotalList(tempTotalGroup, props.totalGroupIndex);
+
+            return;
         }
         /// update orgPrice
         if (key === "code") {
@@ -132,7 +142,7 @@ export default function CreateBaoGiaTotalItem(props: Props) {
                     const acsCostExist: Accessories | null = props.listAcsExist.find(acs => (acs.code === value && acs.type === "cost")) ?? null;
                     console.log(acsCostExist, value);
                     if (acsCostExist) {
-                        return { ...item, orgPrice: acsCostExist.orgPrice, pricePercent: acsCostExist.lowestPricePercent * 100, [key]: value };
+                        return { ...item, orgPrice: acsCostExist.orgPrice, pricePercent: acsCostExist.lowestPricePercent * 100,pricePercentTemp:(acsCostExist.lowestPricePercent * 100).toString(), [key]: value };
                     } else {
                         return { ...item, [key]: value };
                     }
@@ -176,15 +186,26 @@ export default function CreateBaoGiaTotalItem(props: Props) {
         const value = e.target.value;
         const acs: Accessories | null = props.listAcsExist.find(item => item.id === parseFloat(value)) ?? null;
         if (acs) {
-            console.log(acs)
             let tempTotalGroup: TotalGroup = { ...props.totalGroup };
             let tempTotalItemm: TotalItem[] = tempTotalGroup.totalItem.map((item: TotalItem, ind) => {
                 if (index === ind) {
-                    return { ...item, typeQuantity: value,code:acs.code,name:acs.name,orgPrice:acs.orgPrice,pricePercent:acs.lowestPricePercent*100 };
+                    return { ...item, typeQuantity: value, code: acs.code, name: acs.name, orgPrice: acs.orgPrice, pricePercent: acs.lowestPricePercent * 100,pricePercentTemp:(acs.lowestPricePercent*100).toString() };
                 }
                 return item;
             });
-            tempTotalGroup = { ...tempTotalGroup, totalItem: tempTotalItemm};
+            tempTotalGroup = { ...tempTotalGroup, totalItem: tempTotalItemm };
+            props.handleUpdateTotalList(tempTotalGroup, props.totalGroupIndex);
+            setRefreshSelect(prev => prev + 1);
+        }
+        else {
+            let tempTotalGroup: TotalGroup = { ...props.totalGroup };
+            let tempTotalItemm: TotalItem[] = tempTotalGroup.totalItem.map((item: TotalItem, ind) => {
+                if (index === ind) {
+                    return { ...item,typeQuantity:value };
+                }
+                return item;
+            });
+            tempTotalGroup = { ...tempTotalGroup, totalItem: tempTotalItemm };
             props.handleUpdateTotalList(tempTotalGroup, props.totalGroupIndex);
             setRefreshSelect(prev => prev + 1);
         }
@@ -223,7 +244,7 @@ export default function CreateBaoGiaTotalItem(props: Props) {
                                     <input
                                         type="text"
                                         className='outline-none  px-2 py-1 w-14 bg-transparent border-b border-gray-300'
-                                        value={formatNumberVN(item.pricePercent)}
+                                        value={item.pricePercentTemp ?? 0}
                                         onChange={e => handleUpdate(e, "pricePercent", index)}
                                     />
                                 </div>

@@ -11,6 +11,7 @@ class TotalItem {
     orgPrice:number;
     unit:string;
     pricePercent:number;
+    pricePercentTemp:any;
     constructor(quantity: number, totalQuantity: number, typeTotal: any, name: string, price: number, code: string,orgPrice:number,unit:string,typeQuantity?:any,pricePercent?:number) {
         this.quantity = quantity;
         this.totalQuantity = totalQuantity;
@@ -23,8 +24,6 @@ class TotalItem {
         this.unit = unit;
         this.pricePercent = pricePercent ?? 0;
     }
-    
-   
 }
 export default TotalItem;
 export function createTotalItem(name:string): TotalItem {

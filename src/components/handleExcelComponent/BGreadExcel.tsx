@@ -49,7 +49,6 @@ export default function BGreadExcel(props: Props) {
     }
     const handleExcelToDataReprot = (jsonData: any) => {
         const dataReport: DataReport[] = [];
-        console.log(jsonData);
         for (let i = 0; i < jsonData.length; i++) {
 
             if (jsonData[i].length > 9 && jsonData[i][7] && jsonData[i][4] && jsonData[i][6] && jsonData[i][8]) {

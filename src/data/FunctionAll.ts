@@ -86,7 +86,8 @@ export const LoadAccessoriesDataOffline = async () => {
                 status: false,
                 type: item.type,
                 isCommand: false,
-                accessoryGroup: item.accessoryGroup ? item.accessoryGroup : null
+                accessoryGroup: item.accessoryGroup ? item.accessoryGroup : null,
+                acsDes:""
             };
         });
         return newAcs;
@@ -120,20 +121,60 @@ export const LoadAccesoryGroupNoAcs = async () => {
     const response = await GetPattern(url, {});
     if (response && response.value && Array.isArray(response.value)) {
         const rs: GroupAccessory[] = response.value.map((item: any, index: number) => {
-            const acsAndType : AcsAndType[] = item.accessories.map((acs: any) => {
-                return {accessories:acs,type:acs.type};
+            const acsAndType: AcsAndType[] = item.accessories.map((acs: any) => {
+                return { accessories: acs, type: acs.type };
             })
-            return { id: item.id, name: item.name, type: item.type, accessoriesAndType:acsAndType  };
+            return { id: item.id, name: item.name, type: item.type, accessoriesAndType: acsAndType };
         })
         return rs;
     }
     return [];
 }
-export function formatNumberVN(num:number) {
+export function formatNumberVN(num: number) {
     num = Math.floor(num * 100) / 100;
     // Định dạng số theo chuẩn địa phương là "vi-VN" (Việt Nam)
     let formattedNumber = num.toLocaleString('vi-VN');
-    
+
     // Trả về kết quả đã định dạng
     return formattedNumber;
+}
+export function parseVnToNumber(formattedNumber: string): number {
+    let numberString = formattedNumber.replace(/\./g, '');
+    numberString = numberString.replace(',', '.');
+    const number = parseFloat(numberString);
+    return isNaN(number) ? 0 : number;
+}
+export const changePriceAndTempPrice = (acs: Accessories, value: string): Accessories => {
+    if (value && !(/^\d*([.,]?\d*)$/).test(value)) {
+        return acs; // Prevent invalid input
+    }
+
+    if (value.length > 1) {
+        value = value.charAt(0) === "0" ? value.replace(/^0+/, '') : value;
+    }
+    else {
+        value = value ? value : "0";
+    }
+    let newAcs: Accessories = { ...acs, tempPrice: value };
+    if (value && !value.endsWith(",") && !value.endsWith(".")) {
+        newAcs = { ...newAcs, price: parseVnToNumber(value) };
+    }
+    return newAcs;
+}
+
+export const changeObjectPriceAndTempPrice = (obj:any,value: string,key:string,tempKey:string) => {
+    if (value && !(/^\d*([.,]?\d*)$/).test(value)) {
+        return obj; // Prevent invalid input
+    }
+    if (value.length > 1) {
+        value = value.charAt(0) === "0" ? value.replace(/^0+/, '') : value;
+    }
+    else {
+        value = value ? value : "0";
+    }
+    let newObj : any ={...obj,[tempKey]:value}; 
+    if (value && !value.endsWith(",") && !value.endsWith(".")) {
+        newObj = { ...newObj, [key]: parseVnToNumber(value) };
+    }
+    return newObj;
 }
