@@ -32,9 +32,9 @@ type Props = {
 }
 
 export default function CreateBaoGia(props: Props) {
-    // console.log(props.groupAcsData,3);
-    // console.log(props.acsData,4);
-    // console.log(props.doorModelData, 5);
+    console.log(props.groupAcsData,3);
+    console.log(props.acsData,4);
+    console.log(props.doorModelData, 5);
     const [openFilter, setOpenFilter] = useState(false);
     const [listReport, setListReport] = useState<DataReport[]>([]);
     const [totalGroupItem, setTotalGroupItem] = useState<TotalGroup[]>(createNewTotalGroupArray());

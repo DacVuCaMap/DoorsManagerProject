@@ -87,7 +87,7 @@ export const LoadAccessoriesDataOffline = async () => {
                 type: item.type,
                 isCommand: false,
                 accessoryGroup: item.accessoryGroup ? item.accessoryGroup : null,
-                acsDes:""
+                acsDes:item.acsDes
             };
         });
         return newAcs;
