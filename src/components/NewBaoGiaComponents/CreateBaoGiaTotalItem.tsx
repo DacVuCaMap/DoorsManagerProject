@@ -120,8 +120,7 @@ export default function CreateBaoGiaTotalItem(props: Props) {
             }
 
         }
-        if (key === "pricePercent" && parseFloat(value) > 0) {
-
+        if (key === "pricePercent") {
             let tempTotalGroup: TotalGroup = { ...props.totalGroup };
             let tempTotalItemm: TotalItem[] = tempTotalGroup.totalItem.map((item: TotalItem, ind) => {
                 if (index === ind) {
