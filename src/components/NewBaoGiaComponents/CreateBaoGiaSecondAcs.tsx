@@ -34,9 +34,9 @@ export default function CreateBaoGiaSecondAcs(props: Props) {
     const handleChangeInput = (value: any, key: string) => {
         if (key === "quantity") {
             /// check condition
-            console.log(value);
+            // console.log(value);
             const quantity = readConditionAndCal(value.toString(),props.ReportItem.priceReport.width,props.ReportItem.priceReport.height);
-            console.log(quantity)
+            // console.log(quantity)
             let condition = value;
             if (quantity===-411) {
                 condition="";
@@ -80,13 +80,7 @@ export default function CreateBaoGiaSecondAcs(props: Props) {
             handleChangeInput(props.ReportItem.priceReport.totalQuantity * curAcs.quantity, "totalQuantity");
         }
     }, [props.ReportItem.priceReport.totalQuantity, curAcs.quantity, props.ReportItem.priceReport.width, props.ReportItem.priceReport.height])
-    //update quantity with doorsill
-    useEffect(() => {
-        if (curAcs.condition) {
-            const quan = readConditionAndCal(curAcs.condition, props.ReportItem.priceReport.width / 1000, props.ReportItem.priceReport.height / 1000);
-            handleChangeInput(quan, "quantity")
-        }
-    }, [props.ReportItem.priceReport.width, props.ReportItem.priceReport.height])
+
     return (
         <div className='w-11/12 flex flex-row items-center py-1 bg-gray-600'>
             <div className='w-4/12 p-2 text-center flex flex-row justify-center space-x-4'>

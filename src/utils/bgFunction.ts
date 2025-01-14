@@ -2,6 +2,7 @@ export const readConditionAndCal = (condition: string, width: number, height: nu
     if (condition==="") {
         return 0;
     }
+    condition = condition.toString();
     // Thay thế các biến 'w' và 'h' trong chuỗi điều kiện với các giá trị thực tế
     const conditionWithValues = condition.replace(/w/g, width.toString()).replace(/h/g, height.toString());
     try {

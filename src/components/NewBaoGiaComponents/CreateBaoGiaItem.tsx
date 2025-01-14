@@ -45,6 +45,21 @@ export default function CreateBaoGiaItem(props: Props) {
         updateMainAcsItemTotalQuantity();
     }, [props.ReportItem.priceReport.width, props.ReportItem.priceReport.height, props.ReportItem.priceReport.totalQuantity, props.ReportItem.priceReport.mainAcs?.name])
 
+    /// update quantity
+    //update quantity with doorsill
+    useEffect(() => {
+        const tempAcsList: Accessories[] = [...props.ReportItem.priceReport.accessories].map(acs => {
+            if (acs.condition) {
+                const quan = readConditionAndCal(acs.condition, props.ReportItem.priceReport.width / 1000, props.ReportItem.priceReport.height / 1000);
+                return {...acs,quantity:quan}
+            }
+            return acs;
+        });
+        const tempReport : PriceReport = {...props.ReportItem.priceReport,accessories:tempAcsList};
+        updateWithPriceReport(tempReport);
+
+    }, [props.ReportItem.priceReport.width, props.ReportItem.priceReport.height])
+
     /// update glass value
     useEffect(() => {
         let tempGlass: Accessories | null = props.ReportItem.priceReport.glassAcs;
@@ -192,12 +207,12 @@ export default function CreateBaoGiaItem(props: Props) {
         if (childKey) {
             if (childKey === "price") {
                 let tempReport: PriceReport = { ...props.ReportItem.priceReport };
-                const newAcs: Accessories = changePriceAndTempPrice({...tempReport[key]},value)
+                const newAcs: Accessories = changePriceAndTempPrice({ ...tempReport[key] }, value)
                 tempReport = { ...tempReport, [key]: newAcs };
                 updateWithPriceReport(tempReport);
                 return;
             }
-            
+
             value = value.replace(/\./g, '');
             value = value ? value : 0;
 
