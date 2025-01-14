@@ -1,4 +1,4 @@
-
+export const dynamic = 'force-dynamic';
 import GetPattern from '@/ApiPattern/GetPattern';
 import CreateBaoGia from '@/components/NewBaoGiaComponents/CreateBaoGia';
 import { LoadAccesoryGroupNoAcs, LoadAccessoriesDataOffline, LoadFireTest, LoadListDoorModelData, LoadSelectData } from '@/data/FunctionAll';
