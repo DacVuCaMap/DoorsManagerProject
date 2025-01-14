@@ -4,7 +4,7 @@ import "./AddBaoGia.css";
 import Product from '@/Model/Product';
 import DoorNameSelect from '@/Model/DoorNameSelect';
 import { genNumberByTime } from '@/data/FunctionAll';
-import Accessories from '@/Model/Accessories';
+import Accessories, { getNewAcsWithName } from '@/Model/Accessories';
 import { dataAcs, info1Select, info2Select } from '@/data/AddData';
 import GetPattern from '@/ApiPattern/GetPattern';
 import HeaderComponent from '../HeaderComponent';
@@ -50,40 +50,12 @@ export default function AddBaoGia(props: Props) {
         if (response.content && Array.isArray(response.content)) {
           const list: any[] = response.content;
           let newAcs: Accessories[] = list.map((item: any, index: number) => {
-            return new Accessories(
-              genNumberByTime() + "" + index,
-              item.code,
-              item.name,
-              item.supplier,
-              0,
-              0,
-              0,
-              0,
-              item.orgPrice,
-              item.lowestPricePercent,
-              0,
-              item.unit,
-              false
-            );
+            return getNewAcsWithName("")
           });
           let newLastAcs: Accessories[] = list
             .filter((item: any) => listLastCodeItem.includes(item.code))
             .map((item: any, index) =>
-              new Accessories(
-                genNumberByTime() + "" + index,
-                item.code,
-                item.name,
-                "",
-                0,
-                0,
-                0,
-                0,
-                item.orgPrice,
-                item.lowestPricePercent,
-                0,
-                item.unit,
-                false
-              )
+              getNewAcsWithName("")
             ).sort((a, b) => {
               const indexA = listLastCodeItem.indexOf(a.code);
               const indexB = listLastCodeItem.indexOf(b.code);
@@ -122,7 +94,7 @@ export default function AddBaoGia(props: Props) {
 - Gioăng cao su chống cháy, cách âm
 - Sơn tĩnh điện 1 màu 
 - Kích thước báo giá là kích thước cả khung`
-    let accessory = new Accessories(1, "CC0.8/1.4", description, "Novodor", 0, 0, 0, 0, 0, 0, 0, "Bộ", false);
+    let accessory = getNewAcsWithName("ss");
     const newItem: Product = {
       id: genNumberByTime(),
       name: "",
@@ -215,19 +187,7 @@ export default function AddBaoGia(props: Props) {
         const list: any[] = response.value;
         let newAcs: Accessories[] = list.map((item: any, index) => {
           const acs = item.accessories
-          return new Accessories(
-            genNumberByTime() + "" + index, acs.code, acs.name, acs.supplier,
-            0,
-            item.quantity,
-            0,
-            0,
-            acs.orgPrice,
-            acs.lowestPricePercent,
-            0,
-            acs.unit,
-            true,
-            true
-          )
+          return getNewAcsWithName("cc");
         });
         if (newAcs.length > 0) {
           updatedProduct = updatedProduct.map((item: Product) => {
@@ -249,7 +209,7 @@ export default function AddBaoGia(props: Props) {
 
   }
   const handleAddAccessory = (id: any) => {
-    let newAcs = new Accessories(genNumberByTime(), "", "", "", 0, 0, 0, 0, 0, 0, 0, "Bộ", false);
+    let newAcs = new Accessories(genNumberByTime(), "", "", "", "", 0, 0, 0, 0, 0, 0, 0, "",false);
     setProducts((preProducts: Product[]) => {
       return preProducts.map((product: Product) => {
         if (product.id === id) {

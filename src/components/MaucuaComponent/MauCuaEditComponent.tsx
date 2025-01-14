@@ -26,7 +26,7 @@ export default function MauCuaEditComponent(props: Props) {
     const [listMainGlass, setListMainGlass] = useState<Accessories[]>(props.acsGlass);
     const [curFireTestCondition, setCurFireTestCondition] = useState<string[]>([]);
     const [curFireTestValue, setCurFireTestValue] = useState<string[]>([]);
-    let curAcs = new Accessories(genNumberByTime(), "", "", "", 0, 0, 0, 0, 0, 0, 0, "Bộ", false);
+    let curAcs = new Accessories(genNumberByTime(),"", "", "", "", 0, 0, 0, 0, 0, 0, 0, "Bộ", false);
     const [success, setSuccess] = useState(false);
     const [loadingSubmit, setLoadingSubmit] = useState(false);
     useEffect(() => {

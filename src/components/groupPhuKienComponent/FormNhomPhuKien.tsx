@@ -81,6 +81,7 @@ export default function GanlenhFormAdd(props: Props) {
                     let newAcs: Accessories[] = list.map((item: any, index: number) => {
                         return new Accessories(
                             item.id,
+                            item.type,
                             item.code,
                             item.name,
                             item.supplier,
@@ -92,6 +93,7 @@ export default function GanlenhFormAdd(props: Props) {
                             item.lowestPricePercent,
                             0,
                             item.unit,
+                            true,
                             true
                         );
                     });
@@ -110,7 +112,7 @@ export default function GanlenhFormAdd(props: Props) {
             clearInterval(intervalId);
         };
     }, [])
-    let tempAcs = new Accessories(genNumberByTime(), "", "", "", 0, 0, 0, 0, 0, 0, 0, "Bộ", false);
+    let tempAcs = new Accessories(genNumberByTime(), "", "", "","", 0, 0, 0, 0, 0, 0, 0, "",false);
     const selectAccessories = (acsId: any, newAcs: Accessories, productId: any) => {
         const accessoriesAndType = curGroup.accessoriesAndType;
         const newItem: AcsAndType = { accessories: newAcs, type: "s" };

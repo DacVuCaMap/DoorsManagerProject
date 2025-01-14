@@ -28,6 +28,7 @@ export const CalTotalMoreInforProduct = (products: Product[], key: string) => {
 export const ConstructorAcs = (id:any,code: string, name: string) => {
     return new Accessories(
         id,
+        "",
         code,
         name,
         "",
