@@ -30,20 +30,20 @@ export default function CreateBaoGiaTotalItem(props: Props) {
         const updateTotalQuanity = () => {
             let tempTotalGroup: TotalGroup = { ...props.totalGroup };
             /// SUM mainAcs
-            const totalMainQuantity = props.listReport.reduce((total: number, item: DataReport) => {
-                if (item.priceReport.mainAcs) {
-                    return total + item.priceReport.mainAcs.totalQuantity;
-                }
-                return total;
-            }, 0)
+            // const totalMainQuantity = props.listReport.reduce((total: number, item: DataReport) => {
+            //     if (item.priceReport.mainAcs) {
+            //         return total + item.priceReport.mainAcs.totalQuantity;
+            //     }
+            //     return total;
+            // }, 0)
             const tempTotalItem: TotalItem[] = props.totalGroup.totalItem.map((totalItem: TotalItem, index) => {
                 const value = totalItem.typeQuantity;
                 // cal main
-                if (totalItem.code === "CPV" || totalItem.code === "CPLD") {
-                    return { ...totalItem, totalQuantity: totalMainQuantity };
-                }
+                // if (totalItem.code === "CPV" || totalItem.code === "CPLD") {
+                //     return { ...totalItem, totalQuantity: totalMainQuantity };
+                // }
                 // cal count by acs
-                else if (value && value != "-1") {
+                if (value && value != "-1" && value !="0") {
                     let totalQuan = 0;
                     props.listReport.forEach((item: DataReport) => {
                         if (item.priceReport.mainAcs) {
@@ -99,7 +99,7 @@ export default function CreateBaoGiaTotalItem(props: Props) {
                     return { ...totalItem, orgPrice: orgPriceFireTest, totalQuantity: 1 };
                 }
                 else {
-                    return totalItem;
+                    return {...totalItem};
                 }
             })
             tempTotalGroup = { ...tempTotalGroup, totalItem: tempTotalItem };
@@ -197,14 +197,16 @@ export default function CreateBaoGiaTotalItem(props: Props) {
             setRefreshSelect(prev => prev + 1);
         }
         else {
+
             let tempTotalGroup: TotalGroup = { ...props.totalGroup };
             let tempTotalItemm: TotalItem[] = tempTotalGroup.totalItem.map((item: TotalItem, ind) => {
                 if (index === ind) {
-                    return { ...item,typeQuantity:value };
+                    return { ...item,typeQuantity:value,totalQuantity:1 };
                 }
                 return item;
             });
             tempTotalGroup = { ...tempTotalGroup, totalItem: tempTotalItemm };
+            console.log(tempTotalGroup)
             props.handleUpdateTotalList(tempTotalGroup, props.totalGroupIndex);
             setRefreshSelect(prev => prev + 1);
         }
@@ -272,7 +274,7 @@ export default function CreateBaoGiaTotalItem(props: Props) {
                             {item.typeTotal != 0 && <div className='flex flex-row w-full space-x-2 items-center'>
                                 <span>Kiểu:</span>
                                 <select value={item.typeQuantity} onChange={e => handleSelectTypeQuan(e, index)} name="" id="" className='h-7 w-full'>
-                                    <option value="">tắt</option>
+                                    <option value={0}>tắt</option>
                                     <option value={-1}>kiểm định</option>
                                     {props.listAcsExist.map((acs: Accessories, index) => (
                                         <option value={acs.id} key={index}>{acs.name}</option>

@@ -8,22 +8,24 @@ import PriceReport from '@/Model/PriceReport';
 import "./CreateBaoGiaItem.css"
 import { RefreshCw, Trash2 } from 'lucide-react';
 import { changePriceAndTempPrice, formatNumberToDot, formatNumberVN, parseVnToNumber } from '@/data/FunctionAll';
+import TotalGroup from '@/Model/TotalGroup';
+import TotalItem from '@/Model/TotalItem';
 type Props = {
     setOpenFilter(flag: boolean): any;
     openFilter: boolean;
     listReport: DataReport[];
+    totalGroup: TotalGroup;
     acsData: Accessories[];
     setDataReport(item: DataReport[]): any;
-
+    handleUpdateTotalList(item: TotalGroup, index: number): any;
 }
 type ListSelect = {
     numberIndex: number[];
     acs: Accessories;
 }
+
 export default function FilterBaoGia(props: Props) {
     const [listSelect, setListSelect] = useState<ListSelect[]>([]);
-
-
     useEffect(() => {
         const filterListReport = () => {
             let temp: ListSelect[] = [];
@@ -74,9 +76,10 @@ export default function FilterBaoGia(props: Props) {
                             temp.push({ numberIndex: [index], acs: { ...acs, totalQuantity: quantity } });
                         }
                     }
-
                 });
+
             });
+
             setListSelect(temp);
         }
         filterListReport();
@@ -162,18 +165,26 @@ export default function FilterBaoGia(props: Props) {
         })
         props.setDataReport(tempReport);
     }
-    const handleDeleteFilter = (item: ListSelect) => {
-        const tempReport: DataReport[] = [...props.listReport].map((report: DataReport, index) => {
-            // main
-            if (report.priceReport.mainAcs?.id === item.acs.id) {
-                const newPriceReport: PriceReport = { ...report.priceReport, mainAcs: null };
+    const handleDeleteFilter = (key: string, item: any) => {
+        if (key === "acs") {
+            const tempReport: DataReport[] = [...props.listReport].map((report: DataReport, index) => {
+                // main
+                if (report.priceReport.mainAcs?.id === item.acs.id) {
+                    const newPriceReport: PriceReport = { ...report.priceReport, mainAcs: null };
+                    return { ...report, priceReport: newPriceReport };
+                }
+                const newAcs: Accessories[] = report.priceReport.accessories.filter(acs => acs.id != item.acs.id);
+                const newPriceReport: PriceReport = { ...report.priceReport, accessories: newAcs };
                 return { ...report, priceReport: newPriceReport };
-            }
-            const newAcs: Accessories[] = report.priceReport.accessories.filter(acs => acs.id != item.acs.id);
-            const newPriceReport: PriceReport = { ...report.priceReport, accessories: newAcs };
-            return { ...report, priceReport: newPriceReport };
-        })
-        props.setDataReport(tempReport);
+            })
+            props.setDataReport(tempReport);
+            return;
+        }
+        else if (key === "total") {
+            const newTotalItem: TotalItem[] = [...props.totalGroup.totalItem].filter((total, index) => index != item);
+            props.handleUpdateTotalList({ ...props.totalGroup, totalItem: newTotalItem }, 0);
+        }
+
     }
     const updateAllPrice = () => {
         const tempReport: DataReport[] = [...props.listReport].map((report: DataReport, index) => {
@@ -216,63 +227,110 @@ export default function FilterBaoGia(props: Props) {
         document.body.style.overflow = 'auto';
         props.setOpenFilter(false)
     }
-
+    const handleUpdateTotal = (e: any, key: string, indInput: number) => {
+        let value = e.target.value;
+        if (key === "price") {
+            value = value ? parseFloat(value) : 0;
+        }
+        const tempTotal: TotalItem[] = [...props.totalGroup.totalItem].map((item, index) => {
+            if (indInput === index) {
+                return { ...item, [key]: value };
+            }
+            return item;
+        })
+        props.handleUpdateTotalList({ ...props.totalGroup, totalItem: tempTotal }, 0);
+    }
     return (
         <div >
             <AnimatePresence>
                 {props.openFilter && (
                     <div onClick={handleClostFilter} className='fixed top-0 left-0 bg-black bg-opacity-50 w-full h-full z-50'>
                         <motion.div
-                            className="h-screen w-[800px] z-50 bg-gray-800 fixed top-0 right-0 p-10"
+                            className="h-screen w-[850px] z-50 bg-gray-800 fixed top-0 right-0 p-10"
                             initial={{ x: '50%' }}
                             animate={{ x: 0 }}
                             exit={{ x: '100%' }}
                             transition={{ type: 'tween', duration: 0.2, ease: 'easeOut' }}
                             onClick={(e) => e.stopPropagation()}
                         >
-                            {listSelect.length > 0 &&
-                                <div>
-                                    <button onClick={updateAllPrice} className='border border-gray-400 text-white rounded-full flex flex-row space-x-2 font-mono py-2 px-4 hover:bg-gray-700'>
-                                        <RefreshCw /><span>Cập nhập giá trị</span>
-                                    </button>
-                                </div>
-                            }
-                            <div className='overflow-auto max-h-[500px] border-b-2'>
+                            <div className='flex flex-col space-y-2'>
+                                {listSelect.length > 0 &&
+                                    <div>
+                                        <button onClick={updateAllPrice} className='border border-gray-400 text-white rounded-full flex flex-row space-x-2 font-mono py-2 px-4 hover:bg-gray-700'>
+                                            <RefreshCw /><span>Cập nhập giá trị</span>
+                                        </button>
+                                    </div>
+                                }
+                                <div className='overflow-auto max-h-[500px] border-b-2'>
 
-                                <table className='text-white w-full table-auto'>
-                                    <thead>
-                                        <tr>
-                                            <th className='w-1/12'>STT</th>
-                                            <th className='w-4/12'>Tên</th>
-                                            <th className='w-2/12'>Mã</th>
-                                            <th className='w-1/12'>Tổng KL</th>
-                                            <th className='w-3/12'>Giá</th>
+                                    <table className='text-white w-full table-auto '>
+                                        <thead>
+                                            <tr>
+                                                <th className='w-1/12'>STT</th>
+                                                <th className='w-4/12'>Tên</th>
+                                                <th className='w-2/12'>Mã</th>
+                                                <th className='w-1/12'>Tổng KL</th>
+                                                <th className='w-3/12'>Giá</th>
 
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {listSelect.map((item: ListSelect, index) => (
-                                            <tr key={index} className='create-bg border-b border-gray-500'>
-                                                <td className='py-4 text-center'>{index + 1}</td>
-                                                <td className='text-gray-700'><InputSearchAcs itemSelect={item} curAcs={item.acs} handleSelectAcs={handleUpdateToParent} acsData={props.acsData} /></td>
-                                                <td className='text-center'>{item.acs.code}</td>
-                                                <td className='text-center'>{formatNumberVN(item.acs.totalQuantity)}</td>
-                                                <td className='text-gray-700 px-10'>
-                                                    <input
-                                                        tabIndex={1}
-                                                        onChange={e => handleUpdatePrice(item, e, index)}
-                                                        value={item.acs.tempPrice ?? 0}
-                                                        type="text"
-                                                        className='rounded px-2 py-1 w-full'
-                                                    />
-                                                </td>
-                                                <td>
-                                                    <button onClick={e => handleDeleteFilter(item)} className='hover:bg-gray-700 p-2'><Trash2 /></button>
-                                                </td>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody>
+                                            {listSelect.map((item: ListSelect, index) => (
+                                                <tr key={index} className='create-bg border-b border-gray-500'>
+                                                    <td className='py-4 text-center'>{index + 1}</td>
+                                                    <td className='text-gray-700'><InputSearchAcs itemSelect={item} curAcs={item.acs} handleSelectAcs={handleUpdateToParent} acsData={props.acsData} /></td>
+                                                    <td className='text-center'>{item.acs.code}</td>
+                                                    <td className='text-center'>{formatNumberVN(item.acs.totalQuantity)}</td>
+                                                    <td className='text-gray-700 px-10'>
+                                                        <input
+                                                            tabIndex={1}
+                                                            onChange={e => handleUpdatePrice(item, e, index)}
+                                                            value={item.acs.tempPrice ?? 0}
+                                                            type="text"
+                                                            className='rounded px-2 py-1 w-full'
+                                                        />
+                                                    </td>
+                                                    <td>
+                                                        <button onClick={e => handleDeleteFilter("acs", item)} className='hover:bg-gray-700 p-2'><Trash2 /></button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                            <tr>
+                                                <td colSpan={6} className='py-2 text-gray-500 border-b border-gray-500'>CHI PHI CHUNG</td>
+                                            </tr>
+                                            {props.totalGroup.totalItem.map((total: TotalItem, index) => (
+                                                <tr key={index} className='create-bg border-b border-gray-500'>
+                                                    <td className='py-4 text-center'>{listSelect.length + index + 1}</td>
+                                                    <td className='text-gray-700'>
+                                                        <input
+                                                            tabIndex={1}
+                                                            onChange={e => handleUpdateTotal(e, "name", index)}
+                                                            value={total.name ?? 0}
+                                                            type="text"
+                                                            className='rounded px-2 py-1 w-full'
+                                                        />
+                                                    </td>
+                                                    <td className='text-center'>{total.code}</td>
+                                                    <td className='text-center'>{formatNumberVN(total.totalQuantity)}</td>
+                                                    <td className='text-gray-700 px-10'>
+                                                        <input
+                                                            tabIndex={1}
+                                                            onChange={e => handleUpdateTotal(e, "price", index)}
+                                                            value={total.price ?? 0}
+                                                            type="text"
+                                                            className='rounded px-2 py-1 w-full'
+                                                        />
+                                                    </td>
+                                                    <td>
+                                                        <button onClick={e => handleDeleteFilter("total", total)} className='hover:bg-gray-700 p-2'><Trash2 /></button>
+                                                    </td>
+                                                </tr>
+                                            ))
+
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </motion.div>
                     </div>

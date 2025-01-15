@@ -32,9 +32,9 @@ type Props = {
 }
 
 export default function CreateBaoGia(props: Props) {
-    console.log(props.groupAcsData,3);
-    console.log(props.acsData,4);
-    console.log(props.doorModelData, 5);
+    // console.log(props.groupAcsData,3);
+    // console.log(props.acsData,4);
+    // console.log(props.doorModelData, 5);
     const [openFilter, setOpenFilter] = useState(false);
     const [listReport, setListReport] = useState<DataReport[]>([]);
     const [totalGroupItem, setTotalGroupItem] = useState<TotalGroup[]>(createNewTotalGroupArray());
@@ -207,7 +207,7 @@ export default function CreateBaoGia(props: Props) {
 
 
             <div className='w-[300px]'>
-                {openFilter && <FilterBaoGia setDataReport={setListReport} acsData={props.acsData} setOpenFilter={setOpenFilter} openFilter={openFilter} listReport={listReport} />}
+                {openFilter && <FilterBaoGia handleUpdateTotalList={handleUpdateTotalList} totalGroup={totalGroupItem[0]} setDataReport={setListReport} acsData={props.acsData} setOpenFilter={setOpenFilter} openFilter={openFilter} listReport={listReport} />}
                 <BGreadExcel acsData={props.acsData} doorModelData={props.doorModelData} groupAcsData={props.groupAcsData} handlePushToDataReport={handlePushToDataReport} />
             </div>
             <button className='bg-red-100 fixed top-64 right-4 p-10 bg-opacity-50' onClick={e => { console.log(listReport); console.log(totalGroupItem) }}>
