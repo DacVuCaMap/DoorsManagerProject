@@ -41,7 +41,7 @@ export default function MauCuaListComponent(props: Prop) {
         }
     }
     return (
-        <div className='bg-gray-800 w-[600px] h-[550px] rounded-lg'>
+        <div className='bg-gray-800 w-[700px] h-[650px] rounded-lg overflow-auto'>
             <table className='w-full'>
                 <thead>
                     <tr>
@@ -74,7 +74,7 @@ export default function MauCuaListComponent(props: Prop) {
                                     <span className='leading-3 text-xs text-gray-400'>{item.type}</span>
                                 </div>
                             </td>
-                            <td className='text-center text-red-600 w-20'><button onClick={e => handleDelete(item.id)}><Trash2 /></button></td>
+                            <td className='text-center text-red-600 w-10'><button onClick={e => handleDelete(item.id)}><Trash2 /></button></td>
                         </tr>
                     ))}
                 </tbody>
