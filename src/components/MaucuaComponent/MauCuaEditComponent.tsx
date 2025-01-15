@@ -38,7 +38,7 @@ export default function MauCuaEditComponent(props: Props) {
                 setListMainAcs(response.value[0].accessories)
             }
             else {
-                message.error("false");
+                message.error("Không có vật liệu chính");
             }
         }
         fetchData();
