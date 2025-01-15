@@ -275,26 +275,114 @@ export default function FilterBaoGia(props: Props) {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {listSelect.map((item: ListSelect, index) => (
-                                                <tr key={index} className='create-bg border-b border-gray-500'>
-                                                    <td className='py-4 text-center'>{index + 1}</td>
-                                                    <td className='text-gray-700'><InputSearchAcs itemSelect={item} curAcs={item.acs} handleSelectAcs={handleUpdateToParent} acsData={props.acsData} /></td>
-                                                    <td className='text-center'>{item.acs.code}</td>
-                                                    <td className='text-center'>{formatNumberVN(item.acs.totalQuantity)}</td>
-                                                    <td className='text-gray-700 px-10'>
-                                                        <input
-                                                            tabIndex={1}
-                                                            onChange={e => handleUpdatePrice(item, e, index)}
-                                                            value={item.acs.tempPrice ?? 0}
-                                                            type="text"
-                                                            className='rounded px-2 py-1 w-full'
-                                                        />
-                                                    </td>
-                                                    <td>
-                                                        <button onClick={e => handleDeleteFilter("acs", item)} className='hover:bg-gray-700 p-2'><Trash2 /></button>
-                                                    </td>
-                                                </tr>
-                                            ))}
+                                            <tr>
+                                                <td colSpan={6} className='py-2 text-gray-500 border-b border-gray-500'>VẬT LIỆU CHÍNH</td>
+                                            </tr>
+                                            {listSelect.map((item: ListSelect, index) => {
+                                                if (item.acs.type === "main") {
+                                                    return (
+                                                        <tr key={index} className='create-bg border-b border-gray-500'>
+                                                            <td className='py-4 text-center'>{index + 1}</td>
+                                                            <td className='text-gray-700'><InputSearchAcs isSearchByType={[item.acs.type]} itemSelect={item} curAcs={item.acs} handleSelectAcs={handleUpdateToParent} acsData={props.acsData} /></td>
+                                                            <td className='text-center'>{item.acs.code}</td>
+                                                            <td className='text-center'>{formatNumberVN(item.acs.totalQuantity)}</td>
+                                                            <td className='text-gray-700 px-10'>
+                                                                <input
+                                                                    tabIndex={1}
+                                                                    onChange={e => handleUpdatePrice(item, e, index)}
+                                                                    value={item.acs.tempPrice ?? 0}
+                                                                    type="text"
+                                                                    className='rounded px-2 py-1 w-full'
+                                                                />
+                                                            </td>
+                                                            <td>
+                                                                <button onClick={e => handleDeleteFilter("acs", item)} className='hover:bg-gray-700 p-2'><Trash2 /></button>
+                                                            </td>
+                                                        </tr>
+                                                    )
+                                                }
+                                            })}
+                                            <tr>
+                                                <td colSpan={6} className='py-2 text-gray-500 border-b border-gray-500'>PHỤ KIỆN</td>
+                                            </tr>
+                                            {listSelect.map((item: ListSelect, index) => {
+                                                if (item.acs.type != "main" && item.acs.type != "nep" && item.acs.type != "glass") {
+                                                    return (
+                                                        <tr key={index} className='create-bg border-b border-gray-500'>
+                                                            <td className='py-4 text-center'>{index + 1}</td>
+                                                            <td className='text-gray-700'><InputSearchAcs isSearchByType={["normal"]} itemSelect={item} curAcs={item.acs} handleSelectAcs={handleUpdateToParent} acsData={props.acsData} /></td>
+                                                            <td className='text-center'>{item.acs.code}</td>
+                                                            <td className='text-center'>{formatNumberVN(item.acs.totalQuantity)}</td>
+                                                            <td className='text-gray-700 px-10'>
+                                                                <input
+                                                                    tabIndex={1}
+                                                                    onChange={e => handleUpdatePrice(item, e, index)}
+                                                                    value={item.acs.tempPrice ?? 0}
+                                                                    type="text"
+                                                                    className='rounded px-2 py-1 w-full'
+                                                                />
+                                                            </td>
+                                                            <td>
+                                                                <button onClick={e => handleDeleteFilter("acs", item)} className='hover:bg-gray-700 p-2'><Trash2 /></button>
+                                                            </td>
+                                                        </tr>
+                                                    )
+                                                }
+                                            })}
+                                            <tr>
+                                                <td colSpan={6} className='py-2 text-gray-500 border-b border-gray-500'>Kính</td>
+                                            </tr>
+                                            {listSelect.map((item: ListSelect, index) => {
+                                                if (item.acs.type == "glass") {
+                                                    return (
+                                                        <tr key={index} className='create-bg border-b border-gray-500'>
+                                                            <td className='py-4 text-center'>{index + 1}</td>
+                                                            <td className='text-gray-700'><InputSearchAcs isSearchByType={[item.acs.type]} itemSelect={item} curAcs={item.acs} handleSelectAcs={handleUpdateToParent} acsData={props.acsData} /></td>
+                                                            <td className='text-center'>{item.acs.code}</td>
+                                                            <td className='text-center'>{formatNumberVN(item.acs.totalQuantity)}</td>
+                                                            <td className='text-gray-700 px-10'>
+                                                                <input
+                                                                    tabIndex={1}
+                                                                    onChange={e => handleUpdatePrice(item, e, index)}
+                                                                    value={item.acs.tempPrice ?? 0}
+                                                                    type="text"
+                                                                    className='rounded px-2 py-1 w-full'
+                                                                />
+                                                            </td>
+                                                            <td>
+                                                                <button onClick={e => handleDeleteFilter("acs", item)} className='hover:bg-gray-700 p-2'><Trash2 /></button>
+                                                            </td>
+                                                        </tr>
+                                                    )
+                                                }
+                                            })}
+                                            <tr>
+                                                <td colSpan={6} className='py-2 text-gray-500 border-b border-gray-500'>Nẹp</td>
+                                            </tr>
+                                            {listSelect.map((item: ListSelect, index) => {
+                                                if (item.acs.type == "nep") {
+                                                    return (
+                                                        <tr key={index} className='create-bg border-b border-gray-500'>
+                                                            <td className='py-4 text-center'>{index + 1}</td>
+                                                            <td className='text-gray-700'><InputSearchAcs isSearchByType={[item.acs.type]} itemSelect={item} curAcs={item.acs} handleSelectAcs={handleUpdateToParent} acsData={props.acsData} /></td>
+                                                            <td className='text-center'>{item.acs.code}</td>
+                                                            <td className='text-center'>{formatNumberVN(item.acs.totalQuantity)}</td>
+                                                            <td className='text-gray-700 px-10'>
+                                                                <input
+                                                                    tabIndex={1}
+                                                                    onChange={e => handleUpdatePrice(item, e, index)}
+                                                                    value={item.acs.tempPrice ?? 0}
+                                                                    type="text"
+                                                                    className='rounded px-2 py-1 w-full'
+                                                                />
+                                                            </td>
+                                                            <td>
+                                                                <button onClick={e => handleDeleteFilter("acs", item)} className='hover:bg-gray-700 p-2'><Trash2 /></button>
+                                                            </td>
+                                                        </tr>
+                                                    )
+                                                }
+                                            })}
                                             <tr>
                                                 <td colSpan={6} className='py-2 text-gray-500 border-b border-gray-500'>CHI PHI CHUNG</td>
                                             </tr>

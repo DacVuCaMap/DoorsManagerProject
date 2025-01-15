@@ -3,9 +3,10 @@ import { debounce } from 'lodash';
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 type Props = {
     acsData: Accessories[];
-    itemSelect?:any;
-    handleSelectAcs: (acs: Accessories,itemSelect?:any) => void,
-    curAcs:Accessories,
+    itemSelect?: any;
+    handleSelectAcs: (acs: Accessories, itemSelect?: any) => void,
+    curAcs: Accessories,
+    isSearchByType?: string[]
 }
 export default function InputSearchAcs(props: Props) {
     const [isOpen, setOpen] = useState<boolean>(false);
@@ -14,22 +15,37 @@ export default function InputSearchAcs(props: Props) {
     const [currentIndex, setCurrentIndex] = useState<number | null>(null); // Trạng thái chỉ số hiện tại
     const containerRef = useRef<HTMLDivElement>(null);
     const handleSearching = useCallback((e: any) => {
-        setOpen(true);
-        const value = e.target.value;
-        setKey(value);
-        let temp: Accessories[] = props.acsData.filter(item => (item.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
-            .includes(value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()) && item.type!="main" ||
-            item.code.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
-                .includes(value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()) && item.type!="main"
-        )).slice(0, 5);
-        setList(temp)
-        setCurrentIndex(null); // Reset chỉ số khi tìm kiếm
+        if (props.isSearchByType) {
+            setOpen(true);
+            const value = e.target.value;
+            setKey(value);
+            const searchString : string[]= props.isSearchByType
+            let temp: Accessories[] = props.acsData.filter(item => (item.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+                .includes(value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()) && item.type && searchString.includes(item.type) ||
+                item.code.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+                    .includes(value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()) && item.type && searchString.includes(item.type)
+            )).slice(0, 5);
+            setList(temp)
+            setCurrentIndex(null);
+        }
+        else {
+            setOpen(true);
+            const value = e.target.value;
+            setKey(value);
+            let temp: Accessories[] = props.acsData.filter(item => (item.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+                .includes(value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()) && item.type != "main" ||
+                item.code.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+                    .includes(value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()) && item.type != "main"
+            )).slice(0, 5);
+            setList(temp)
+            setCurrentIndex(null);
+        } // Reset chỉ số khi tìm kiếm
     }, [key]);
 
     const selectKey = (acs: Accessories) => {
         ///set
-        if(props.itemSelect){props.handleSelectAcs(acs,props.itemSelect)}
-        else{props.handleSelectAcs(acs);}
+        if (props.itemSelect) { props.handleSelectAcs(acs, props.itemSelect) }
+        else { props.handleSelectAcs(acs); }
 
         setKey(acs.name);
         //close window
@@ -70,9 +86,9 @@ export default function InputSearchAcs(props: Props) {
             document.removeEventListener("keydown", handleKeyDown); // Xóa sự kiện keydown
         };
     }, [handleClickOutside, handleKeyDown]);
-    useEffect(()=>{
+    useEffect(() => {
         setKey(props.curAcs.name)
-    },[props.curAcs.name])
+    }, [props.curAcs.name])
     return (
         <div ref={containerRef} className='w-full relative'>
             <input
@@ -85,7 +101,7 @@ export default function InputSearchAcs(props: Props) {
             {isOpen &&
                 <div className='absolute bg-gray-400 shadow-lg w-full z-20'>
                     {list.map((item: Accessories, index: number) => (
-                        <div key={index} onClick={e=>selectKey(item)} className={`relative w-full hover:cursor-pointer py-2 px-2 hover:bg-gray-700  ${index === currentIndex ? 'bg-gray-700 text-gray-300' : 'text-gray-800'}`}>
+                        <div key={index} onClick={e => selectKey(item)} className={`relative w-full hover:cursor-pointer py-2 px-2 hover:bg-gray-700  ${index === currentIndex ? 'bg-gray-700 text-gray-300' : 'text-gray-800'}`}>
                             <h1 className='text-sm text-white text-left'>{item.name}</h1>
                             <span className='absolute right-2 bottom-[1px] text-gray-300 text-xs'>{item.code}</span>
                         </div>

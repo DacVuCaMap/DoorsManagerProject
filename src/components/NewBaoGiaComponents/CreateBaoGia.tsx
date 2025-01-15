@@ -139,14 +139,28 @@ export default function CreateBaoGia(props: Props) {
             setLoadingExportExcel(false);
             return
         }
+        let tempTotal: TotalItem[] = totalGroupItem[0].totalItem;
         const priceReports: any[] = [];
         const reportTotals: any[] = [];
-        listReport.map((item: DataReport) => {
-            const newAcs : Accessories[] ={...item.priceReport}.accessories.filter(acs=>acs.type!="cost")
+        listReport.map((item: DataReport,index) => {
+
+            tempTotal = tempTotal.map(total => {
+                if (total.typeQuantity != 0 && total.typeQuantity != -1) {
+                    const checkTotal = item.priceReport.accessories.find(acsItem => acsItem.id === parseFloat(total.typeQuantity));
+                    if (checkTotal) {
+                        const tempTotalIndex = total.totalItemIndex ?? [];
+                        tempTotalIndex.push(index)
+                        return { ...total,totalItemIndex:tempTotalIndex }
+                    }
+                }
+                return total;
+            })
+
+            const newAcs: Accessories[] = { ...item.priceReport }.accessories.filter(acs => acs.type != "cost")
             if (item.priceReport.onGlass && item.priceReport.glassAcs && item.priceReport.nepAcs) {
-                newAcs.push(item.priceReport.glassAcs,item.priceReport.nepAcs);
+                newAcs.push(item.priceReport.glassAcs, item.priceReport.nepAcs);
             }
-            const tempPriceReport : PriceReport = {...item.priceReport,accessories:newAcs};
+            const tempPriceReport: PriceReport = { ...item.priceReport, accessories: newAcs };
             const acsId = item.priceReport.accessories.map((childItem: Accessories) => childItem.id);
             const temp = {
                 ...tempPriceReport
@@ -156,7 +170,7 @@ export default function CreateBaoGia(props: Props) {
             };
             priceReports.push(temp);
         })
-        totalGroupItem[0].totalItem.map((item: TotalItem) => {
+        tempTotal.map((item: TotalItem) => {
             const temp = { ...item, id: 0, groupName: totalGroupItem[0].name };
             reportTotals.push(temp);
         })
@@ -210,8 +224,8 @@ export default function CreateBaoGia(props: Props) {
                 {openFilter && <FilterBaoGia handleUpdateTotalList={handleUpdateTotalList} totalGroup={totalGroupItem[0]} setDataReport={setListReport} acsData={props.acsData} setOpenFilter={setOpenFilter} openFilter={openFilter} listReport={listReport} />}
                 <BGreadExcel acsData={props.acsData} doorModelData={props.doorModelData} groupAcsData={props.groupAcsData} handlePushToDataReport={handlePushToDataReport} />
             </div>
-            <button className='bg-red-100 fixed top-64 right-4 p-10 bg-opacity-50' onClick={e => { console.log(listReport); console.log(totalGroupItem) }}>
-                check gia tri</button>
+            {/* <button className='bg-red-100 fixed top-64 right-4 p-10 bg-opacity-50' onClick={e => { console.log(listReport); console.log(totalGroupItem) }}>
+                check gia tri</button> */}
             <div className='flex flex-row bg-slate-950 border-b px-2 border-gray-500 shadow-xl text-white sticky z-20 top-0'>
                 <div className='w-1/12 p-2 text-center font-bold'>STT</div>
                 <div className='w-11/12 flex flex-row'>
@@ -235,7 +249,7 @@ export default function CreateBaoGia(props: Props) {
                     <div className='w-1/12 p-2 text-center font-bold'>Tổng giá</div>
                     <div className='w-1/12 p-2 text-center font-bold'>
                         <button className='py-2 font-semibold bg-blue-600 text-white rounded-xl w-full hover:bg-blue-900 flex flex-row space-x-2 justify-center items-center'
-                            onClick={e => {setOpenFilter(true);document.body.style.overflow = 'hidden';}}>
+                            onClick={e => { setOpenFilter(true); document.body.style.overflow = 'hidden'; }}>
                             <Filter />
                             <span>T.Quát</span>
                         </button>

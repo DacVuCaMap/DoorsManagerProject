@@ -172,7 +172,7 @@ export default function CreateBaoGiaTotalItem(props: Props) {
 
     const handleAddCost = () => {
         const tempTotalGroup: TotalGroup = { ...props.totalGroup };
-        const newTotalItem: TotalItem = new TotalItem(0, 0, 1, "", 0, "", 0, "bộ");
+        const newTotalItem: TotalItem = new TotalItem(0,0, 0, 1, "", 0, "", 0, "bộ");
         tempTotalGroup.totalItem.push(newTotalItem);
         props.handleUpdateTotalList(tempTotalGroup, props.totalGroupIndex);
     }
@@ -189,7 +189,7 @@ export default function CreateBaoGiaTotalItem(props: Props) {
             let tempTotalGroup: TotalGroup = { ...props.totalGroup };
             let tempTotalItemm: TotalItem[] = tempTotalGroup.totalItem.map((item: TotalItem, ind) => {
                 if (index === ind) {
-                    return { ...item, typeQuantity: value, code: acs.code, name: acs.name, orgPrice: acs.orgPrice, pricePercent: acs.lowestPricePercent * 100,pricePercentTemp:(acs.lowestPricePercent*100).toString() };
+                    return { ...item,id:acs.id, typeQuantity: value, code: acs.code, name: acs.name, orgPrice: acs.orgPrice, pricePercent: acs.lowestPricePercent * 100,pricePercentTemp:(acs.lowestPricePercent*100).toString() };
                 }
                 return item;
             });
@@ -202,7 +202,7 @@ export default function CreateBaoGiaTotalItem(props: Props) {
             let tempTotalGroup: TotalGroup = { ...props.totalGroup };
             let tempTotalItemm: TotalItem[] = tempTotalGroup.totalItem.map((item: TotalItem, ind) => {
                 if (index === ind) {
-                    return { ...item,typeQuantity:value,totalQuantity:1 };
+                    return { ...item,id:0,typeQuantity:value,totalQuantity:1 };
                 }
                 return item;
             });

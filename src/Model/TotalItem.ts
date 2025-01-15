@@ -1,6 +1,7 @@
 import Accessories from "./Accessories";
 
 class TotalItem {
+    id:any;
     quantity:number;
     totalQuantity:number;
     typeTotal:any;
@@ -12,7 +13,9 @@ class TotalItem {
     unit:string;
     pricePercent:number;
     pricePercentTemp:any;
-    constructor(quantity: number, totalQuantity: number, typeTotal: any, name: string, price: number, code: string,orgPrice:number,unit:string,typeQuantity?:any,pricePercent?:number) {
+    totalItemIndex?:number[]
+    constructor(id:any,quantity: number, totalQuantity: number, typeTotal: any, name: string, price: number, code: string,orgPrice:number,unit:string,typeQuantity?:any,pricePercent?:number) {
+        this.id=id;
         this.quantity = quantity;
         this.totalQuantity = totalQuantity;
         this.typeTotal = typeTotal;
@@ -27,5 +30,5 @@ class TotalItem {
 }
 export default TotalItem;
 export function createTotalItem(name:string): TotalItem {
-    return new TotalItem(0, 0, "a", name, 10, "COD",0,"bộ");
+    return new TotalItem(0,0, 0, "a", name, 10, "COD",0,"bộ");
 }
