@@ -27,21 +27,20 @@ type Props = {
 }
 export default function CreateBaoGiaItem(props: Props) {
     const [loading, setLoading] = useState(0);
-    const [onGlass, setOnGlass] = useState(props.ReportItem.priceReport.onGlass);
+    const [onGlass, setOnGlass] = useState(false);
 
-    useEffect(() => {
-        const updateMainAcsItemTotalQuantity = () => {
-
-            if (props.ReportItem.priceReport.mainAcs) {
-                const tempMainAcs: Accessories = {
-                    ...props.ReportItem.priceReport.mainAcs
-                    , totalQuantity: formatNumberFixed3(props.ReportItem.priceReport.width / 1000 * props.ReportItem.priceReport.height / 1000 * props.ReportItem.priceReport.totalQuantity)
-                };
-                // console.log(tempMainAcs)
-                handleChangeReport(tempMainAcs, "mainAcs");
-            }
-
+    const updateMainAcsItemTotalQuantity = () => {
+        if (props.ReportItem.priceReport.mainAcs) {
+            const tempMainAcs: Accessories = {
+                ...props.ReportItem.priceReport.mainAcs
+                , totalQuantity: formatNumberFixed3(props.ReportItem.priceReport.width / 1000 * props.ReportItem.priceReport.height / 1000 * props.ReportItem.priceReport.totalQuantity)
+            };
+            // console.log(tempMainAcs)
+            handleChangeReport(tempMainAcs, "mainAcs");
         }
+
+    }
+    useEffect(() => {
         updateMainAcsItemTotalQuantity();
     }, [props.ReportItem.priceReport.width, props.ReportItem.priceReport.height, props.ReportItem.priceReport.totalQuantity, props.ReportItem.priceReport.mainAcs?.name])
 
@@ -51,11 +50,11 @@ export default function CreateBaoGiaItem(props: Props) {
         const tempAcsList: Accessories[] = [...props.ReportItem.priceReport.accessories].map(acs => {
             if (acs.condition) {
                 const quan = readConditionAndCal(acs.condition, props.ReportItem.priceReport.width / 1000, props.ReportItem.priceReport.height / 1000);
-                return {...acs,quantity:quan}
+                return { ...acs, quantity: quan }
             }
             return acs;
         });
-        const tempReport : PriceReport = {...props.ReportItem.priceReport,accessories:tempAcsList};
+        const tempReport: PriceReport = { ...props.ReportItem.priceReport, accessories: tempAcsList };
         updateWithPriceReport(tempReport);
 
     }, [props.ReportItem.priceReport.width, props.ReportItem.priceReport.height])
@@ -66,10 +65,16 @@ export default function CreateBaoGiaItem(props: Props) {
         if (tempGlass && props.ReportItem.priceReport.nepAcs) {
             const quan = (tempGlass.width / 1000) * (tempGlass.height / 1000) * props.ReportItem.priceReport.nepAcs.quantity;
             tempGlass = { ...tempGlass, quantity: quan, totalQuantity: props.ReportItem.priceReport.totalQuantity * quan };
-            const newPriceReport: PriceReport = { ...props.ReportItem.priceReport, glassAcs: tempGlass }
+            let tempMainAcs: Accessories | null = props.ReportItem.priceReport.mainAcs ?? null;
+            if (props.ReportItem.priceReport.mainAcs) {
+                tempMainAcs = {
+                    ...props.ReportItem.priceReport.mainAcs
+                    , totalQuantity: formatNumberFixed3(props.ReportItem.priceReport.width / 1000 * props.ReportItem.priceReport.height / 1000 * props.ReportItem.priceReport.totalQuantity)
+                };
+            }
+            const newPriceReport: PriceReport = { ...props.ReportItem.priceReport, glassAcs: tempGlass,mainAcs:tempMainAcs }
             updateWithPriceReport(newPriceReport);
         }
-
     }, [props.ReportItem.priceReport.glassAcs?.width, props.ReportItem.priceReport.glassAcs?.height])
 
     useEffect(() => {
@@ -81,8 +86,14 @@ export default function CreateBaoGiaItem(props: Props) {
                 const quan = (tempGlass.width / 1000) * (tempGlass.height / 1000) * props.ReportItem.priceReport.nepAcs.quantity;
                 tempGlass = { ...tempGlass, quantity: quan, totalQuantity: props.ReportItem.priceReport.totalQuantity * quan };
             }
-
-            const newPriceReport: PriceReport = { ...props.ReportItem.priceReport, nepAcs: tempNep, glassAcs: tempGlass };
+            let tempMainAcs: Accessories | null = props.ReportItem.priceReport.mainAcs ?? null;
+            if (props.ReportItem.priceReport.mainAcs) {
+                tempMainAcs = {
+                    ...props.ReportItem.priceReport.mainAcs
+                    , totalQuantity: formatNumberFixed3(props.ReportItem.priceReport.width / 1000 * props.ReportItem.priceReport.height / 1000 * props.ReportItem.priceReport.totalQuantity)
+                };
+            }
+            const newPriceReport: PriceReport = { ...props.ReportItem.priceReport, nepAcs: tempNep, glassAcs: tempGlass, mainAcs: tempMainAcs ?? null };
             updateWithPriceReport(newPriceReport);
         }
     }, [props.ReportItem.priceReport.nepAcs?.quantity, props.ReportItem.priceReport.totalQuantity])
@@ -92,8 +103,8 @@ export default function CreateBaoGiaItem(props: Props) {
         const acsList: Accessories[] = [];
         //input acs
         /// get list acs
-        console.log(doorModelItem);
-        console.log(doorModelItem);
+        // console.log(doorModelItem);
+        // console.log(doorModelItem);
         if (doorModelItem.accessoryAndFeatures && doorModelItem.accessoryAndFeatures.length > 0) {
             doorModelItem.accessoryAndFeatures.map((item: any) => {
                 const acsExisted: GroupAccessory | null = props.groupAcsData.find((acsGroup: GroupAccessory) => acsGroup.id === item.accessoryGroupId) ?? null;
@@ -115,7 +126,8 @@ export default function CreateBaoGiaItem(props: Props) {
             accessories: acsList,
             mainAcs: mainAcs,
             glassAcs: glassItem,
-            nepAcs: nepItem
+            nepAcs: nepItem,
+            onGlass:false
         };
         updateWithPriceReport(newPriceReport);
     }
@@ -144,6 +156,7 @@ export default function CreateBaoGiaItem(props: Props) {
             return;
         }
         newPriceReport = { ...newPriceReport, [key]: value };
+
         updateWithPriceReport(newPriceReport);
     }
     const handleChangeDataReport = (value: any, key: string) => {
@@ -337,15 +350,15 @@ export default function CreateBaoGiaItem(props: Props) {
                         return ('')
                     }
                     )}
-                    {props.ReportItem.priceReport.glassAcs &&
-                        <div className='flex flex-row px-2'>
+                    {(props.ReportItem.priceReport.glassAcs!=null) &&
+                        (<div className='flex flex-row px-2'>
                             <div className='w-1/12 p-2 text-center font-bold'><Switch value={props.ReportItem.priceReport.onGlass} onChange={turnOnGlass} /></div>
                             <div className='w-11/12 flex flex-row items-center py-1 h-10 bg-gray-600'></div>
-                        </div>
+                        </div>)
 
                     }
 
-                    {(props.ReportItem.priceReport.glassAcs && onGlass) &&
+                    {(props.ReportItem.priceReport.glassAcs!=null && onGlass===true) &&
                         <div className='flex flex-row px-2'>
                             <div className='w-1/12 p-2 text-center font-bold'>Kính</div>
                             <div className='w-11/12 flex flex-row items-center py-1 bg-gray-600'>
@@ -391,7 +404,7 @@ export default function CreateBaoGiaItem(props: Props) {
                         </div>
                     }
 
-                    {(props.ReportItem.priceReport.nepAcs && onGlass) &&
+                    {(props.ReportItem.priceReport.nepAcs && onGlass!=false) &&
                         <div className='flex flex-row px-2'>
                             <div className='w-1/12 p-2 text-center font-bold'>Nẹp kính</div>
                             <div className='w-11/12 flex flex-row items-center py-1 bg-gray-600'>

@@ -49,6 +49,7 @@ export default function CreateBaoGiaTotalItem(props: Props) {
                         if (item.priceReport.mainAcs) {
                             const totQuan = item.priceReport.mainAcs.totalQuantity;
                             item.priceReport.accessories.forEach((acs: Accessories) => {
+      
                                 if (acs.id === parseFloat(value)) {
                                     totalQuan += totQuan;
                                 }
@@ -59,6 +60,7 @@ export default function CreateBaoGiaTotalItem(props: Props) {
                         // if (item.priceReport.onGlass && item.priceReport.glassAcs && item.priceReport.nepAcs) {
                         //     totalQuan+=item.priceReport.glassAcs.totalQuantity+item.priceReport.nepAcs.totalQuantity;
                         // }
+                        // console.log(totalQuan,value);
                     })
                     return { ...totalItem, totalQuantity: totalQuan };
 
@@ -80,7 +82,6 @@ export default function CreateBaoGiaTotalItem(props: Props) {
                         }
                     })
                     /// done get countDoorModel
-
                     let orgPriceFireTest = 0;
                     countDoorModel.forEach((item: FireTestCount) => {
                         const fireTestConditionArr = item.fireTestCondition.split("./");

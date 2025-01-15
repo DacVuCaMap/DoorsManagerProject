@@ -24,7 +24,7 @@ export default async function page() {
     return [];
   }
   const LoadAccessoriesDataOfflineTest = async () => {
-    let url = process.env.NEXT_PUBLIC_API_URL + "/api/accessories/list?page=0&size=1000&search";
+    let url = process.env.NEXT_PUBLIC_API_URL + "/api/accessories/list?page=0&size=1000&search=";
     const response = await GetPattern(url, {});
     if (response && response.content && Array.isArray(response.content)) {
       const list: any[] = response.content;

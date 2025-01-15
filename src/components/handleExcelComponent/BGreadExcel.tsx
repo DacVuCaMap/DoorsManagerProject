@@ -50,11 +50,9 @@ export default function BGreadExcel(props: Props) {
     const handleExcelToDataReprot = (jsonData: any) => {
         const dataReport: DataReport[] = [];
         for (let i = 0; i < jsonData.length; i++) {
-
-            if (jsonData[i].length > 9 && jsonData[i][7] && jsonData[i][4] && jsonData[i][6] && jsonData[i][8]) {
+            if (jsonData[i].length > 9 && jsonData[i][7] && jsonData[i][4] && jsonData[i][6]) {
                 let tempReport: PriceReport = createNewPriceReport();
                 const doorModelItem = props.doorModelData.find((item: any) => item.shortName === jsonData[i][7]) ?? null;
-                // console.log(jsonData[i][1],jsonData[i][3]);
                 if (doorModelItem) {
                     const heightGlass = jsonData[i][10] ? parseFloat(jsonData[i][10]) : 0;
                     const widthGlass = jsonData[i][11] ? parseFloat(jsonData[i][11]) : 0;
@@ -85,7 +83,6 @@ export default function BGreadExcel(props: Props) {
                 const acsExisted: GroupAccessory | null = props.groupAcsData.find((acsGroup: GroupAccessory) => acsGroup.id === item.accessoryGroupId) ?? null;
                 if (acsExisted && acsExisted.accessoriesAndType.length > 0) {
                     const quan = readConditionAndCal(item.condition,widthItem,heighItem);
-                    // console.log(quan,"bg",item.condition,widthItem,heighItem,totalQuanItem)
                     acsList.push({ ...acsExisted.accessoriesAndType[0].accessories, quantity:quan, condition: item.condition,totalQuantity:quan*totalQuanItem });
                 }
             })
