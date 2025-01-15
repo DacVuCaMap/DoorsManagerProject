@@ -19,7 +19,7 @@ export default function HomeComponent() {
             </div>
             <div className='grid grid-cols-2 gap-x-10 gap-y-6'>
                 {listHome.map((item, index) => (
-                    <Link href={item.url}>
+                    <Link key={index} href={item.url}>
                         <div className='w-[500px] border text-gray-400 border-gray-400 rounded-xl py-4 px-4 h-40 hover:text-gray-200 hover:border-gray-200'>
                             <p className='text-2xl'>{item.title}</p>
                             <p className='text-gray-400'>{item.content}</p>

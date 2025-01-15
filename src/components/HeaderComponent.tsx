@@ -26,7 +26,7 @@ export default function HeaderComponent() {
                             </li>
 
                             <li className='max-lg:border-b max-lg:py-3 px-3 flex items-center'>
-                                <a href='' className='lg:hover:text-[#007bff] text-gray-500 block font-semibold text-[15px]'>Login</a>
+                                <a href='/login' className='lg:hover:text-[#007bff] text-gray-500 block font-semibold text-[15px]'>Login</a>
                             </li>
                             <li className='max-lg:border-b max-lg:py-3 px-3 flex items-center'>
                                 <a href='' className='lg:hover:text-[#007bff] text-gray-500 block font-semibold text-[15px]'>About</a>
