@@ -27,7 +27,6 @@ type Props = {
 }
 export default function CreateBaoGiaItem(props: Props) {
     const [loading, setLoading] = useState(0);
-    const [onGlass, setOnGlass] = useState(false);
 
     const updateMainAcsItemTotalQuantity = () => {
         if (props.ReportItem.priceReport.mainAcs) {
@@ -196,7 +195,7 @@ export default function CreateBaoGiaItem(props: Props) {
             total += props.ReportItem.priceReport.mainAcs.totalQuantity * props.ReportItem.priceReport.mainAcs.price;
         }
         //add glass
-        if (onGlass && props.ReportItem.priceReport.glassAcs && props.ReportItem.priceReport.nepAcs) {
+        if (props.ReportItem.priceReport.onGlass && props.ReportItem.priceReport.glassAcs && props.ReportItem.priceReport.nepAcs) {
             total += props.ReportItem.priceReport.glassAcs.totalQuantity * props.ReportItem.priceReport.glassAcs.price + props.ReportItem.priceReport.nepAcs.totalQuantity * props.ReportItem.priceReport.nepAcs.price;
         }
 
@@ -249,7 +248,6 @@ export default function CreateBaoGiaItem(props: Props) {
         }
     }
     const turnOnGlass = (flag: boolean) => {
-        setOnGlass(flag);
         let tempReport: PriceReport = { ...props.ReportItem.priceReport, onGlass: flag };
         updateWithPriceReport(tempReport);
     }
@@ -358,7 +356,7 @@ export default function CreateBaoGiaItem(props: Props) {
 
                     }
 
-                    {(props.ReportItem.priceReport.glassAcs!=null && onGlass===true) &&
+                    {(props.ReportItem.priceReport.glassAcs!=null && props.ReportItem.priceReport.onGlass) &&
                         <div className='flex flex-row px-2'>
                             <div className='w-1/12 p-2 text-center font-bold'>Kính</div>
                             <div className='w-11/12 flex flex-row items-center py-1 bg-gray-600'>
@@ -404,7 +402,7 @@ export default function CreateBaoGiaItem(props: Props) {
                         </div>
                     }
 
-                    {(props.ReportItem.priceReport.nepAcs && onGlass!=false) &&
+                    {(props.ReportItem.priceReport.nepAcs && props.ReportItem.priceReport.onGlass) &&
                         <div className='flex flex-row px-2'>
                             <div className='w-1/12 p-2 text-center font-bold'>Nẹp kính</div>
                             <div className='w-11/12 flex flex-row items-center py-1 bg-gray-600'>
