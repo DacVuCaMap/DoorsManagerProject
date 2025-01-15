@@ -20,27 +20,16 @@ export default function HeaderComponent() {
                             </svg>
                         </button>
 
-                        <ul
-                            className='lg:flex lg:ml-14 lg:gap-x-5 max-lg:space-y-3 max-lg:fixed max-lg:bg-white max-lg:w-1/2 max-lg:min-w-[300px] max-lg:top-0 max-lg:left-0 max-lg:p-6 max-lg:h-full max-lg:shadow-md max-lg:overflow-auto z-50'>
-                            <li className='mb-6 hidden max-lg:block'>
-                                <a href=""><img src="https://readymadeui.com/readymadeui.svg" alt="logo" className='w-36' />
-                                </a>
+                        <ul className='lg:flex lg:ml-14 lg:gap-x-5 max-lg:space-y-3 max-lg:fixed max-lg:bg-white max-lg:w-1/2 max-lg:min-w-[300px] max-lg:top-0 max-lg:left-0 max-lg:p-6 max-lg:h-full max-lg:shadow-md max-lg:overflow-auto z-50'>
+                            <li className='max-lg:border-b max-lg:py-3 px-3 flex items-center'>
+                                <a href="/" className='text-gray-200 font-bold font-mono text-2xl'>NOVODOOR</a>
                             </li>
-                            <li className='max-lg:border-b max-lg:py-3 px-3'>
-                                <a href=''
-                                    className='lg:hover:text-[#007bff] text-[#007bff] block font-semibold text-[15px]'>Home</a>
+
+                            <li className='max-lg:border-b max-lg:py-3 px-3 flex items-center'>
+                                <a href='' className='lg:hover:text-[#007bff] text-gray-500 block font-semibold text-[15px]'>Login</a>
                             </li>
-                            <li className='max-lg:border-b max-lg:py-3 px-3'><a href=''
-                                className='lg:hover:text-[#007bff] text-gray-500 block font-semibold text-[15px]'>Team</a>
-                            </li>
-                            <li className='max-lg:border-b max-lg:py-3 px-3'><a href=''
-                                className='lg:hover:text-[#007bff] text-gray-500 block font-semibold text-[15px]'>Feature</a>
-                            </li>
-                            <li className='max-lg:border-b max-lg:py-3 px-3'><a href=''
-                                className='lg:hover:text-[#007bff] text-gray-500 block font-semibold text-[15px]'>Blog</a>
-                            </li>
-                            <li className='max-lg:border-b max-lg:py-3 px-3'><a href=''
-                                className='lg:hover:text-[#007bff] text-gray-500 block font-semibold text-[15px]'>About</a>
+                            <li className='max-lg:border-b max-lg:py-3 px-3 flex items-center'>
+                                <a href='' className='lg:hover:text-[#007bff] text-gray-500 block font-semibold text-[15px]'>About</a>
                             </li>
                         </ul>
                     </div>
