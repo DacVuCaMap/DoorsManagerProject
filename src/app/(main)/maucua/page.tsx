@@ -1,4 +1,4 @@
-
+export const dynamic = 'force-dynamic';
 import GetPattern from '@/ApiPattern/GetPattern';
 import MauCuaComponent from '@/components/MaucuaComponent/MauCuaComponent'
 import { LoadAccesoryGroupNoAcs, LoadAccessoriesDataOffline } from '@/data/FunctionAll';
