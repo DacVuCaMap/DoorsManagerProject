@@ -7,7 +7,6 @@ export default function SideBar() {
   const [openMenu, setOpenMenu] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (openMenu &&
@@ -33,7 +32,7 @@ export default function SideBar() {
         type="button" 
         className='h-14 w-14 rounded fixed z-50 top-12 left-4 bg-gray-200 hover:bg-gray-100 shadow-lg flex 
           items-center justify-center text-center hover:cursor-pointer opacity-50 hover:opacity-100' 
-        onClick={() => setOpenMenu(!openMenu)}
+        onClick={() => {setOpenMenu(!openMenu);console.log(openMenu)}}
       >
         {!openMenu ? <AlignJustify className='text-gray-800' size={40} /> : <X className='text-gray-800' size={40} />}
       </button>
