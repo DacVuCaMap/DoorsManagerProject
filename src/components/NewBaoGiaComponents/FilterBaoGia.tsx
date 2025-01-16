@@ -85,14 +85,24 @@ export default function FilterBaoGia(props: Props) {
         filterListReport();
     }, [props.listReport])
     const handleUpdateToParent = (acs: Accessories, itemSelect: ListSelect) => {
-        console.log(acs);
+        // console.log(acs);
         const tempReport: DataReport[] = [...props.listReport].map((report: DataReport, index) => {
             if (itemSelect.numberIndex.includes(index)) {
                 let tempChildReport: PriceReport = report.priceReport;
                 const checkAcs: Accessories | undefined = tempChildReport.accessories.find(item => item.id === acs.id);
+                /// main
                 if (tempChildReport.mainAcs && itemSelect.acs.id === tempChildReport.mainAcs.id) {
-                    tempChildReport = { ...tempChildReport, mainAcs: acs };
+                    tempChildReport = { ...tempChildReport, mainAcs: {...acs,quantity:tempChildReport.mainAcs.quantity,totalQuantity:tempChildReport.mainAcs.quantity,condition:tempChildReport.mainAcs.condition} };
                 }
+                //glass
+                else if(tempChildReport.glassAcs && itemSelect.acs.id === tempChildReport.glassAcs.id){
+                    tempChildReport = { ...tempChildReport, mainAcs: {...acs,quantity:tempChildReport.glassAcs.quantity,totalQuantity:tempChildReport.glassAcs.quantity,condition:tempChildReport.glassAcs.condition} };
+                }
+                ///nep
+                else if(tempChildReport.nepAcs && itemSelect.acs.id === tempChildReport.nepAcs.id){
+                    tempChildReport = { ...tempChildReport, mainAcs: {...acs,quantity:tempChildReport.nepAcs.quantity,totalQuantity:tempChildReport.nepAcs.quantity,condition:tempChildReport.nepAcs.condition} };
+                }
+                // neu co
                 else if (checkAcs && itemSelect.acs.id != checkAcs.id) {
                     const tempAcsList: Accessories[] = tempChildReport.accessories.filter(item => item.id != checkAcs.id);
                     tempChildReport = { ...tempChildReport, accessories: tempAcsList };
@@ -100,7 +110,7 @@ export default function FilterBaoGia(props: Props) {
                 else {
                     const tempAcsList: Accessories[] = tempChildReport.accessories.map((acsItem: Accessories, childInd) => {
                         if (acsItem.id === itemSelect.acs.id) {
-                            return { ...acs, price: acsItem.price, quantity: acsItem.quantity }
+                            return { ...acs, price: acsItem.price, quantity: acsItem.quantity,totalQuantity:acsItem.totalQuantity,condition:acsItem.condition ?? "1" }
                         }
                         return acsItem;
                     })
@@ -264,15 +274,13 @@ export default function FilterBaoGia(props: Props) {
                                 }
                                 <div className='overflow-auto max-h-[500px] border-b-2'>
 
-                                    <table className='text-white w-full table-auto '>
+                                    <table className='text-white w-full '>
                                         <thead>
                                             <tr>
-                                                <th className='w-1/12'>STT</th>
-                                                <th className='w-4/12'>Tên</th>
+                                                <th className='w-6/12'>Tên</th>
                                                 <th className='w-2/12'>Mã</th>
                                                 <th className='w-1/12'>Tổng KL</th>
                                                 <th className='w-3/12'>Giá</th>
-
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -283,11 +291,10 @@ export default function FilterBaoGia(props: Props) {
                                                 if (item.acs.type === "main") {
                                                     return (
                                                         <tr key={index} className='create-bg border-b border-gray-500'>
-                                                            <td className='py-4 text-center'>{index + 1}</td>
                                                             <td className='text-gray-700'><InputSearchAcs isSearchByType={[item.acs.type]} itemSelect={item} curAcs={item.acs} handleSelectAcs={handleUpdateToParent} acsData={props.acsData} /></td>
                                                             <td className='text-center'>{item.acs.code}</td>
                                                             <td className='text-center'>{formatNumberVN(item.acs.totalQuantity)}</td>
-                                                            <td className='text-gray-700 px-10'>
+                                                            <td colSpan={2} className='text-gray-700 px-10'>
                                                                 <input
                                                                     tabIndex={1}
                                                                     onChange={e => handleUpdatePrice(item, e, index)}
@@ -310,11 +317,10 @@ export default function FilterBaoGia(props: Props) {
                                                 if (item.acs.type != "main" && item.acs.type != "nep" && item.acs.type != "glass") {
                                                     return (
                                                         <tr key={index} className='create-bg border-b border-gray-500'>
-                                                            <td className='py-4 text-center'>{index + 1}</td>
                                                             <td className='text-gray-700'><InputSearchAcs isSearchByType={["normal"]} itemSelect={item} curAcs={item.acs} handleSelectAcs={handleUpdateToParent} acsData={props.acsData} /></td>
                                                             <td className='text-center'>{item.acs.code}</td>
                                                             <td className='text-center'>{formatNumberVN(item.acs.totalQuantity)}</td>
-                                                            <td className='text-gray-700 px-10'>
+                                                            <td colSpan={2} className='text-gray-700 px-10'>
                                                                 <input
                                                                     tabIndex={1}
                                                                     onChange={e => handleUpdatePrice(item, e, index)}
@@ -337,11 +343,10 @@ export default function FilterBaoGia(props: Props) {
                                                 if (item.acs.type == "glass") {
                                                     return (
                                                         <tr key={index} className='create-bg border-b border-gray-500'>
-                                                            <td className='py-4 text-center'>{index + 1}</td>
                                                             <td className='text-gray-700'><InputSearchAcs isSearchByType={[item.acs.type]} itemSelect={item} curAcs={item.acs} handleSelectAcs={handleUpdateToParent} acsData={props.acsData} /></td>
                                                             <td className='text-center'>{item.acs.code}</td>
                                                             <td className='text-center'>{formatNumberVN(item.acs.totalQuantity)}</td>
-                                                            <td className='text-gray-700 px-10'>
+                                                            <td colSpan={2} className='text-gray-700 px-10'>
                                                                 <input
                                                                     tabIndex={1}
                                                                     onChange={e => handleUpdatePrice(item, e, index)}
@@ -364,11 +369,10 @@ export default function FilterBaoGia(props: Props) {
                                                 if (item.acs.type == "nep") {
                                                     return (
                                                         <tr key={index} className='create-bg border-b border-gray-500'>
-                                                            <td className='py-4 text-center'>{index + 1}</td>
                                                             <td className='text-gray-700'><InputSearchAcs isSearchByType={[item.acs.type]} itemSelect={item} curAcs={item.acs} handleSelectAcs={handleUpdateToParent} acsData={props.acsData} /></td>
                                                             <td className='text-center'>{item.acs.code}</td>
                                                             <td className='text-center'>{formatNumberVN(item.acs.totalQuantity)}</td>
-                                                            <td className='text-gray-700 px-10'>
+                                                            <td colSpan={2} className='text-gray-700 px-10'>
                                                                 <input
                                                                     tabIndex={1}
                                                                     onChange={e => handleUpdatePrice(item, e, index)}
@@ -389,7 +393,6 @@ export default function FilterBaoGia(props: Props) {
                                             </tr>
                                             {props.totalGroup.totalItem.map((total: TotalItem, index) => (
                                                 <tr key={index} className='create-bg border-b border-gray-500'>
-                                                    <td className='py-4 text-center'>{listSelect.length + index + 1}</td>
                                                     <td className='text-gray-700'>
                                                         <input
                                                             tabIndex={1}
@@ -401,7 +404,7 @@ export default function FilterBaoGia(props: Props) {
                                                     </td>
                                                     <td className='text-center'>{total.code}</td>
                                                     <td className='text-center'>{formatNumberVN(total.totalQuantity)}</td>
-                                                    <td className='text-gray-700 px-10'>
+                                                    <td colSpan={2} className='text-gray-700 px-10'>
                                                         <input
                                                             tabIndex={1}
                                                             onChange={e => handleUpdateTotal(e, "price", index)}
