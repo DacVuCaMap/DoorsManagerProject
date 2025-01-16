@@ -92,15 +92,15 @@ export default function FilterBaoGia(props: Props) {
                 const checkAcs: Accessories | undefined = tempChildReport.accessories.find(item => item.id === acs.id);
                 /// main
                 if (tempChildReport.mainAcs && itemSelect.acs.id === tempChildReport.mainAcs.id) {
-                    tempChildReport = { ...tempChildReport, mainAcs: {...acs,quantity:tempChildReport.mainAcs.quantity,totalQuantity:tempChildReport.mainAcs.quantity,condition:tempChildReport.mainAcs.condition} };
+                    tempChildReport = { ...tempChildReport, mainAcs: {...acs,quantity:tempChildReport.mainAcs.quantity,totalQuantity:tempChildReport.mainAcs.totalQuantity,condition:tempChildReport.mainAcs.condition} };
                 }
                 //glass
                 else if(tempChildReport.glassAcs && itemSelect.acs.id === tempChildReport.glassAcs.id){
-                    tempChildReport = { ...tempChildReport, mainAcs: {...acs,quantity:tempChildReport.glassAcs.quantity,totalQuantity:tempChildReport.glassAcs.quantity,condition:tempChildReport.glassAcs.condition} };
+                    tempChildReport = { ...tempChildReport, glassAcs: {...acs,quantity:tempChildReport.glassAcs.quantity,totalQuantity:tempChildReport.glassAcs.totalQuantity,condition:tempChildReport.glassAcs.condition} };
                 }
                 ///nep
                 else if(tempChildReport.nepAcs && itemSelect.acs.id === tempChildReport.nepAcs.id){
-                    tempChildReport = { ...tempChildReport, mainAcs: {...acs,quantity:tempChildReport.nepAcs.quantity,totalQuantity:tempChildReport.nepAcs.quantity,condition:tempChildReport.nepAcs.condition} };
+                    tempChildReport = { ...tempChildReport, nepAcs: {...acs,quantity:tempChildReport.nepAcs.quantity,totalQuantity:tempChildReport.nepAcs.totalQuantity,condition:tempChildReport.nepAcs.condition} };
                 }
                 // neu co
                 else if (checkAcs && itemSelect.acs.id != checkAcs.id) {
