@@ -103,6 +103,12 @@ export default function CreateBaoGia(props: Props) {
             if (item.priceReport.mainAcs) {
                 total += item.priceReport.mainAcs.totalQuantity * item.priceReport.mainAcs.price;
             }
+            if (item.priceReport.onGlass && item.priceReport.glassAcs) {
+                total += item.priceReport.glassAcs.totalQuantity * item.priceReport.glassAcs.price;
+            }
+            if (item.priceReport.onGlass && item.priceReport.nepAcs) {
+                total += item.priceReport.nepAcs.totalQuantity * item.priceReport.nepAcs.price;
+            }
         })
         totalGroupItem.map((item: TotalGroup) => {
             item.totalItem.map((childItem: TotalItem) => {

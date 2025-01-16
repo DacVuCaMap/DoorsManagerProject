@@ -96,7 +96,7 @@ export default function FilterBaoGia(props: Props) {
                 }
                 //glass
                 else if(tempChildReport.glassAcs && itemSelect.acs.id === tempChildReport.glassAcs.id){
-                    tempChildReport = { ...tempChildReport, glassAcs: {...acs,quantity:tempChildReport.glassAcs.quantity,totalQuantity:tempChildReport.glassAcs.totalQuantity,condition:tempChildReport.glassAcs.condition} };
+                    tempChildReport = { ...tempChildReport, glassAcs: {...acs,quantity:tempChildReport.glassAcs.quantity,totalQuantity:tempChildReport.glassAcs.totalQuantity,condition:tempChildReport.glassAcs.condition,width:tempChildReport.glassAcs.width,height:tempChildReport.height} };
                 }
                 ///nep
                 else if(tempChildReport.nepAcs && itemSelect.acs.id === tempChildReport.nepAcs.id){
