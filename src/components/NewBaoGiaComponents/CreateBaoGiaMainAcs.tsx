@@ -26,6 +26,7 @@ export default function CreateBaoGiaMainAcs(props: Props) {
             setLoading(1)
             let url = process.env.NEXT_PUBLIC_API_URL + "/api/accessories/get-acs-by-type?type=main";
             const response = await GetPattern(url, {});
+            console.log(response,"ss")
             setLoading(0)
             if (response && response.value && response.value.length > 0 && response.value[0].accessories) {
                 const list: any[] = response.value[0].accessories;
@@ -47,7 +48,7 @@ export default function CreateBaoGiaMainAcs(props: Props) {
                         status: false,
                         type: item.type,
                         isCommand: false,
-                        acsDes:""
+                        acsDes:item.acsDes,
                     }
                 });
                 setCurrentSelectItem(temp);

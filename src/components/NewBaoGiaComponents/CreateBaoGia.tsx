@@ -224,8 +224,8 @@ export default function CreateBaoGia(props: Props) {
                 {openFilter && <FilterBaoGia handleUpdateTotalList={handleUpdateTotalList} totalGroup={totalGroupItem[0]} setDataReport={setListReport} acsData={props.acsData} setOpenFilter={setOpenFilter} openFilter={openFilter} listReport={listReport} />}
                 <BGreadExcel acsData={props.acsData} doorModelData={props.doorModelData} groupAcsData={props.groupAcsData} handlePushToDataReport={handlePushToDataReport} />
             </div>
-            {/* <button className='bg-red-100 fixed top-64 right-4 p-10 bg-opacity-50' onClick={e => { console.log(listReport); console.log(totalGroupItem) }}>
-                check gia tri</button> */}
+            <button className='bg-red-100 fixed top-64 right-4 p-10 bg-opacity-50' onClick={e => { console.log(listReport); console.log(totalGroupItem) }}>
+                check gia tri</button>
             <div className='flex flex-row bg-slate-950 border-b px-2 border-gray-500 shadow-xl text-white sticky z-20 top-0'>
                 <div className='w-1/12 p-2 text-center font-bold'>STT</div>
                 <div className='w-11/12 flex flex-row'>
