@@ -85,11 +85,12 @@ export default function FilterBaoGia(props: Props) {
         filterListReport();
     }, [props.listReport])
     const handleUpdateToParent = (acs: Accessories, itemSelect: ListSelect) => {
+        console.log(acs);
         const tempReport: DataReport[] = [...props.listReport].map((report: DataReport, index) => {
             if (itemSelect.numberIndex.includes(index)) {
                 let tempChildReport: PriceReport = report.priceReport;
                 const checkAcs: Accessories | undefined = tempChildReport.accessories.find(item => item.id === acs.id);
-                if (tempChildReport.mainAcs && itemSelect.acs === tempChildReport.mainAcs.id) {
+                if (tempChildReport.mainAcs && itemSelect.acs.id === tempChildReport.mainAcs.id) {
                     tempChildReport = { ...tempChildReport, mainAcs: acs };
                 }
                 else if (checkAcs && itemSelect.acs.id != checkAcs.id) {
