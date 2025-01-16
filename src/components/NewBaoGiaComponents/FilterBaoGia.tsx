@@ -88,19 +88,20 @@ export default function FilterBaoGia(props: Props) {
         // console.log(acs);
         const tempReport: DataReport[] = [...props.listReport].map((report: DataReport, index) => {
             if (itemSelect.numberIndex.includes(index)) {
+                const orgChildReport : PriceReport = report.priceReport;
                 let tempChildReport: PriceReport = report.priceReport;
                 const checkAcs: Accessories | undefined = tempChildReport.accessories.find(item => item.id === acs.id);
                 /// main
-                if (tempChildReport.mainAcs && itemSelect.acs.id === tempChildReport.mainAcs.id) {
-                    tempChildReport = { ...tempChildReport, mainAcs: {...acs,quantity:tempChildReport.mainAcs.quantity,totalQuantity:tempChildReport.mainAcs.totalQuantity,condition:tempChildReport.mainAcs.condition} };
+                if (orgChildReport.mainAcs && itemSelect.acs.id === orgChildReport.mainAcs.id) {
+                    tempChildReport = { ...tempChildReport, mainAcs: {...acs,quantity:orgChildReport.mainAcs.quantity,totalQuantity:orgChildReport.mainAcs.totalQuantity,condition:orgChildReport.mainAcs.condition} };
                 }
                 //glass
-                else if(tempChildReport.glassAcs && itemSelect.acs.id === tempChildReport.glassAcs.id){
-                    tempChildReport = { ...tempChildReport, glassAcs: {...acs,quantity:tempChildReport.glassAcs.quantity,totalQuantity:tempChildReport.glassAcs.totalQuantity,condition:tempChildReport.glassAcs.condition,width:tempChildReport.glassAcs.width,height:tempChildReport.height} };
+                else if(orgChildReport.glassAcs && itemSelect.acs.id === orgChildReport.glassAcs.id){
+                    tempChildReport = { ...tempChildReport, glassAcs: {...acs,quantity:orgChildReport.glassAcs.quantity,totalQuantity:orgChildReport.glassAcs.totalQuantity,condition:orgChildReport.glassAcs.condition,width:orgChildReport.glassAcs.width,height:orgChildReport.glassAcs.height} };
                 }
                 ///nep
-                else if(tempChildReport.nepAcs && itemSelect.acs.id === tempChildReport.nepAcs.id){
-                    tempChildReport = { ...tempChildReport, nepAcs: {...acs,quantity:tempChildReport.nepAcs.quantity,totalQuantity:tempChildReport.nepAcs.totalQuantity,condition:tempChildReport.nepAcs.condition} };
+                else if(orgChildReport.nepAcs && itemSelect.acs.id === orgChildReport.nepAcs.id){
+                    tempChildReport = { ...tempChildReport, nepAcs: {...acs,quantity:orgChildReport.nepAcs.quantity,totalQuantity:orgChildReport.nepAcs.totalQuantity,condition:orgChildReport.nepAcs.condition} };
                 }
                 // neu co
                 else if (checkAcs && itemSelect.acs.id != checkAcs.id) {
