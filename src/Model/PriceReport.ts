@@ -21,7 +21,8 @@ class PriceReport {
     nepAcs:Accessories | null;
     onGlass:boolean;
     numberDoor?:number;
-
+    showName?:string;
+    eiString?:string;
     constructor(
         id: any,
         index: number,
