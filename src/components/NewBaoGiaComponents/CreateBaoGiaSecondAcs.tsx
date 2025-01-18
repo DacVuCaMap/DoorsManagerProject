@@ -35,7 +35,7 @@ export default function CreateBaoGiaSecondAcs(props: Props) {
         if (key === "quantity") {
             /// check condition
             // console.log(value);
-            const quantity = readConditionAndCal(value.toString(),props.ReportItem.priceReport.width,props.ReportItem.priceReport.height);
+            const quantity = readConditionAndCal(value.toString(),props.ReportItem.priceReport.width/1000,props.ReportItem.priceReport.height/1000);
             // console.log(quantity)
             let condition = value;
             if (quantity===-411) {

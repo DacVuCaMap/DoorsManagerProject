@@ -50,6 +50,7 @@ export default function CreateBaoGiaItem(props: Props) {
             if (acs.condition) {
                 const quan = readConditionAndCal(acs.condition, props.ReportItem.priceReport.width / 1000, props.ReportItem.priceReport.height / 1000);
                 return { ...acs, quantity: quan }
+                console.log(quan)
             }
             return acs;
         });
@@ -108,7 +109,7 @@ export default function CreateBaoGiaItem(props: Props) {
             doorModelItem.accessoryAndFeatures.map((item: any) => {
                 const acsExisted: GroupAccessory | null = props.groupAcsData.find((acsGroup: GroupAccessory) => acsGroup.id === item.accessoryGroupId) ?? null;
                 if (acsExisted && acsExisted.accessoriesAndType.length > 0) {
-                    acsList.push({ ...acsExisted.accessoriesAndType[0].accessories, quantity: readConditionAndCal(item.condition, newPriceReport.width, newPriceReport.height), condition: item.condition, totalQuantity: 0 });
+                    acsList.push({ ...acsExisted.accessoriesAndType[0].accessories, quantity: readConditionAndCal(item.condition, newPriceReport.width/1000, newPriceReport.height/1000), condition: item.condition, totalQuantity: 0 });
                 }
             })
         }
