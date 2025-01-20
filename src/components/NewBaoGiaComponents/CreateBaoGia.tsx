@@ -14,7 +14,7 @@ import TotalGroup, { createNewTotalGroupArray } from '@/Model/TotalGroup';
 import FireTestTotal from '@/Model/FireTestTotal';
 import DataReport from '@/Model/DataReport';
 import TotalItem, { createTotalItem } from '@/Model/TotalItem';
-import { formatNumberToDot } from '@/data/FunctionAll';
+import { formatNumberToDot, LoadAccesoryGroupNoAcs, LoadAccessoriesDataOffline, LoadBaoGia, LoadListDoorModelData } from '@/data/FunctionAll';
 import { message } from 'antd';
 import PostPattern from '@/ApiPattern/PostPattern';
 import { access } from 'fs';
@@ -35,16 +35,52 @@ export default function CreateBaoGia(props: Props) {
     // console.log(props.groupAcsData,3);
     // console.log(props.acsData,4);
     // console.log(props.doorModelData, 5);
+    const [groupAcsData, setGroupAcsData] = useState<GroupAccessory[]>([]);
+    const [acsData, setAcsData] = useState<Accessories[]>([]);
+    const [doorModelData, setDoorModelData] = useState<any[]>([]);
+    const [loadData, setLoadData] = useState(false);
+    useEffect(() => {
+        const fetchData = async () => {
+            // setLoadData(true); // Set loading state là true
+
+            // try {
+            //     // // Sử dụng Promise.all để chạy song song 3 API calls
+            //     const [groupData, acsDataOffline, doorData] = await Promise.all([
+            //         LoadAccesoryGroupNoAcs(),
+            //         LoadAccessoriesDataOffline(),
+            //         LoadListDoorModelData()
+            //     ]);
+            //     // Cập nhật state sau khi nhận dữ liệu
+            //     setGroupAcsData(groupData);
+            //     setAcsData(acsDataOffline);
+            //     setDoorModelData(doorData);
+            // } catch (error) {
+            //     console.error('Error fetching data:', error);
+            //     message.error('Lỗi kết nối server');
+            // } finally {
+            //     setLoadData(false);
+            // }
+            const response : any[]= await LoadBaoGia();
+            setGroupAcsData(response[0]);
+            setAcsData(response[1]);
+            setDoorModelData(response[2]);
+        }
+
+        fetchData(); // Gọi fetchData khi component mount
+    }, []);
+
+
+
     const [openFilter, setOpenFilter] = useState(false);
     const [listReport, setListReport] = useState<DataReport[]>([]);
     const [totalGroupItem, setTotalGroupItem] = useState<TotalGroup[]>(createNewTotalGroupArray());
     const [finalTotalArray, setFinalTotal] = useState<number[]>([0, 0, 0]);
     const [listAcsExist, setListAcsExist] = useState<Accessories[]>([]);
     const [loadingExportExcel, setLoadingExportExcel] = useState(false);
-    const listGlassAcs: Accessories[] = props.groupAcsData.find(item => item.type === "glass")?.accessoriesAndType.map(acsAndType => {
+    const listGlassAcs: Accessories[] = groupAcsData.find(item => item.type === "glass")?.accessoriesAndType.map(acsAndType => {
         return acsAndType.accessories
     }) ?? [];
-    const listNepAcs: Accessories[] = props.groupAcsData.find(item => item.type === "nep")?.accessoriesAndType.map(acsAndType => {
+    const listNepAcs: Accessories[] = groupAcsData.find(item => item.type === "nep")?.accessoriesAndType.map(acsAndType => {
         return acsAndType.accessories
     }) ?? [];
 
@@ -128,13 +164,20 @@ export default function CreateBaoGia(props: Props) {
                 if (item.priceReport.mainAcs) {
                     tot1 += item.priceReport.mainAcs.totalQuantity * item.priceReport.mainAcs.price;
                 }
+                if (item.priceReport.onGlass && item.priceReport.glassAcs) {
+                    tot1 += item.priceReport.glassAcs.totalQuantity * item.priceReport.glassAcs.price;
+                }
+                if (item.priceReport.onGlass && item.priceReport.nepAcs) {
+                    tot1 += item.priceReport.nepAcs.totalQuantity * item.priceReport.nepAcs.price;
+                }
             })
             totalGroupItem.map((item: TotalGroup) => {
                 item.totalItem.map((childItem: TotalItem) => {
                     tot2 += childItem.price * childItem.totalQuantity;
+                    tot1 += childItem.price * childItem.totalQuantity;
                 })
             })
-            return tot1 * 0.1 + tot2 * 0.08;
+            return tot1 * 0.1 - tot2 * 0.02;
         }
         return total + total * 0.1;
     }
@@ -148,7 +191,7 @@ export default function CreateBaoGia(props: Props) {
         let tempTotal: TotalItem[] = totalGroupItem[0].totalItem;
         const priceReports: any[] = [];
         const reportTotals: any[] = [];
-        listReport.map((item: DataReport,index) => {
+        listReport.map((item: DataReport, index) => {
 
             tempTotal = tempTotal.map(total => {
                 if (total.typeQuantity != 0 && total.typeQuantity != -1) {
@@ -156,7 +199,7 @@ export default function CreateBaoGia(props: Props) {
                     if (checkTotal) {
                         const tempTotalIndex = total.totalItemIndex ?? [];
                         tempTotalIndex.push(index)
-                        return { ...total,totalItemIndex:tempTotalIndex }
+                        return { ...total, totalItemIndex: tempTotalIndex }
                     }
                 }
                 return total;
@@ -166,7 +209,7 @@ export default function CreateBaoGia(props: Props) {
             if (item.priceReport.onGlass && item.priceReport.glassAcs && item.priceReport.nepAcs) {
                 newAcs.push(item.priceReport.glassAcs, item.priceReport.nepAcs);
             }
-            const tempPriceReport: PriceReport = { ...item.priceReport, accessories: newAcs,eiString:item.priceReport.EI ?? "" };
+            const tempPriceReport: PriceReport = { ...item.priceReport, accessories: newAcs, eiString: item.priceReport.EI ?? "" };
             const acsId = item.priceReport.accessories.map((childItem: Accessories) => childItem.id);
             const temp = {
                 ...tempPriceReport
@@ -187,7 +230,7 @@ export default function CreateBaoGia(props: Props) {
         console.log(postData);
         const url = process.env.NEXT_PUBLIC_API_URL + "/api/excel/export";
         const response = await axios.post(url, postData, {
-            responseType: 'blob' 
+            responseType: 'blob'
         });
         setLoadingExportExcel(false);
         if (response && response.data) {
@@ -224,11 +267,15 @@ export default function CreateBaoGia(props: Props) {
                     <span className='text-white font-mono'>Đang xuất excel...</span>
                 </div>
             }
-
-
+            {loadData &&
+                <div className='fixed h-screen w-screen bg-black bg-opacity-50 z-50 top-0 flex justify-center items-center flex-col'>
+                    <ScaleLoader color='white' width={20} />
+                    <span className='text-white font-mono'>Đang load data ban đầu...</span>
+                </div>
+            }
             <div className='w-[300px]'>
-                {openFilter && <FilterBaoGia handleUpdateTotalList={handleUpdateTotalList} totalGroup={totalGroupItem[0]} setDataReport={setListReport} acsData={props.acsData} setOpenFilter={setOpenFilter} openFilter={openFilter} listReport={listReport} />}
-                <BGreadExcel acsData={props.acsData} doorModelData={props.doorModelData} groupAcsData={props.groupAcsData} handlePushToDataReport={handlePushToDataReport} />
+                {openFilter && <FilterBaoGia handleUpdateTotalList={handleUpdateTotalList} totalGroup={totalGroupItem[0]} setDataReport={setListReport} acsData={acsData} setOpenFilter={setOpenFilter} openFilter={openFilter} listReport={listReport} />}
+                <BGreadExcel acsData={acsData} doorModelData={doorModelData} groupAcsData={groupAcsData} handlePushToDataReport={handlePushToDataReport} />
             </div>
             {/* <button className='bg-red-100 fixed top-64 right-4 p-10 bg-opacity-50' onClick={e => { console.log(listReport); console.log(totalGroupItem) }}>
                 check gia tri</button> */}
@@ -264,9 +311,9 @@ export default function CreateBaoGia(props: Props) {
             </div >
             {listReport.map((item: DataReport, parentIndex: number) =>
                 <div key={parentIndex}>
-                    <CreateBaoGiaItem listNepAcs={listNepAcs} listGlassAcs={listGlassAcs} doorModelData={props.doorModelData} deleteDataReport={deleteDataReport} updateToParent={updateToParent}
+                    <CreateBaoGiaItem listNepAcs={listNepAcs} listGlassAcs={listGlassAcs} doorModelData={doorModelData} deleteDataReport={deleteDataReport} updateToParent={updateToParent}
                         parentIndex={parentIndex} ReportItem={item}
-                        groupAcsData={props.groupAcsData} acsData={props.acsData} />
+                        groupAcsData={groupAcsData} acsData={acsData} />
                 </div>
             )}
             {listReport.length === 0 && <div className="flex flex-col items-center text-gray-500 justify-center">

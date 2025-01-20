@@ -87,7 +87,7 @@ export const LoadAccessoriesDataOffline = async () => {
                 type: item.type,
                 isCommand: false,
                 accessoryGroup: item.accessoryGroup ? item.accessoryGroup : null,
-                acsDes:item.acsDes
+                acsDes: item.acsDes
             };
         });
         return newAcs;
@@ -130,6 +130,61 @@ export const LoadAccesoryGroupNoAcs = async () => {
     }
     return [];
 }
+
+export const LoadBaoGia = async (): Promise<any[]> => {
+    const url = process.env.NEXT_PUBLIC_API_URL + "/api/accessories/loadBG";
+    const response = await GetPattern(url, {});
+
+    if (response && response.value) {
+        let acsGroup: GroupAccessory[] = [];
+        let newAcs: Accessories[] = [];
+        let acsDoorModel: any[] = [];
+        
+        if (response.value.accessoryGroupDtoList) {
+            acsGroup = response.value.accessoryGroupDtoList.map((item: any, index: number) => {
+                const acsAndType: AcsAndType[] = item.accessories.map((acs: any) => {
+                    return { accessories: acs, type: acs.type };
+                })
+                return { id: item.id, name: item.name, type: item.type, accessoriesAndType: acsAndType };
+            });
+        }
+
+        if (response.value.accessoriesList) {
+            const list: any[] = response.value.accessoriesList.content;
+            newAcs = list.map((item: any, index: number) => {
+                return {
+                    id: item.id,
+                    code: item.code,
+                    name: item.name,
+                    supplier: item.supplier,
+                    totalQuantity: 0,
+                    quantity: 0,
+                    width: 0,
+                    height: 0,
+                    orgPrice: item.orgPrice,
+                    lowestPricePercent: item.lowestPricePercent,
+                    lowPercent: item.lowPercent,
+                    price: 0,
+                    unit: item.unit,
+                    status: false,
+                    type: item.type,
+                    isCommand: false,
+                    accessoryGroup: item.accessoryGroup ? item.accessoryGroup : null,
+                    acsDes: item.acsDes
+                };
+            });
+        }
+        
+        if (response.value.doorModelDtoList) {
+            acsDoorModel = response.value.doorModelDtoList;
+        }
+        
+        return Promise.resolve([acsGroup, newAcs, acsDoorModel]);
+    }
+
+    return Promise.resolve([[], [], []]);
+};
+
 export function formatNumberVN(num: number) {
     num = Math.floor(num * 100) / 100;
     // Định dạng số theo chuẩn địa phương là "vi-VN" (Việt Nam)
@@ -162,7 +217,7 @@ export const changePriceAndTempPrice = (acs: Accessories, value: string): Access
     return newAcs;
 }
 
-export const changeObjectPriceAndTempPrice = (obj:any,value: string,key:string,tempKey:string) => {
+export const changeObjectPriceAndTempPrice = (obj: any, value: string, key: string, tempKey: string) => {
     if (value && !(/^\d*([.,]?\d*)$/).test(value)) {
         return obj; // Prevent invalid input
     }
@@ -172,7 +227,7 @@ export const changeObjectPriceAndTempPrice = (obj:any,value: string,key:string,t
     else {
         value = value ? value : "0";
     }
-    let newObj : any ={...obj,[tempKey]:value}; 
+    let newObj: any = { ...obj, [tempKey]: value };
     if (value && !value.endsWith(",") && !value.endsWith(".")) {
         newObj = { ...newObj, [key]: parseVnToNumber(value) };
     }

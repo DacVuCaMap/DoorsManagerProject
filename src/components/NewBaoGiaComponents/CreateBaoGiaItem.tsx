@@ -72,7 +72,7 @@ export default function CreateBaoGiaItem(props: Props) {
                     , totalQuantity: formatNumberFixed3(props.ReportItem.priceReport.width / 1000 * props.ReportItem.priceReport.height / 1000 * props.ReportItem.priceReport.totalQuantity)
                 };
             }
-            const newPriceReport: PriceReport = { ...props.ReportItem.priceReport, glassAcs: tempGlass,mainAcs:tempMainAcs }
+            const newPriceReport: PriceReport = { ...props.ReportItem.priceReport, glassAcs: tempGlass, mainAcs: tempMainAcs }
             updateWithPriceReport(newPriceReport);
         }
     }, [props.ReportItem.priceReport.glassAcs?.width, props.ReportItem.priceReport.glassAcs?.height])
@@ -105,11 +105,20 @@ export default function CreateBaoGiaItem(props: Props) {
         /// get list acs
         // console.log(doorModelItem);
         // console.log(doorModelItem);
+        console.log(newPriceReport, doorModelItem);
         if (doorModelItem.accessoryAndFeatures && doorModelItem.accessoryAndFeatures.length > 0) {
             doorModelItem.accessoryAndFeatures.map((item: any) => {
                 const acsExisted: GroupAccessory | null = props.groupAcsData.find((acsGroup: GroupAccessory) => acsGroup.id === item.accessoryGroupId) ?? null;
                 if (acsExisted && acsExisted.accessoriesAndType.length > 0) {
-                    acsList.push({ ...acsExisted.accessoriesAndType[0].accessories, quantity: readConditionAndCal(item.condition, newPriceReport.width/1000, newPriceReport.height/1000), condition: item.condition, totalQuantity: 0 });
+                    const oldAcs: Accessories | null = newPriceReport.accessories.find(acs => acs.id === acsExisted.accessoriesAndType[0].accessories.id) ?? null;
+                    acsList.push({
+                        ...acsExisted.accessoriesAndType[0].accessories
+                        , quantity: readConditionAndCal(item.condition, newPriceReport.width / 1000, newPriceReport.height / 1000)
+                        , condition: item.condition
+                        , totalQuantity: readConditionAndCal(item.condition, newPriceReport.width / 1000, newPriceReport.height / 1000) * newPriceReport.totalQuantity
+                        , price: oldAcs ? oldAcs.price : 0
+                        , tempPrice: oldAcs ? oldAcs.tempPrice : 0
+                    });
                 }
             })
         }
@@ -117,7 +126,14 @@ export default function CreateBaoGiaItem(props: Props) {
         const glassItem: Accessories | null = props.acsData.find(item => item.id === doorModelItem.accessoryGlassId) ?? null;
         //find nep
         const nepItem: Accessories | null = props.acsData.find(item => item.id === doorModelItem.glassBracketId) ?? null;
-        const mainAcs = props.acsData.find((item: Accessories) => item.id === doorModelItem.accessoryMainId) ?? null;
+        let mainAcs: Accessories | null = props.acsData.find((item: Accessories) => item.id === doorModelItem.accessoryMainId) ?? null;
+        if (mainAcs && props.ReportItem.priceReport.mainAcs) {
+            mainAcs = {
+                ...mainAcs, totalQuantity: props.ReportItem.priceReport.mainAcs.totalQuantity
+                , price: props.ReportItem.priceReport.mainAcs.price
+                , tempPrice: props.ReportItem.priceReport.mainAcs.tempPrice
+            }
+        }
         newPriceReport = {
             ...newPriceReport,
             doorModel: doorModelItem,
@@ -127,7 +143,7 @@ export default function CreateBaoGiaItem(props: Props) {
             mainAcs: mainAcs,
             glassAcs: glassItem,
             nepAcs: nepItem,
-            onGlass:false
+            onGlass: false
         };
         updateWithPriceReport(newPriceReport);
     }
@@ -349,7 +365,7 @@ export default function CreateBaoGiaItem(props: Props) {
                         return ('')
                     }
                     )}
-                    {(props.ReportItem.priceReport.glassAcs!=null) &&
+                    {(props.ReportItem.priceReport.glassAcs != null) &&
                         (<div className='flex flex-row px-2'>
                             <div className='w-1/12 p-2 text-center font-bold'><Switch value={props.ReportItem.priceReport.onGlass} onChange={turnOnGlass} /></div>
                             <div className='w-11/12 flex flex-row items-center py-1 h-10 bg-gray-600'></div>
@@ -357,7 +373,7 @@ export default function CreateBaoGiaItem(props: Props) {
 
                     }
 
-                    {(props.ReportItem.priceReport.glassAcs!=null && props.ReportItem.priceReport.onGlass) &&
+                    {(props.ReportItem.priceReport.glassAcs != null && props.ReportItem.priceReport.onGlass) &&
                         <div className='flex flex-row px-2'>
                             <div className='w-1/12 p-2 text-center font-bold'>Kính</div>
                             <div className='w-11/12 flex flex-row items-center py-1 bg-gray-600'>
