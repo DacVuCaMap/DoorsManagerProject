@@ -258,7 +258,7 @@ export default function FilterBaoGia(props: Props) {
                 {props.openFilter && (
                     <div onClick={handleClostFilter} className='fixed top-0 left-0 bg-black bg-opacity-50 w-full h-full z-50'>
                         <motion.div
-                            className="h-screen w-[850px] z-50 bg-gray-800 fixed top-0 right-0 p-10"
+                            className="h-screen w-[900px] z-50 bg-gray-800 fixed top-0 right-0 p-10"
                             initial={{ x: '50%' }}
                             animate={{ x: 0 }}
                             exit={{ x: '100%' }}
@@ -275,25 +275,28 @@ export default function FilterBaoGia(props: Props) {
                                 }
                                 <div className='overflow-auto max-h-[500px] border-b-2'>
 
-                                    <table className='text-white w-full '>
+                                    <table className='text-white w-full text-sm'>
                                         <thead>
                                             <tr>
                                                 <th className='w-6/12'>Tên</th>
-                                                <th className='w-2/12'>Mã</th>
+                                                <th className='w-1/12'>Mã</th>
+                                                <th className='w-1/12'>G.gốc</th>
                                                 <th className='w-1/12'>Tổng KL</th>
-                                                <th className='w-3/12'>Giá</th>
+                                                <th className='w-2/12 text-center pl-8'>Giá</th>
+                                                <th className='w-2/12'></th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td colSpan={6} className='py-2 text-gray-500 border-b border-gray-500'>VẬT LIỆU CHÍNH</td>
+                                                <td colSpan={7} className='py-2 text-gray-500 border-b border-gray-500'>VẬT LIỆU CHÍNH</td>
                                             </tr>
                                             {listSelect.map((item: ListSelect, index) => {
                                                 if (item.acs.type === "main") {
                                                     return (
                                                         <tr key={index} className='create-bg border-b border-gray-500'>
-                                                            <td className='text-gray-700'><InputSearchAcs isSearchByType={[item.acs.type]} itemSelect={item} curAcs={item.acs} handleSelectAcs={handleUpdateToParent} acsData={props.acsData} /></td>
-                                                            <td className='text-center'>{item.acs.code}</td>
+                                                            <td className='text-gray-700 w-6/12'><InputSearchAcs isSearchByType={[item.acs.type]} itemSelect={item} curAcs={item.acs} handleSelectAcs={handleUpdateToParent} acsData={props.acsData} /></td>
+                                                            <td className='text-center w-1/12'>{item.acs.code}</td>
+                                                            <td className='text-center'>{formatNumberVN(item.acs.orgPrice)}</td>
                                                             <td className='text-center'>{formatNumberVN(item.acs.totalQuantity)}</td>
                                                             <td colSpan={2} className='text-gray-700 px-10'>
                                                                 <input
@@ -312,14 +315,15 @@ export default function FilterBaoGia(props: Props) {
                                                 }
                                             })}
                                             <tr>
-                                                <td colSpan={6} className='py-2 text-gray-500 border-b border-gray-500'>PHỤ KIỆN</td>
+                                                <td colSpan={7} className='py-2 text-gray-500 border-b border-gray-500'>PHỤ KIỆN</td>
                                             </tr>
                                             {listSelect.map((item: ListSelect, index) => {
                                                 if (item.acs.type != "main" && item.acs.type != "nep" && item.acs.type != "glass") {
                                                     return (
                                                         <tr key={index} className='create-bg border-b border-gray-500'>
-                                                            <td className='text-gray-700'><InputSearchAcs isSearchByType={["normal"]} itemSelect={item} curAcs={item.acs} handleSelectAcs={handleUpdateToParent} acsData={props.acsData} /></td>
-                                                            <td className='text-center'>{item.acs.code}</td>
+                                                            <td className='text-gray-700 w-6/12'><InputSearchAcs isSearchByType={["normal"]} itemSelect={item} curAcs={item.acs} handleSelectAcs={handleUpdateToParent} acsData={props.acsData} /></td>
+                                                            <td className='text-center w-1/12'>{item.acs.code}</td>
+                                                            <td className='text-center'>{formatNumberVN(item.acs.orgPrice)}</td>
                                                             <td className='text-center'>{formatNumberVN(item.acs.totalQuantity)}</td>
                                                             <td colSpan={2} className='text-gray-700 px-10'>
                                                                 <input
@@ -338,14 +342,15 @@ export default function FilterBaoGia(props: Props) {
                                                 }
                                             })}
                                             <tr>
-                                                <td colSpan={6} className='py-2 text-gray-500 border-b border-gray-500'>Kính</td>
+                                                <td colSpan={7} className='py-2 text-gray-500 border-b border-gray-500'>Kính</td>
                                             </tr>
                                             {listSelect.map((item: ListSelect, index) => {
                                                 if (item.acs.type == "glass") {
                                                     return (
                                                         <tr key={index} className='create-bg border-b border-gray-500'>
-                                                            <td className='text-gray-700'><InputSearchAcs isSearchByType={[item.acs.type]} itemSelect={item} curAcs={item.acs} handleSelectAcs={handleUpdateToParent} acsData={props.acsData} /></td>
-                                                            <td className='text-center'>{item.acs.code}</td>
+                                                            <td className='text-gray-700 w-6/12'><InputSearchAcs isSearchByType={[item.acs.type]} itemSelect={item} curAcs={item.acs} handleSelectAcs={handleUpdateToParent} acsData={props.acsData} /></td>
+                                                            <td className='text-center w-1/12'>{item.acs.code}</td>
+                                                            <td className='text-center'>{formatNumberVN(item.acs.orgPrice)}</td>
                                                             <td className='text-center'>{formatNumberVN(item.acs.totalQuantity)}</td>
                                                             <td colSpan={2} className='text-gray-700 px-10'>
                                                                 <input
@@ -364,14 +369,15 @@ export default function FilterBaoGia(props: Props) {
                                                 }
                                             })}
                                             <tr>
-                                                <td colSpan={6} className='py-2 text-gray-500 border-b border-gray-500'>Nẹp</td>
+                                                <td colSpan={7} className='py-2 text-gray-500 border-b border-gray-500'>Nẹp</td>
                                             </tr>
                                             {listSelect.map((item: ListSelect, index) => {
                                                 if (item.acs.type == "nep") {
                                                     return (
                                                         <tr key={index} className='create-bg border-b border-gray-500'>
-                                                            <td className='text-gray-700'><InputSearchAcs isSearchByType={[item.acs.type]} itemSelect={item} curAcs={item.acs} handleSelectAcs={handleUpdateToParent} acsData={props.acsData} /></td>
-                                                            <td className='text-center'>{item.acs.code}</td>
+                                                            <td className='text-gray-700 w-6/12'><InputSearchAcs isSearchByType={[item.acs.type]} itemSelect={item} curAcs={item.acs} handleSelectAcs={handleUpdateToParent} acsData={props.acsData} /></td>
+                                                            <td className='text-center w-1/12'>{item.acs.code}</td>
+                                                            <td className='text-center'>{formatNumberVN(item.acs.orgPrice)}</td>
                                                             <td className='text-center'>{formatNumberVN(item.acs.totalQuantity)}</td>
                                                             <td colSpan={2} className='text-gray-700 px-10'>
                                                                 <input
@@ -390,11 +396,11 @@ export default function FilterBaoGia(props: Props) {
                                                 }
                                             })}
                                             <tr>
-                                                <td colSpan={6} className='py-2 text-gray-500 border-b border-gray-500'>CHI PHI CHUNG</td>
+                                                <td colSpan={7} className='py-2 text-gray-500 border-b border-gray-500'>CHI PHI CHUNG</td>
                                             </tr>
                                             {props.totalGroup.totalItem.map((total: TotalItem, index) => (
                                                 <tr key={index} className='create-bg border-b border-gray-500'>
-                                                    <td className='text-gray-700'>
+                                                    <td className='text-gray-700 w-6/12'>
                                                         <input
                                                             tabIndex={1}
                                                             onChange={e => handleUpdateTotal(e, "name", index)}
@@ -404,6 +410,7 @@ export default function FilterBaoGia(props: Props) {
                                                         />
                                                     </td>
                                                     <td className='text-center'>{total.code}</td>
+                                                    <td className='text-center'>{formatNumberVN(total.orgPrice)}</td>
                                                     <td className='text-center'>{formatNumberVN(total.totalQuantity)}</td>
                                                     <td colSpan={2} className='text-gray-700 px-10'>
                                                         <input

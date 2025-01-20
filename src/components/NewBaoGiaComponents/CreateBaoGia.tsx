@@ -38,10 +38,10 @@ export default function CreateBaoGia(props: Props) {
     const [groupAcsData, setGroupAcsData] = useState<GroupAccessory[]>([]);
     const [acsData, setAcsData] = useState<Accessories[]>([]);
     const [doorModelData, setDoorModelData] = useState<any[]>([]);
-    const [loadData, setLoadData] = useState(false);
+    const [loadData, setLoadData] = useState(true);
     useEffect(() => {
         const fetchData = async () => {
-            // setLoadData(true); // Set loading state là true
+            setLoadData(true); // Set loading state là true
 
             // try {
             //     // // Sử dụng Promise.all để chạy song song 3 API calls
@@ -60,10 +60,11 @@ export default function CreateBaoGia(props: Props) {
             // } finally {
             //     setLoadData(false);
             // }
-            const response : any[]= await LoadBaoGia();
+            const response: any[] = await LoadBaoGia();
             setGroupAcsData(response[0]);
             setAcsData(response[1]);
             setDoorModelData(response[2]);
+            setLoadData(false);
         }
 
         fetchData(); // Gọi fetchData khi component mount
@@ -151,35 +152,36 @@ export default function CreateBaoGia(props: Props) {
                 total += childItem.price * childItem.totalQuantity;
             })
         })
+        let tot1 = 0;
+        let tot2 = 0;
+        listReport.map((item: DataReport) => {
+            item.priceReport.accessories.map((childItem: Accessories) => {
+                tot1 += childItem.price * (childItem.quantity * item.priceReport.totalQuantity);
+            })
+            if (item.priceReport.mainAcs) {
+                tot1 += item.priceReport.mainAcs.totalQuantity * item.priceReport.mainAcs.price;
+            }
+            if (item.priceReport.onGlass && item.priceReport.glassAcs) {
+                tot1 += item.priceReport.glassAcs.totalQuantity * item.priceReport.glassAcs.price;
+            }
+            if (item.priceReport.onGlass && item.priceReport.nepAcs) {
+                tot1 += item.priceReport.nepAcs.totalQuantity * item.priceReport.nepAcs.price;
+            }
+        })
+        totalGroupItem.map((item: TotalGroup) => {
+            item.totalItem.map((childItem: TotalItem) => {
+                tot2 += childItem.price * childItem.totalQuantity;
+                tot1 += childItem.price * childItem.totalQuantity;
+            })
+        })
         if (num === 0) {
             return total;
         }
         if (num === 1) {
-            let tot1 = 0;
-            let tot2 = 0;
-            listReport.map((item: DataReport) => {
-                item.priceReport.accessories.map((childItem: Accessories) => {
-                    tot1 += childItem.price * (childItem.quantity * item.priceReport.totalQuantity);
-                })
-                if (item.priceReport.mainAcs) {
-                    tot1 += item.priceReport.mainAcs.totalQuantity * item.priceReport.mainAcs.price;
-                }
-                if (item.priceReport.onGlass && item.priceReport.glassAcs) {
-                    tot1 += item.priceReport.glassAcs.totalQuantity * item.priceReport.glassAcs.price;
-                }
-                if (item.priceReport.onGlass && item.priceReport.nepAcs) {
-                    tot1 += item.priceReport.nepAcs.totalQuantity * item.priceReport.nepAcs.price;
-                }
-            })
-            totalGroupItem.map((item: TotalGroup) => {
-                item.totalItem.map((childItem: TotalItem) => {
-                    tot2 += childItem.price * childItem.totalQuantity;
-                    tot1 += childItem.price * childItem.totalQuantity;
-                })
-            })
+
             return tot1 * 0.1 - tot2 * 0.02;
         }
-        return total + total * 0.1;
+        return total + tot1 * 0.1 - tot2 * 0.02;
     }
     const handleSaveReport = async () => {
         setLoadingExportExcel(true);
@@ -268,9 +270,9 @@ export default function CreateBaoGia(props: Props) {
                 </div>
             }
             {loadData &&
-                <div className='fixed h-screen w-screen bg-black bg-opacity-50 z-50 top-0 flex justify-center items-center flex-col'>
-                    <ScaleLoader color='white' width={20} />
-                    <span className='text-white font-mono'>Đang load data ban đầu...</span>
+                <div className='fixed h-20 w-64 bg-black bg-opacity-50 z-50 top-20 right-10 flex justify-center items-center flex-col'>
+                    <ScaleLoader color='white' width={12} />
+                    <span className='text-white font-mono'>Load data ban đầu...</span>
                 </div>
             }
             <div className='w-[300px]'>
