@@ -88,20 +88,20 @@ export default function FilterBaoGia(props: Props) {
         // console.log(acs);
         const tempReport: DataReport[] = [...props.listReport].map((report: DataReport, index) => {
             if (itemSelect.numberIndex.includes(index)) {
-                const orgChildReport : PriceReport = report.priceReport;
+                const orgChildReport: PriceReport = report.priceReport;
                 let tempChildReport: PriceReport = report.priceReport;
                 const checkAcs: Accessories | undefined = tempChildReport.accessories.find(item => item.id === acs.id);
                 /// main
                 if (orgChildReport.mainAcs && itemSelect.acs.id === orgChildReport.mainAcs.id) {
-                    tempChildReport = { ...tempChildReport, mainAcs: {...acs,quantity:orgChildReport.mainAcs.quantity,totalQuantity:orgChildReport.mainAcs.totalQuantity,condition:orgChildReport.mainAcs.condition} };
+                    tempChildReport = { ...tempChildReport, mainAcs: { ...acs, quantity: orgChildReport.mainAcs.quantity, totalQuantity: orgChildReport.mainAcs.totalQuantity, condition: orgChildReport.mainAcs.condition } };
                 }
                 //glass
-                else if(orgChildReport.glassAcs && itemSelect.acs.id === orgChildReport.glassAcs.id){
-                    tempChildReport = { ...tempChildReport, glassAcs: {...acs,quantity:orgChildReport.glassAcs.quantity,totalQuantity:orgChildReport.glassAcs.totalQuantity,condition:orgChildReport.glassAcs.condition,width:orgChildReport.glassAcs.width,height:orgChildReport.glassAcs.height} };
+                else if (orgChildReport.glassAcs && itemSelect.acs.id === orgChildReport.glassAcs.id) {
+                    tempChildReport = { ...tempChildReport, glassAcs: { ...acs, quantity: orgChildReport.glassAcs.quantity, totalQuantity: orgChildReport.glassAcs.totalQuantity, condition: orgChildReport.glassAcs.condition, width: orgChildReport.glassAcs.width, height: orgChildReport.glassAcs.height } };
                 }
                 ///nep
-                else if(orgChildReport.nepAcs && itemSelect.acs.id === orgChildReport.nepAcs.id){
-                    tempChildReport = { ...tempChildReport, nepAcs: {...acs,quantity:orgChildReport.nepAcs.quantity,totalQuantity:orgChildReport.nepAcs.totalQuantity,condition:orgChildReport.nepAcs.condition} };
+                else if (orgChildReport.nepAcs && itemSelect.acs.id === orgChildReport.nepAcs.id) {
+                    tempChildReport = { ...tempChildReport, nepAcs: { ...acs, quantity: orgChildReport.nepAcs.quantity, totalQuantity: orgChildReport.nepAcs.totalQuantity, condition: orgChildReport.nepAcs.condition } };
                 }
                 // neu co
                 else if (checkAcs && itemSelect.acs.id != checkAcs.id) {
@@ -111,7 +111,7 @@ export default function FilterBaoGia(props: Props) {
                 else {
                     const tempAcsList: Accessories[] = tempChildReport.accessories.map((acsItem: Accessories, childInd) => {
                         if (acsItem.id === itemSelect.acs.id) {
-                            return { ...acs, price: acsItem.price, quantity: acsItem.quantity,totalQuantity:acsItem.totalQuantity,condition:acsItem.condition ?? "1" }
+                            return { ...acs, price: acsItem.price, quantity: acsItem.quantity, totalQuantity: acsItem.totalQuantity, condition: acsItem.condition ?? "1" }
                         }
                         return acsItem;
                     })
@@ -252,6 +252,29 @@ export default function FilterBaoGia(props: Props) {
         })
         props.handleUpdateTotalList({ ...props.totalGroup, totalItem: tempTotal }, 0);
     }
+    const exportHtmlTable = (item: any, index: number) => {
+        return (
+            <tr key={index} className='create-bg border-b border-gray-500'>
+                <td className='text-gray-700 w-6/12'><InputSearchAcs isSearchByType={[item.acs.type]} itemSelect={item} curAcs={item.acs} handleSelectAcs={handleUpdateToParent} acsData={props.acsData} /></td>
+                <td className='text-center w-1/12 px-2 truncate'>{item.acs.code}</td>
+                <td className='text-center'>{formatNumberVN(item.acs.orgPrice)}</td>
+                <td className='text-center'>{formatNumberVN(item.acs.totalQuantity)}</td>
+                <td colSpan={2} className='text-gray-700 px-10'>
+                    <input
+                        tabIndex={1}
+                        onChange={e => handleUpdatePrice(item, e, index)}
+                        value={item.acs.tempPrice ?? 0}
+                        type="text"
+                        className='rounded px-2 py-1 w-full'
+                    />
+                </td>
+                <td>
+                    <button onClick={e => handleDeleteFilter("acs", item)} className='hover:bg-gray-700 p-2'><Trash2 /></button>
+                </td>
+            </tr>
+        )
+    }
+
     return (
         <div >
             <AnimatePresence>
@@ -292,26 +315,7 @@ export default function FilterBaoGia(props: Props) {
                                             </tr>
                                             {listSelect.map((item: ListSelect, index) => {
                                                 if (item.acs.type === "main") {
-                                                    return (
-                                                        <tr key={index} className='create-bg border-b border-gray-500'>
-                                                            <td className='text-gray-700 w-6/12'><InputSearchAcs isSearchByType={[item.acs.type]} itemSelect={item} curAcs={item.acs} handleSelectAcs={handleUpdateToParent} acsData={props.acsData} /></td>
-                                                            <td className='text-center w-1/12'>{item.acs.code}</td>
-                                                            <td className='text-center'>{formatNumberVN(item.acs.orgPrice)}</td>
-                                                            <td className='text-center'>{formatNumberVN(item.acs.totalQuantity)}</td>
-                                                            <td colSpan={2} className='text-gray-700 px-10'>
-                                                                <input
-                                                                    tabIndex={1}
-                                                                    onChange={e => handleUpdatePrice(item, e, index)}
-                                                                    value={item.acs.tempPrice ?? 0}
-                                                                    type="text"
-                                                                    className='rounded px-2 py-1 w-full'
-                                                                />
-                                                            </td>
-                                                            <td>
-                                                                <button onClick={e => handleDeleteFilter("acs", item)} className='hover:bg-gray-700 p-2'><Trash2 /></button>
-                                                            </td>
-                                                        </tr>
-                                                    )
+                                                    return exportHtmlTable(item, index);
                                                 }
                                             })}
                                             <tr>
@@ -319,26 +323,7 @@ export default function FilterBaoGia(props: Props) {
                                             </tr>
                                             {listSelect.map((item: ListSelect, index) => {
                                                 if (item.acs.type != "main" && item.acs.type != "nep" && item.acs.type != "glass") {
-                                                    return (
-                                                        <tr key={index} className='create-bg border-b border-gray-500'>
-                                                            <td className='text-gray-700 w-6/12'><InputSearchAcs isSearchByType={["normal"]} itemSelect={item} curAcs={item.acs} handleSelectAcs={handleUpdateToParent} acsData={props.acsData} /></td>
-                                                            <td className='text-center w-1/12'>{item.acs.code}</td>
-                                                            <td className='text-center'>{formatNumberVN(item.acs.orgPrice)}</td>
-                                                            <td className='text-center'>{formatNumberVN(item.acs.totalQuantity)}</td>
-                                                            <td colSpan={2} className='text-gray-700 px-10'>
-                                                                <input
-                                                                    tabIndex={1}
-                                                                    onChange={e => handleUpdatePrice(item, e, index)}
-                                                                    value={item.acs.tempPrice ?? 0}
-                                                                    type="text"
-                                                                    className='rounded px-2 py-1 w-full'
-                                                                />
-                                                            </td>
-                                                            <td>
-                                                                <button onClick={e => handleDeleteFilter("acs", item)} className='hover:bg-gray-700 p-2'><Trash2 /></button>
-                                                            </td>
-                                                        </tr>
-                                                    )
+                                                    return exportHtmlTable(item, index);
                                                 }
                                             })}
                                             <tr>
@@ -346,26 +331,7 @@ export default function FilterBaoGia(props: Props) {
                                             </tr>
                                             {listSelect.map((item: ListSelect, index) => {
                                                 if (item.acs.type == "glass") {
-                                                    return (
-                                                        <tr key={index} className='create-bg border-b border-gray-500'>
-                                                            <td className='text-gray-700 w-6/12'><InputSearchAcs isSearchByType={[item.acs.type]} itemSelect={item} curAcs={item.acs} handleSelectAcs={handleUpdateToParent} acsData={props.acsData} /></td>
-                                                            <td className='text-center w-1/12'>{item.acs.code}</td>
-                                                            <td className='text-center'>{formatNumberVN(item.acs.orgPrice)}</td>
-                                                            <td className='text-center'>{formatNumberVN(item.acs.totalQuantity)}</td>
-                                                            <td colSpan={2} className='text-gray-700 px-10'>
-                                                                <input
-                                                                    tabIndex={1}
-                                                                    onChange={e => handleUpdatePrice(item, e, index)}
-                                                                    value={item.acs.tempPrice ?? 0}
-                                                                    type="text"
-                                                                    className='rounded px-2 py-1 w-full'
-                                                                />
-                                                            </td>
-                                                            <td>
-                                                                <button onClick={e => handleDeleteFilter("acs", item)} className='hover:bg-gray-700 p-2'><Trash2 /></button>
-                                                            </td>
-                                                        </tr>
-                                                    )
+                                                    return exportHtmlTable(item, index);
                                                 }
                                             })}
                                             <tr>
@@ -373,26 +339,7 @@ export default function FilterBaoGia(props: Props) {
                                             </tr>
                                             {listSelect.map((item: ListSelect, index) => {
                                                 if (item.acs.type == "nep") {
-                                                    return (
-                                                        <tr key={index} className='create-bg border-b border-gray-500'>
-                                                            <td className='text-gray-700 w-6/12'><InputSearchAcs isSearchByType={[item.acs.type]} itemSelect={item} curAcs={item.acs} handleSelectAcs={handleUpdateToParent} acsData={props.acsData} /></td>
-                                                            <td className='text-center w-1/12'>{item.acs.code}</td>
-                                                            <td className='text-center'>{formatNumberVN(item.acs.orgPrice)}</td>
-                                                            <td className='text-center'>{formatNumberVN(item.acs.totalQuantity)}</td>
-                                                            <td colSpan={2} className='text-gray-700 px-10'>
-                                                                <input
-                                                                    tabIndex={1}
-                                                                    onChange={e => handleUpdatePrice(item, e, index)}
-                                                                    value={item.acs.tempPrice ?? 0}
-                                                                    type="text"
-                                                                    className='rounded px-2 py-1 w-full'
-                                                                />
-                                                            </td>
-                                                            <td>
-                                                                <button onClick={e => handleDeleteFilter("acs", item)} className='hover:bg-gray-700 p-2'><Trash2 /></button>
-                                                            </td>
-                                                        </tr>
-                                                    )
+                                                    return exportHtmlTable(item, index);
                                                 }
                                             })}
                                             <tr>

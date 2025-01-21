@@ -272,7 +272,7 @@ export default function CreateBaoGia(props: Props) {
             {loadData &&
                 <div className='fixed h-20 w-64 bg-black bg-opacity-50 z-50 top-20 right-10 flex justify-center items-center flex-col'>
                     <ScaleLoader color='white' width={12} />
-                    <span className='text-white font-mono'>Load data ban đầu...</span>
+                    <span className='text-white font-mono'>Tải dữ liệu...</span>
                 </div>
             }
             <div className='w-[300px]'>

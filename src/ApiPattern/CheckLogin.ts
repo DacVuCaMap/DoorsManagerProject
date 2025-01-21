@@ -10,7 +10,7 @@ export default async  function CheckLogin(data: any) {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
-            maxAge: 60 * 60 * 24 // 24 hours
+            maxAge: 60 * 60 * 12 // 24 hours
         })
         return { success: true, message: 'Login successful' }
     }
