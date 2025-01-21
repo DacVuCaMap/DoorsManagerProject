@@ -87,7 +87,7 @@ export default function InputSearchPDC(props: Props) {
     }, [handleClickOutside, handleKeyDown]);
 
     return (
-        <div onClick={e => e.stopPropagation()} ref={containerRef} className='w-3/4 relative'>
+        <div onClick={e => e.stopPropagation()} ref={containerRef} className='w-full relative'>
             <input
                 onChange={handleSearching}
                 type="text"
@@ -96,7 +96,7 @@ export default function InputSearchPDC(props: Props) {
                 placeholder='Nhập tên mẫu cửa...'
             />
             {isOpen &&
-                <div className='absolute bg-gray-400 shadow-lg w-full z-20'>
+                <div className='absolute bg-gray-400 shadow-lg w-[570px] z-20'>
                     {list.map((item: any, index: number) => (
                         <div
                             key={index}
@@ -105,9 +105,9 @@ export default function InputSearchPDC(props: Props) {
                         >
                             <div className='space-x-1'>
                                 <span>{item.name}</span>
-                                {item.numberDoor && <span className='text-xs'>({item.numberDoor} cánh)</span>}
+                                {item.numberDoor && <span className='text-sm'>({item.numberDoor} cánh)</span>}
                             </div>
-                            <span className='text-xs'>{item.shortName}</span>
+                            <span className='text-xs text-gray-500'>{item.shortName}</span>
                         </div>
                     ))}
                 </div>
