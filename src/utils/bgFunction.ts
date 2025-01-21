@@ -1,5 +1,5 @@
 export const readConditionAndCal = (condition: string, width: number, height: number): number => {
-    if (condition==="") {
+    if (condition === "") {
         return 0;
     }
     condition = condition.toString();
@@ -26,5 +26,26 @@ export const checkCondition = (count: number, condition: string): boolean => {
             return count === value;
         default:
             return false;
+    }
+}
+
+export const readLowPercentCondition = (lowPercentCondition: any, lowestPercent: number, totQuan: number): number => {
+    let arrNum = lowPercentCondition.split(",");
+    if (arrNum.length === 3) {
+        if (totQuan < 10) {
+            return parseFloat(arrNum[0]);
+        }
+        else if (totQuan < 20) {
+            return parseFloat(arrNum[1]);
+        }
+        else if (totQuan < 30) {
+            return parseFloat(arrNum[2]);
+        }
+        else {
+            return lowestPercent;
+        }
+    }
+    else{
+        return lowestPercent;
     }
 }

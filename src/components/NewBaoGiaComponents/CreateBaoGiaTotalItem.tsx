@@ -7,7 +7,7 @@ import DataReport from '@/Model/DataReport';
 import FireTestCondition from '@/Model/FireTestCondition';
 import TotalGroup from '@/Model/TotalGroup'
 import TotalItem from '@/Model/TotalItem';
-import { checkCondition } from '@/utils/bgFunction';
+import { checkCondition, readLowPercentCondition } from '@/utils/bgFunction';
 import { Trash2 } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
 type Props = {
@@ -36,20 +36,20 @@ export default function CreateBaoGiaTotalItem(props: Props) {
             //     }
             //     return total;
             // }, 0)
-            const tempTotalItem: TotalItem[] = props.totalGroup.totalItem.map((totalItem: TotalItem, index) => {
+            let tempTotalItem: TotalItem[] = props.totalGroup.totalItem.map((totalItem: TotalItem, index) => {
                 const value = totalItem.typeQuantity;
                 // cal main
                 // if (totalItem.code === "CPV" || totalItem.code === "CPLD") {
                 //     return { ...totalItem, totalQuantity: totalMainQuantity };
                 // }
                 // cal count by acs
-                if (value && value != "-1" && value !="0") {
+                if (value && value != "-1" && value != "0") {
                     let totalQuan = 0;
                     props.listReport.forEach((item: DataReport) => {
                         if (item.priceReport.mainAcs) {
                             const totQuan = item.priceReport.mainAcs.totalQuantity;
                             item.priceReport.accessories.forEach((acs: Accessories) => {
-      
+
                                 if (acs.id === parseFloat(value)) {
                                     totalQuan += totQuan;
                                 }
@@ -100,14 +100,34 @@ export default function CreateBaoGiaTotalItem(props: Props) {
                     return { ...totalItem, orgPrice: orgPriceFireTest, totalQuantity: 1 };
                 }
                 else {
-                    return {...totalItem};
+                    return { ...totalItem };
                 }
             })
+   
+
+            /// update he so
+            tempTotalItem = tempTotalItem.map((totalItem: TotalItem, index) => {
+                if (totalItem.typeQuantity!=0 && totalItem.typeQuantity!=-1) {
+                    let totQuan = props.listReport.reduce((total: number, item: DataReport) => item.priceReport.totalQuantity + total, 0);
+                    const acs : Accessories | null = props.listAcsExist.find(acs => acs.id === parseFloat(totalItem.typeQuantity)) ?? null;
+                    if (acs) {
+                        return {...totalItem,pricePercent:readLowPercentCondition(acs.lowPercent,acs.lowestPricePercent,totQuan)*100};
+                    }
+                }
+                return totalItem;
+            })
+
+
             tempTotalGroup = { ...tempTotalGroup, totalItem: tempTotalItem };
             props.handleUpdateTotalList(tempTotalGroup, props.totalGroupIndex);
         }
+
+
         updateTotalQuanity();
     }, [props.listReport, refreshSelect])
+
+
+
 
 
     const handleUpdate = (e: any, key: string, index: number) => {
@@ -142,7 +162,7 @@ export default function CreateBaoGiaTotalItem(props: Props) {
                     const acsCostExist: Accessories | null = props.listAcsExist.find(acs => (acs.code === value && acs.type === "cost")) ?? null;
                     console.log(acsCostExist, value);
                     if (acsCostExist) {
-                        return { ...item, orgPrice: acsCostExist.orgPrice, pricePercent: acsCostExist.lowestPricePercent * 100,pricePercentTemp:(acsCostExist.lowestPricePercent * 100).toString(), [key]: value };
+                        return { ...item, orgPrice: acsCostExist.orgPrice, pricePercent: acsCostExist.lowestPricePercent * 100, pricePercentTemp: (acsCostExist.lowestPricePercent * 100).toString(), [key]: value };
                     } else {
                         return { ...item, [key]: value };
                     }
@@ -172,7 +192,7 @@ export default function CreateBaoGiaTotalItem(props: Props) {
 
     const handleAddCost = () => {
         const tempTotalGroup: TotalGroup = { ...props.totalGroup };
-        const newTotalItem: TotalItem = new TotalItem(0,0, 0, 1, "", 0, "", 0, "bộ");
+        const newTotalItem: TotalItem = new TotalItem(0, 0, 0, 1, "", 0, "", 0, "bộ");
         tempTotalGroup.totalItem.push(newTotalItem);
         props.handleUpdateTotalList(tempTotalGroup, props.totalGroupIndex);
     }
@@ -183,26 +203,29 @@ export default function CreateBaoGiaTotalItem(props: Props) {
         props.handleUpdateTotalList(temp, props.totalGroupIndex);
     }
     const handleSelectTypeQuan = (e: any, index: number) => {
+
         const value = e.target.value;
         const acs: Accessories | null = props.listAcsExist.find(item => item.id === parseFloat(value)) ?? null;
         if (acs) {
+            let totQuan = props.listReport.reduce((total: number, item: DataReport) => item.priceReport.totalQuantity + total, 0);
             let tempTotalGroup: TotalGroup = { ...props.totalGroup };
             let tempTotalItemm: TotalItem[] = tempTotalGroup.totalItem.map((item: TotalItem, ind) => {
                 if (index === ind) {
-                    return { ...item,id:acs.id, typeQuantity: value, code: acs.code, name: acs.name, orgPrice: acs.orgPrice, pricePercent: acs.lowestPricePercent * 100,pricePercentTemp:(acs.lowestPricePercent*100).toString() };
+                    return { ...item, id: acs.id, typeQuantity: value, code: acs.code, name: acs.name, orgPrice: acs.orgPrice, pricePercent: readLowPercentCondition(acs.lowPercent, acs.lowestPricePercent, totQuan) * 100, pricePercentTemp: (acs.lowestPricePercent * 100).toString() };
                 }
                 return item;
             });
             tempTotalGroup = { ...tempTotalGroup, totalItem: tempTotalItemm };
             props.handleUpdateTotalList(tempTotalGroup, props.totalGroupIndex);
             setRefreshSelect(prev => prev + 1);
+            return;
         }
         else {
 
             let tempTotalGroup: TotalGroup = { ...props.totalGroup };
             let tempTotalItemm: TotalItem[] = tempTotalGroup.totalItem.map((item: TotalItem, ind) => {
                 if (index === ind) {
-                    return { ...item,id:0,typeQuantity:value,totalQuantity:1 };
+                    return { ...item, id: 0, typeQuantity: value, totalQuantity: 1 };
                 }
                 return item;
             });
