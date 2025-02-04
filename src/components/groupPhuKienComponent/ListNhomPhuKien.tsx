@@ -44,7 +44,7 @@ export default function ListNhomPhuKien(props:Props) {
         <thead>
           <tr>
             <th className='sticky top-0 bg-blue-800 text-white z-10'></th>
-            <th className='sticky top-0 bg-blue-800 text-white z-10 py-2'>Tên nhóm cửa</th>
+            <th className='sticky top-0 bg-blue-800 text-white z-10 py-2'>Tên nhóm phụ kiện</th>
             <th className='sticky top-0 bg-blue-800 text-white z-10'></th>
           </tr>
         </thead>
