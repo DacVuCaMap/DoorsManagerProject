@@ -1,5 +1,5 @@
 import GetListData from '@/ApiPattern/GetListData';
-import { formatNumberToDot } from '@/data/FunctionAll';
+import { formatNumberToDot, formatNumberVN } from '@/data/FunctionAll';
 import { notFound, usePathname, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import PaginationComponent from '../PaginationComponent';
@@ -84,7 +84,7 @@ export default function PhukienList() {
                                     <td className='px-4 py-2 text-center font-bold'>{item.code}</td>
                                     <td className='py-2'>{item.name}</td>
                                     <td className='px-4 py-2 text-center'>{item.unit}</td>
-                                    <td>{formatNumberToDot(item.orgPrice)}</td>
+                                    <td>{formatNumberVN(item.orgPrice)}</td>
                                     <td className='px-4 py-2 text-center'>{item.lowestPricePercent * 100}%</td>
                                     <td className='px-4 py-2 text-center'>{getLowPercent(item.lowPercent, 0)}%</td>
                                     <td className='px-4 py-2 text-center'>{getLowPercent(item.lowPercent, 1)}%</td>
