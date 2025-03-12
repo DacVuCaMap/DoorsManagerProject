@@ -132,11 +132,12 @@ export default function CreateBaoGiaTotalItem(props: Props) {
 
     const handleUpdate = (e: any, key: string, index: number) => {
         let value = e.target.value;
+        console.log(value);
         if (key === "price" || key === "orgPrice") {
             value = value ?? 0
             value = value.replace(/\./g, "");
             value = parseFloat(value);
-            if (value >= 1000000000) {
+            if (value >= 100000000000) {
                 return;
             }
 
