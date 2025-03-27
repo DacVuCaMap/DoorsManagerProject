@@ -60,7 +60,7 @@ export default function GanlenhFormAdd(props: Props) {
                         return { type: "", accessories: acsData.find(acs => acs.id === item.id) }
                     })
                     let newItem = new GroupAccessory(response.value.id, response.value.name, arr, response.value.type)
-                    // console.log(newItem)
+                    console.log(newItem)
                     setLoading(false);
                     setCurGroup(newItem);
                 }
@@ -112,7 +112,7 @@ export default function GanlenhFormAdd(props: Props) {
             clearInterval(intervalId);
         };
     }, [])
-    let tempAcs = new Accessories(genNumberByTime(), "", "", "","", 0, 0, 0, 0, 0, 0, 0, "",false);
+    let tempAcs = new Accessories(genNumberByTime(), "", "", "", "", 0, 0, 0, 0, 0, 0, 0, "", false);
     const selectAccessories = (acsId: any, newAcs: Accessories, productId: any) => {
         const accessoriesAndType = curGroup.accessoriesAndType;
         const newItem: AcsAndType = { accessories: newAcs, type: "s" };
@@ -131,10 +131,10 @@ export default function GanlenhFormAdd(props: Props) {
 
         const value = e.target.value;
         setCurGroup({ ...curGroup, accessoriesAndType: [], name: value });
-        debouncedSearch(value,acsData);
+        debouncedSearch(value, acsData);
     }
     const debouncedSearch = useCallback(
-        debounce(async (value: string,listAcs:Accessories[]) => {
+        debounce(async (value: string, listAcs: Accessories[]) => {
             setLoading(true)
             let url = process.env.NEXT_PUBLIC_API_URL + "/api/accessories/get-list-group?name=" + value;
             const response = await GetPattern(url, {});
@@ -192,19 +192,23 @@ export default function GanlenhFormAdd(props: Props) {
                                         <div className="inline-flex items-center w-20 text-base font-semibold text-gray-900"></div>
                                     </div>
                                 </li>
-                                {curGroup.accessoriesAndType.map((item: AcsAndType, index) => (
-                                    <li key={index} className="py-3 sm:py-4 relative group">
-                                        <div className="flex items-center">
-                                            <div className="flex-1 min-w-0 ms-4">
-                                                <p className="text-sm truncate text-gray-300">{item.accessories.name}</p>
-                                                <p className="text-xs text-gray-400 truncate pr-2">{item.accessories.code}</p>
-                                            </div>
-                                            <div className="w-20 items-center text-base font-semibold text-gray-900 flex flex-row space-x-2">
-                                                <button type='button' className='text-red-600 bg-white p-2 rounded' onClick={e => handleDel(index)}><Trash2 /></button>
-                                            </div>
-                                        </div>
-                                    </li>
-                                ))}
+                                {curGroup.accessoriesAndType.map((item: AcsAndType, index) => {
+                                    if (item.accessories) {
+                                        return (
+                                            <li key={index} className="py-3 sm:py-4 relative group">
+                                                <div className="flex items-center">
+                                                    <div className="flex-1 min-w-0 ms-4">
+                                                        <p className="text-sm truncate text-gray-300">{item.accessories.name}</p>
+                                                        <p className="text-xs text-gray-400 truncate pr-2">{item.accessories.code}</p>
+                                                    </div>
+                                                    <div className="w-20 items-center text-base font-semibold text-gray-900 flex flex-row space-x-2">
+                                                        <button type='button' className='text-red-600 bg-white p-2 rounded' onClick={e => handleDel(index)}><Trash2 /></button>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        )
+                                    }
+                                })}
                             </ul>
                         </div>
                     </div>

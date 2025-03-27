@@ -41,25 +41,7 @@ export default function CreateBaoGia(props: Props) {
     const [loadData, setLoadData] = useState(true);
     useEffect(() => {
         const fetchData = async () => {
-            setLoadData(true); // Set loading state là true
-
-            // try {
-            //     // // Sử dụng Promise.all để chạy song song 3 API calls
-            //     const [groupData, acsDataOffline, doorData] = await Promise.all([
-            //         LoadAccesoryGroupNoAcs(),
-            //         LoadAccessoriesDataOffline(),
-            //         LoadListDoorModelData()
-            //     ]);
-            //     // Cập nhật state sau khi nhận dữ liệu
-            //     setGroupAcsData(groupData);
-            //     setAcsData(acsDataOffline);
-            //     setDoorModelData(doorData);
-            // } catch (error) {
-            //     console.error('Error fetching data:', error);
-            //     message.error('Lỗi kết nối server');
-            // } finally {
-            //     setLoadData(false);
-            // }
+            setLoadData(true);
             const response: any[] = await LoadBaoGia();
             setGroupAcsData(response[0]);
             setAcsData(response[1]);
